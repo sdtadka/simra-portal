@@ -2,7 +2,7 @@
  * api.js : sab pages ke liye ek hi server call.
  * Yahan sirf WEB_APP_URL badalna hai (Apps Script deploy ke baad).
  *******************************************************************/
-const WEB_APP_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgoRQ1QBkFO7ZCIWgdGXFYnFjfZhZyE_9GzVEznqkfnHDculdhfFDEimhgENe_-Gju/exec';
 const API_TIMEOUT_MS = 20000;
 
 /* Ek action ko server par bhejta hai. Jawab JSON object hota hai. */
