@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Islamic Committee — Portal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#b8903c;--gold-2:#d9b45b;--gold-3:#8a6a28;--emerald:#0f8f6c;--emerald-d:#0a4f3e;--text:#16261f;--muted:#6b7f75;--line:#e6dcc0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#fbf8ef;color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+body.locked{overflow:hidden}
+main{flex:1}
+svg{display:block}
+.header{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px clamp(14px,4vw,50px);background:#fff;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:50px;height:50px;flex:0 0 50px;border-radius:50%;background:#fff;border:2px solid var(--gold-2);display:grid;place-items:center;overflow:hidden}
+.logo img{width:100%;height:100%;object-fit:cover}
+.brand h1{font-size:17px;font-weight:600;color:var(--emerald-d)}
+.brand span{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.btn-login{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:0;border-radius:99px;cursor:pointer;font:inherit;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--gold-2),var(--gold),var(--gold-3))}
+.hero{text-align:center;padding:50px 20px 20px}
+.arabic{font-family:Amiri,"Times New Roman",serif;font-size:30px;color:var(--gold-3);margin-bottom:12px}
+.hero h2{font-size:clamp(26px,4.5vw,46px);font-weight:700;line-height:1.15;color:var(--emerald-d)}
+.hero p{margin:14px auto 0;max-width:56ch;color:var(--muted);font-size:15px;line-height:1.7}
+.cards-section{max-width:1200px;margin:0 auto;padding:20px clamp(14px,4vw,40px) 70px}
+.section-head{text-align:center;margin-bottom:30px}
+.section-badge{display:inline-block;padding:5px 14px;border-radius:99px;margin-bottom:12px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-3);background:#fbf1d6;border:1px solid var(--line)}
+.section-head h2{font-size:26px;font-weight:600}
+.section-head p{margin-top:6px;color:var(--muted);font-size:14px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.card{display:flex;flex-direction:column;align-items:flex-start;padding:24px 22px;border-radius:18px;background:#fff;border:1px solid var(--line);text-decoration:none;color:inherit}
+.card:hover{border-color:var(--gold-2)}
+.dept-icon{width:72px;height:72px;margin-bottom:14px}
+.dept-icon svg{width:72px;height:72px}
+.card h3{font-size:18px;font-weight:600;margin-bottom:6px}
+.card p{font-size:13px;line-height:1.6;color:var(--muted);flex:1}
+.card-link{margin-top:14px;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gold-3)}
+.detail-view{max-width:920px;margin:0 auto;padding:30px 20px 70px}
+.back-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:99px;background:#fff;border:1px solid var(--line);color:var(--text);font-size:13px;text-decoration:none;margin-bottom:22px}
+.detail-head{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+.detail-head .dept-icon{margin:0;width:84px;height:84px;flex:0 0 84px}
+.detail-head .dept-icon svg{width:84px;height:84px}
+.detail-subtitle{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-3);margin-bottom:6px}
+.detail-title{font-size:clamp(26px,4vw,40px);font-weight:700;color:var(--emerald-d)}
+.panel{padding:22px 24px;border-radius:16px;background:#fff;border:1px solid var(--line);margin-bottom:18px}
+.panel h4{font-size:15px;font-weight:600;color:var(--gold-3);margin-bottom:10px}
+.panel p{font-size:15px;line-height:1.8;color:#2a3d35;margin-bottom:10px}
+.panel ul{padding-left:20px;font-size:15px;line-height:1.8;color:#2a3d35}
+.panel li{margin-bottom:6px}
+.quote{font-family:Amiri,"Times New Roman",serif;font-size:19px;color:var(--emerald-d);background:#f4faf7;border-left:3px solid var(--emerald);padding:12px 16px;border-radius:8px;margin:8px 0 12px;line-height:1.7}
+.quote small{display:block;font-family:system-ui,sans-serif;font-size:12px;color:var(--muted);margin-top:4px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.btn-soft{display:inline-block;padding:11px 20px;border-radius:99px;border:0;cursor:pointer;font:inherit;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--gold-2),var(--gold),var(--gold-3));text-decoration:none}
+.btn-outline{display:inline-block;padding:10px 18px;border-radius:99px;border:1px solid var(--gold);cursor:pointer;font:inherit;font-size:14px;font-weight:600;color:var(--gold-3);background:#fff}
+.btn-soft.off{background:#a8b3ac;cursor:default}
+.map-frame{width:100%;height:340px;border:0;border-radius:12px;display:none;margin-top:14px}
+.soon{text-align:center;color:var(--muted);font-size:14px;padding:16px}
+.footer{background:#0a1f18;color:#c9d6cf;padding:26px clamp(14px,4vw,50px);margin-top:auto}
+.footer-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;font-size:13px}
+.footer b{color:#e7d7a8;font-weight:600}
+.overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(15,30,25,.5)}
+.overlay.open{display:flex}
+.modal{width:min(440px,100%);max-height:92vh;overflow-y:auto;padding:26px 24px 22px;border-radius:20px;position:relative;background:#fff;border:1px solid var(--line)}
+.close-btn{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:18px;line-height:1;color:var(--muted)}
+.modal-head{text-align:center;margin-bottom:18px}
+.modal-head .logo{margin:0 auto 10px}
+.modal-head h3{font-size:20px;font-weight:600}
+.modal-head p{font-size:13px;color:var(--muted);margin-top:4px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold-3);margin-bottom:6px}
+input,select{width:100%;padding:12px 14px;font:inherit;font-size:15px;color:var(--text);background:#fdfaf2;border:1px solid #e3d9bd;border-radius:12px;outline:none}
+input:focus,select:focus{border-color:var(--gold)}
+.row{display:flex;gap:8px;align-items:stretch}
+.row input{flex:1}
+.capbox{display:flex;align-items:center;gap:8px;padding:0 10px;border-radius:12px;border:1px dashed var(--gold);background:#fbf4df}
+.cap{font-family:"Courier New",monospace;font-size:18px;font-weight:700;letter-spacing:4px;color:var(--gold-3)}
+.icon-btn{border:0;background:none;cursor:pointer;font-size:13px;color:var(--gold-3);padding:4px}
+.fields{display:none}
+.fields.active{display:block}
+.btn-submit{width:100%;margin-top:14px;padding:13px;border:0;border-radius:12px;cursor:pointer;font:inherit;font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--gold-2),var(--gold),var(--gold-3))}
+.btn-submit:disabled{opacity:.6;cursor:wait}
+.link-btn{display:block;width:100%;margin-top:12px;padding:6px;border:0;background:none;cursor:pointer;font:inherit;font-size:13px;color:var(--muted);text-align:center}
+.msg{min-height:18px;font-size:13px;text-align:center;margin-top:10px;color:#a4342b}
+.msg.ok{color:var(--emerald)}
+.hint-line{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+.hint-line b{color:var(--gold-3)}
+.otp{letter-spacing:8px;text-align:center;font-family:"Courier New",monospace;font-size:20px;font-weight:700}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);padding:12px 20px;border-radius:99px;font-size:13px;color:#fff;background:var(--gold-3);display:none;z-index:200;max-width:92vw;text-align:center}
+@media(max-width:600px){
+  .brand h1{font-size:15px}
+  .brand span{display:none}
+  .btn-login span{display:none}
+  .modal{padding:22px 18px 18px}
+  .map-frame{height:260px}
+  .detail-head{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- Apna logo link yahan daalein. Khali chhodne par default icon dikhega. -->
+<script>const LOGO_URL = '';</script>
+
+<header class="header">
+  <div class="brand">
+    <div class="logo" id="siteLogo"></div>
+    <div>
+      <h1>Islamic Committee</h1>
+      <span>Community Portal</span>
+    </div>
+  </div>
+  <button class="btn-login" id="openBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+    <span>Login</span>
+  </button>
+</header>
+
+<main>
+  <div id="homeView">
+    <section class="hero">
+      <div class="arabic">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <h2>Islamic Committee Portal</h2>
+      <p>Serving the community with trust, transparency and unity. Choose a department below.</p>
+    </section>
+    <section class="cards-section">
+      <div class="section-head">
+        <span class="section-badge">Committee Services</span>
+        <h2>Our Departments</h2>
+        <p>Click a department to read more and see its location.</p>
+      </div>
+      <div class="cards-grid">
+        <a class="card" href="#masjid"><div class="dept-icon" data-icon="masjid"></div><h3>Masjid</h3><p>Five daily prayers, Jumu'ah, Taraweeh and the care of the house of Allah.</p><span class="card-link">Read more</span></a>
+        <a class="card" href="#madrasa"><div class="dept-icon" data-icon="madrasa"></div><h3>Madrasa</h3><p>Quran, Islamic studies and good character for children and adults.</p><span class="card-link">Read more</span></a>
+        <a class="card" href="#eidgah"><div class="dept-icon" data-icon="eidgah"></div><h3>Eidgah</h3><p>The open ground for Eid prayers and the joy of the whole community.</p><span class="card-link">Read more</span></a>
+        <a class="card" href="#kabristan"><div class="dept-icon" data-icon="kabristan"></div><h3>Kabristan</h3><p>A dignified resting place, and a reminder of the Hereafter.</p><span class="card-link">Read more</span></a>
+        <a class="card" href="#ramzan"><div class="dept-icon" data-icon="ramzan"></div><h3>Ramzan Calendar</h3><p>Sehri and Iftar timings, Taraweeh schedule and Ramadan programs.</p><span class="card-link">View calendar</span></a>
+      </div>
+    </section>
+  </div>
+  <div id="detailView" style="display:none"></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span>© 2026 Simra Committee — All Rights Reserved</span>
+    <span>Developed by <b>Sadik Husain</b></span>
+  </div>
+</footer>
+
+<!-- LOGIN -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="close-btn" id="closeBtn" aria-label="Close">&times;</button>
+    <div class="modal-head">
+      <div class="logo" id="modalLogo"></div>
+      <h3 id="mTitle">Welcome Back</h3>
+      <p id="mSub">Sign in to your account</p>
+    </div>
+
+    <form id="loginForm" autocomplete="off" onsubmit="return false">
+      <div class="field">
+        <label for="role">Login as</label>
+        <select id="role">
+          <option value="superadmin">Super Admin</option>
+          <option value="admin">Admin</option>
+          <option value="imam">Imam</option>
+          <option value="member">Member</option>
+          <option value="user">User</option>
+        </select>
+      </div>
+
+      <div class="fields active" id="stLogin">
+        <div id="adminFields">
+          <div class="field">
+            <label for="adminEmail">Email or username</label>
+            <input type="text" id="adminEmail" placeholder="Email or username">
+          </div>
+          <div class="field">
+            <label for="adminPass">Password</label>
+            <div class="row">
+              <input type="password" id="adminPass" placeholder="Password">
+              <button type="button" class="icon-btn" data-eye="adminPass">Show</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="adminCaptcha">Captcha</label>
+            <div class="row">
+              <input type="text" id="adminCaptcha" placeholder="Type the code" maxlength="5" autocomplete="off">
+              <div class="capbox"><span class="cap" id="captchaCode">-----</span>
+                <button type="button" class="icon-btn" id="refreshCap">New</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="personFields" style="display:none">
+          <div class="field">
+            <label for="pId">User ID (application number)</label>
+            <input type="text" id="pId" inputmode="numeric" placeholder="e.g. 1078692001" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="pPass">Password</label>
+            <div class="row">
+              <input type="password" id="pPass" placeholder="Password">
+              <button type="button" class="icon-btn" data-eye="pPass">Show</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="pTok">Token ID (6 digits)</label>
+            <input type="text" id="pTok" inputmode="numeric" maxlength="6" placeholder="6 digit token" autocomplete="off">
+          </div>
+        </div>
+
+        <button type="button" class="btn-submit" id="btnLogin">Login</button>
+      </div>
+
+      <div class="fields" id="stOtp">
+        <div class="field">
+          <label for="otpIn">Email OTP</label>
+          <input type="text" id="otpIn" class="otp" inputmode="numeric" maxlength="6" placeholder="------">
+          <p class="hint-line">Code sent to <b id="otpMail"></b>. Time left <b id="otpTimer">01:30</b></p>
+        </div>
+        <button type="button" class="btn-submit" id="btnOtp">Verify and continue</button>
+        <button type="button" class="link-btn" id="otpBack">Back to login</button>
+      </div>
+
+      <div class="fields" id="stPw">
+        <p class="hint-line" style="margin-bottom:12px">Set a new password for your account.</p>
+        <div class="field"><label for="np1">New password</label><input type="password" id="np1"></div>
+        <div class="field"><label for="np2">Confirm password</label><input type="password" id="np2"></div>
+        <p class="hint-line">At least 8 characters, with uppercase, lowercase and a number.</p>
+        <button type="button" class="btn-submit" id="btnPw">Save password</button>
+      </div>
+
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="api.js"></script>
+<script>
+/* ---------- Logo ---------- */
+const DEFAULT_ICON = '<svg viewBox="0 0 64 64" width="30" height="30"><path d="M8 58V30a24 24 0 0 1 48 0v28z" fill="#fff" stroke="#8a6a28" stroke-width="2"/><path d="M2 58h60" stroke="#8a6a28" stroke-width="2"/><path d="M28 58V44a4 4 0 0 1 8 0v14" fill="#0f8f6c"/></svg>';
+function paintLogo(el) {
+  el.innerHTML = (typeof LOGO_URL !== 'undefined' && LOGO_URL) ? '<img src="' + LOGO_URL + '" alt="Logo">' : DEFAULT_ICON;
+}
+paintLogo(document.getElementById('siteLogo'));
+paintLogo(document.getElementById('modalLogo'));
+
+/* ---------- Department icons ---------- */
+const ICONS = {
+  masjid: '<svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="46" fill="#eaf7f1"/><path d="M14 80h68v-6H14z" fill="#8a6a28"/><path d="M22 74V50a26 26 0 0 1 52 0v24z" fill="#0f8f6c"/><path d="M48 14v-6" stroke="#d9b45b" stroke-width="3" stroke-linecap="round"/><circle cx="48" cy="6" r="3" fill="#d9b45b"/><rect x="12" y="34" width="8" height="40" rx="2" fill="#0a4f3e"/><path d="M8 34l4-14 4 14z" fill="#0a4f3e"/><rect x="76" y="34" width="8" height="40" rx="2" fill="#0a4f3e"/><path d="M72 34l4-14 4 14z" fill="#0a4f3e"/><path d="M40 80V66a8 8 0 0 1 16 0v14z" fill="#fbf8ef"/></svg>',
+  madrasa: '<svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="46" fill="#fbf1d6"/><path d="M48 30c-8-6-18-8-28-8v44c10 0 20 2 28 8 8-6 18-8 28-8V22c-10 0-20 2-28 8z" fill="#0f8f6c"/><path d="M48 30v44" stroke="#fbf8ef" stroke-width="2.5"/><path d="M26 30c4 0 10 1 16 4M70 30c-4 0-10 1-16 4" stroke="#d9b45b" stroke-width="2" fill="none"/></svg>',
+  eidgah: '<svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="46" fill="#fff3e2"/><path d="M10 82h76v-5H10z" fill="#8a6a28"/><path d="M22 77V48a26 26 0 0 1 52 0v29z" fill="#d9b45b"/><path d="M34 77V56a14 14 0 0 1 28 0v21z" fill="#fbf8ef"/><path d="M57 14a7 7 0 1 1-6-8 5.5 5.5 0 0 0 6 8z" fill="#0f8f6c"/><path d="M8 82V66M88 82V66" stroke="#8a6a28" stroke-width="3" stroke-linecap="round"/></svg>',
+  kabristan: '<svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="46" fill="#fdecec"/><path d="M12 80h72v-4H12z" fill="#8a6a28"/><path d="M18 76V46a8 8 0 0 1 16 0v30z" fill="#a8b3ac"/><path d="M40 76V34a10 10 0 0 1 20 0v42z" fill="#0f8f6c"/><path d="M64 76V46a8 8 0 0 1 16 0v30z" fill="#a8b3ac"/><path d="M48 20v8M44 24h8" stroke="#fbf8ef" stroke-width="2.5" stroke-linecap="round"/></svg>',
+  ramzan: '<svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="46" fill="#eaf1ff"/><rect x="18" y="22" width="60" height="54" rx="6" fill="#fff" stroke="#1e6bff" stroke-width="2.5"/><path d="M18 36h60" stroke="#1e6bff" stroke-width="2.5"/><path d="M34 14v14M62 14v14" stroke="#1e6bff" stroke-width="3" stroke-linecap="round"/><path d="M48 46a10 10 0 1 0 8 15 8 8 0 0 1-8-15z" fill="#0f8f6c"/></svg>'
+};
+document.querySelectorAll('[data-icon]').forEach(function (el) { el.innerHTML = ICONS[el.getAttribute('data-icon')] || ''; });
+
+/* ---------- Department pages ---------- */
+const pageData = {
+  masjid: { title: 'Noori Jama Masjid, Simra', subtitle: 'House of Allah', icon: 'masjid', mapSearch: 'Noori+JAMA+masjid+simra',
+    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3568.9758387860948!2d85.51574377768975!3d26.55304407545072!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ecf1487767f8a5%3A0x3005c24c47e8754a!2sNoori%20JAMA%20masjid%20simra!5e0!3m2!1sen!2sin',
+    about: 'The Noori Jama Masjid in Simra is the central mosque of the area. It is the place where the community gathers for the five daily prayers, the Friday (Jumu\'ah) congregation, the Taraweeh prayers in Ramadan, and religious learning.',
+    points: ['Five daily prayers (Fajr, Zuhr, Asr, Maghrib and Isha) are offered in congregation.', 'Jumu\'ah (Friday) prayer and khutbah are held here every week.', 'Taraweeh and Tahajjud are offered in Ramadan with the Quran recited in the month.', 'The masjid is kept clean, quiet and respectful for worship and learning.', 'Donations (sadaqah) for maintenance, lights, water and repairs are welcome.', 'Men, women and children are welcome, following the rules of the masjid.', 'Visitors are asked to keep their phones silent and to respect the prayer times.'],
+    quote: 'إِنَّمَا يَعْمُرُ مَسَاجِدَ اللَّهِ مَنْ آمَنَ بِاللَّهِ وَالْيَوْمِ الْآخِرِ وَأَقَامَ الصَّلَاةَ وَآتَى الزَّكَاةَ',
+    quoteTr: 'The mosques of Allah are maintained only by those who believe in Allah and the Last Day, establish prayer and give zakat.', quoteRef: 'Surah At-Tawbah 9:18' },
+  madrasa: { title: 'Madrasa Faizane Mustafa', subtitle: 'Islamic Education', icon: 'madrasa', mapSearch: '', mapEmbed: '',
+    about: 'The Madrasa provides Quranic education, Islamic studies and the training of good character. Children and adults learn to read the Holy Quran correctly, understand the basics of faith and practice, and grow in manners.',
+    points: ['Learning the Holy Quran with correct recitation (Tajweed) is taught from the basics.', 'Islamic studies cover Aqidah (belief), Fiqh (practice) and Seerah (life of the Prophet).', 'Students are encouraged to memorise the Quran (Hifz) according to their ability.', 'Good manners, honesty, respect for teachers and elders are part of the daily training.', 'Parents are invited to take part in the progress of their children.', 'Admissions, class timings and the syllabus are announced by the committee.', 'Seeking knowledge is an act of worship, and it is a duty upon every Muslim.'],
+    quote: 'طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ', quoteTr: 'Seeking knowledge is an obligation upon every Muslim.', quoteRef: 'Hadith, Sunan Ibn Majah' },
+  eidgah: { title: 'Eidgah Simra', subtitle: 'Eid Prayer Ground', icon: 'eidgah', mapSearch: 'Eid-Gah+Simra',
+    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1784.5274457140092!2d85.52100955111035!3d26.55050443499908!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ecf70032c75a59%3A0x53ed607ca30fb2cf!2sEid-Gah%20Simra!5e0!3m2!1sen!2sin',
+    about: 'The Eidgah is the open ground where the whole community gathers for the Eid prayers. Eid-ul-Fitr and Eid-ul-Adha are the two festivals of the Muslims, and the Eid prayer is offered together in the open air.',
+    points: ['Eid-ul-Fitr comes after Ramadan, and Eid-ul-Adha comes during the days of Hajj.', 'Before Eid-ul-Fitr, Zakat al-Fitr should be paid before the Eid prayer.', 'The Eid prayer is offered in congregation, followed by the khutbah.', 'Takbir is recited on the way to the Eidgah on both Eids.', 'Eid is a day of thanks, forgiveness, visiting relatives and sharing joy.', 'Those who are poor and in need are remembered first on the day of Eid.', 'The ground is kept clean and organised for the safety of families and children.'],
+    quote: 'وَلِتُكْمِلُوا الْعِدَّةَ وَلِتُكَبِّرُوا اللَّهَ عَلَىٰ مَا هَدَاكُمْ وَلَعَلَّكُمْ تَشْكُرُونَ',
+    quoteTr: 'Complete the count and glorify Allah for what He has guided you to, so that you may be grateful.', quoteRef: 'Surah Al-Baqarah 2:185' },
+  kabristan: { title: 'Simra Kabristan', subtitle: 'Burial Ground', icon: 'kabristan', mapSearch: 'SIMRA+KABRISTAN',
+    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1329.616171027523!2d85.53041261286171!3d26.555669691852426!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ecf70046701949%3A0xda04b25f0557f90f!2sSIMRA%20KABRISTAN!5e0!3m2!1sen!2sin',
+    about: 'The Kabristan is the burial ground of the community. It is maintained with dignity by the committee so that every grave is respected, and families can visit and pray for their loved ones.',
+    points: ['Every person must return to Allah, and the kabristan reminds us of this truth.', 'Visiting graves is allowed, because it reminds us of the Hereafter.', 'Dua and Quran recitation for the deceased is a good deed for them.', 'Respect and quiet are expected inside the kabristan at all times.', 'Maintenance requests (cleaning, boundary, water) can be sent to the committee.', 'Burial is done as soon as possible after death, according to Islamic rites.', 'Families are requested to follow the instructions of the committee for burial.'],
+    quote: 'كُلُّ نَفْسٍ ذَائِقَةُ الْمَوْتِ', quoteTr: 'Every soul shall taste death.', quoteRef: 'Surah Ali \'Imran 3:185',
+    quote2: 'زُورُوا الْقُبُورَ فَإِنَّهَا تُذَكِّرُكُمُ الْآخِرَةَ', quote2Tr: 'Visit the graves, for they remind you of the Hereafter.', quote2Ref: 'Hadith, Sahih Muslim' },
+  ramzan: { title: 'Ramzan Calendar', subtitle: 'Holy Month of Ramadan', icon: 'ramzan', soon: true, mapEmbed: '', mapSearch: '',
+    about: 'The Ramzan calendar will show the daily Sehri and Iftar timings, the Taraweeh schedule and the Ramadan programs of the community.',
+    points: ['Sehri and Iftar timings for each day.', 'Taraweeh and Tahajjud timings.', 'Quran and special Ramadan programs.'] }
+};
+const homeView = document.getElementById('homeView'), detailView = document.getElementById('detailView');
+
+function showDetail(key) {
+  const d = pageData[key];
+  const pts = d.points.map(function (p) { return '<li>' + p + '</li>'; }).join('');
+  let quotes = '';
+  if (d.quote) quotes += '<div class="quote">' + d.quote + '<small>' + d.quoteTr + ' — ' + d.quoteRef + '</small></div>';
+  if (d.quote2) quotes += '<div class="quote">' + d.quote2 + '<small>' + d.quote2Tr + ' — ' + d.quote2Ref + '</small></div>';
+  let actions;
+  if (d.soon) actions = '<div class="soon">Will be added shortly, InshaAllah.</div>';
+  else actions = '<div class="actions"><a class="btn-soft" href="https://www.google.com/maps/search/?api=1&query=' + d.mapSearch + '" target="_blank" rel="noopener">Open in Google Maps</a>' +
+    (d.mapEmbed ? '<button class="btn-outline" id="showMap">Show map here</button>' : '') + '</div>' +
+    (d.mapEmbed ? '<iframe class="map-frame" id="mapFrame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Map"></iframe>' : '');
+  detailView.innerHTML = '<div class="detail-view">' +
+    '<a class="back-btn" href="#home">Back to home</a>' +
+    '<div class="detail-head"><div class="dept-icon">' + ICONS[d.icon] + '</div><div>' +
+    '<div class="detail-subtitle">' + d.subtitle + '</div><h1 class="detail-title">' + d.title + '</h1></div></div>' +
+    '<div class="panel"><h4>About</h4><p>' + d.about + '</p></div>' +
+    '<div class="panel"><h4>Important information</h4><ul>' + pts + '</ul></div>' +
+    (quotes ? '<div class="panel"><h4>From the Quran and Sunnah</h4>' + quotes + '</div>' : '') +
+    '<div class="panel"><h4>Location and contact</h4>' + actions + '</div></div>';
+  if (d.mapEmbed) {
+    document.getElementById('showMap').addEventListener('click', function () {
+      const f = document.getElementById('mapFrame');
+      f.src = d.mapEmbed; f.style.display = 'block';
+      this.classList.add('off'); this.textContent = 'Map loaded';
+    });
+  }
+  homeView.style.display = 'none'; detailView.style.display = 'block';
+  window.scrollTo(0, 0);
+}
+function router() {
+  const h = location.hash.replace('#', '').toLowerCase();
+  if (pageData[h]) showDetail(h);
+  else { homeView.style.display = 'block'; detailView.style.display = 'none'; }
+}
+window.addEventListener('hashchange', router);
+router();
+
+/* ---------- Login popup ---------- */
+const overlay = document.getElementById('overlay');
+function openLogin() { overlay.classList.add('open'); document.body.classList.add('locked'); }
+function closeLogin() { overlay.classList.remove('open'); document.body.classList.remove('locked'); }
+document.getElementById('openBtn').addEventListener('click', openLogin);
+document.getElementById('closeBtn').addEventListener('click', closeLogin);
+overlay.addEventListener('click', function (e) { if (e.target === overlay) closeLogin(); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLogin(); });
+
+/* ---------- State and helpers ---------- */
+const $ = function (id) { return document.getElementById(id); };
+const LS_S = 'pl_session', LS_D = 'pl_device';
+let captchaTok = null, otpTok = null, otpT = null, sessionTok = null, isPersonSession = false, busy = false;
+
+function deviceId() {
+  let d = localStorage.getItem(LS_D);
+  if (!d) { d = 'D' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12); localStorage.setItem(LS_D, d); }
+  return d;
+}
+function msg(m, ok) { $('msg').textContent = m || ''; $('msg').className = 'msg' + (ok ? ' ok' : ''); }
+function toast(m) {
+  const t = $('toast'); t.textContent = m; t.style.display = 'block';
+  clearTimeout(toast._t); toast._t = setTimeout(function () { t.style.display = 'none'; }, 2600);
+}
+function isAdminRole() { return ['superadmin', 'admin'].indexOf($('role').value) > -1; }
+function setBusy(on) { busy = on; ['btnLogin', 'btnOtp', 'btnPw'].forEach(function (id) { $(id).disabled = on; }); }
+
+/* Server call wrapper: ek jagah error handling */
+async function call(action, args) {
+  const r = await apiCall(action, args);
+  if (r && r.ok === false) throw new Error(r.msg || 'Something went wrong.');
+  return r;
+}
+
+function show(stage) {
+  ['stLogin', 'stOtp', 'stPw'].forEach(function (id) { $(id).classList.toggle('active', id === stage); });
+  $('role').disabled = stage !== 'stLogin';
+  const titles = {
+    stLogin: ['Welcome Back', 'Sign in to your account'],
+    stOtp: ['Verify Email', 'Enter the code sent to your email'],
+    stPw: ['Set New Password', 'First login. Choose a strong password']
+  };
+  $('mTitle').textContent = titles[stage][0];
+  $('mSub').textContent = titles[stage][1];
+  msg('');
+}
+function showRoleFields() {
+  $('adminFields').style.display = isAdminRole() ? 'block' : 'none';
+  $('personFields').style.display = isAdminRole() ? 'none' : 'block';
+}
+async function newCaptcha() {
+  try {
+    const c = await call('apiGetCaptcha', []);
+    captchaTok = c.token; $('captchaCode').textContent = c.code; $('adminCaptcha').value = '';
+  } catch (e) { msg(e.message); }
+}
+
+/* Login ke baad role page par seedha jaana */
+function goRole(role) {
+  const page = ROLE_PAGE[role];
+  if (!page) { msg('This dashboard is not available for this account.'); return; }
+  goPage(page);
+}
+
+/* ---------- Role change ---------- */
+$('role').addEventListener('change', function () {
+  show('stLogin');
+  showRoleFields();
+  if (isAdminRole()) newCaptcha();
+});
+$('refreshCap').addEventListener('click', newCaptcha);
+document.querySelectorAll('[data-eye]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    const i = $(b.getAttribute('data-eye'));
+    i.type = i.type === 'password' ? 'text' : 'password';
+    b.textContent = i.type === 'password' ? 'Show' : 'Hide';
+  });
+});
+
+/* ---------- Login button ---------- */
+$('btnLogin').addEventListener('click', function () {
+  if (busy) return;
+  if (isAdminRole()) return adminLogin();
+  return personLogin();
+});
+
+async function adminLogin() {
+  const id = $('adminEmail').value.trim(), pw = $('adminPass').value, cap = $('adminCaptcha').value.trim();
+  if (!id || !pw) return msg('Enter email/username and password.');
+  if (!cap) return msg('Enter the captcha code.');
+  setBusy(true); msg('Checking…', true);
+  try {
+    const r = await call('apiLoginStart', [id, pw, captchaTok, cap, deviceId()]);
+    isPersonSession = false;
+    if (r.step === 'OTP') {
+      otpTok = r.otpToken;
+      $('otpMail').textContent = r.maskedEmail;
+      $('otpIn').value = '';
+      show('stOtp'); startOtp(r.seconds); $('otpIn').focus();
+      return;
+    }
+    await afterAuth(r.session, r.mustChange);
+  } catch (err) {
+    msg(err.message); $('adminPass').value = ''; newCaptcha();
+  } finally { setBusy(false); }
+}
+
+async function personLogin() {
+  const id = $('pId').value.trim(), pw = $('pPass').value, tok = $('pTok').value.trim();
+  if (!id || !pw || !tok) return msg('Enter User ID, password and token ID.');
+  setBusy(true); msg('Checking…', true);
+  try {
+    const r = await apiCall('apiPersonLogin', [id, pw, tok]);
+    if (!r || r.ok === false) { msg((r && r.msg) || 'Login failed.'); $('pPass').value = ''; return; }
+    isPersonSession = true;
+    await afterAuth(r.session, r.mustChange);
+  } catch (err) { msg(err.message); }
+  finally { setBusy(false); }
+}
+
+/* ---------- OTP ---------- */
+function startOtp(sec) {
+  clearInterval(otpT); let left = sec;
+  const tick = function () {
+    $('otpTimer').textContent = String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0');
+    if (left <= 0) { clearInterval(otpT); msg('Time is over. Please login again.'); show('stLogin'); newCaptcha(); }
+    left--;
+  };
+  tick(); otpT = setInterval(tick, 1000);
+}
+$('btnOtp').addEventListener('click', async function () {
+  const code = $('otpIn').value.trim();
+  if (code.length !== 6) return msg('Enter the 6 digit code.');
+  setBusy(true);
+  try {
+    const r = await apiCall('apiVerifyOtp', [otpTok, code]);
+    if (!r || !r.ok) {
+      msg(r ? r.msg : 'Verification failed.');
+      if (r && r.expired) { clearInterval(otpT); show('stLogin'); newCaptcha(); }
+      return;
+    }
+    clearInterval(otpT);
+    await afterAuth(r.session, r.mustChange);
+  } catch (err) { msg(err.message); }
+  finally { setBusy(false); }
+});
+$('otpBack').addEventListener('click', function () { clearInterval(otpT); show('stLogin'); newCaptcha(); });
+
+/* ---------- After login ---------- */
+async function afterAuth(session, mustChange) {
+  sessionTok = session;
+  localStorage.setItem(LS_S, session);
+  if (mustChange) { show('stPw'); return; }
+  const info = await call('apiSession', [session]);
+  goRole(info.user.role);
+}
+
+/* ---------- First login password ---------- */
+$('btnPw').addEventListener('click', async function () {
+  const a = $('np1').value, b = $('np2').value;
+  if (a !== b) return msg('Passwords do not match.');
+  setBusy(true);
+  try {
+    const action = isPersonSession ? 'apiPersonChangePassword' : 'apiChangePassword';
+    const r = await apiCall(action, [sessionTok, a, b]);
+    if (!r || !r.ok) return msg(r ? r.msg : 'Could not save password.');
+    toast('Password saved.');
+    const info = await call('apiSession', [sessionTok]);
+    goRole(info.user.role);
+  } catch (e) { msg(e.message); }
+  finally { setBusy(false); }
+});
+
+/* ---------- Boot: saved session ho to seedha role page ---------- */
+(async function boot() {
+  showRoleFields();
+  const saved = localStorage.getItem(LS_S);
+  if (saved) {
+    try {
+      const r = await apiCall('apiSession', [saved]);
+      if (r && r.ok) { sessionTok = saved; goRole(r.user.role); return; }
+    } catch (e) { /* network issue: login form dikhayein */ }
+    localStorage.removeItem(LS_S);
+  }
+  newCaptcha();
+})();
+</script>
+</body>
+</html>
