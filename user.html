@@ -218,6 +218,20 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
   #scrim{display:none}
 }
 
+.rc-notice{background:#fffbe6;border:1px solid #f0dfb0;border-radius:14px;padding:12px;margin-bottom:10px}
+.rc-notice b{color:var(--navy)}
+.pen-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed #e6eaf2;font-size:13px}
+@media print{
+  #rc{width:190mm!important;padding:3mm!important;font-size:8px!important;max-height:282mm!important;overflow:hidden!important}
+  #rc .rc-head h2{font-size:12px!important}
+  #rc table.rt td,#rc table.rt th{padding:0 2px!important;font-size:7.5px!important}
+  #rc .rc-box div,#rc .rc-sum div{font-size:7.5px!important;padding:0!important}
+  #rc .rc-sum b{font-size:9px!important}
+  #rc .rc-sig{margin-top:4px!important}
+  #rc .rc-sig .si{height:20px!important}
+  #rc .rc-sig div{font-size:7.5px!important;width:120px!important}
+}
+
 .hd .row{justify-content:flex-end}
 .sec-title .muted{font-size:12px}
 .profile .appid{font-size:24px}
@@ -345,6 +359,10 @@ const SECS = { madrasa: 'Madrasa', masjid: 'Masjid', eidgah: 'Eidgah', kabristan
 const SEC_ICON = { madrasa: 'madrasa', masjid: 'masjid', eidgah: 'eidgah', kabristan: 'kabristan' };
 const LBL = { user: 'User', imam: 'Imam', member: 'Member', admin: 'Admin' };
 const ROLE_NAME = { user: 'User', imam: 'Imam', member: 'Member' };
+const EXTRA_ITEMS = [
+  { l: 'Notices', ic: 'alert', v: 'notice' },
+  { l: 'Kharch (expenses)', ic: 'rates', v: 'kharch' }
+];
 const SEC_ITEMS = [
   { l: 'Madrasa', ic: 'madrasa', v: 'sec', a: { sec: 'madrasa' } },
   { l: 'Masjid', ic: 'masjid', v: 'sec', a: { sec: 'masjid' } },
@@ -352,12 +370,17 @@ const SEC_ITEMS = [
   { l: 'Kabristan', ic: 'kabristan', v: 'sec', a: { sec: 'kabristan' } }
 ];
 const MENU = {
-  user: [{ l: 'Dashboard', ic: 'dashboard', v: 'home' }, { l: 'Khata book', ic: 'rates', v: 'khata' }].concat(SEC_ITEMS, [{ l: 'My profile', ic: 'profile', v: 'profile' }]),
-  member: [{ l: 'Dashboard', ic: 'dashboard', v: 'home' },
+  user: [{ l: 'Dashboard', ic: 'dashboard', v: 'home' }, { l: 'Khata book', ic: 'rates', v: 'khata' }].concat(EXTRA_ITEMS, [
+         { l: 'Admins', ic: 'admin', v: 'public', a: { kind: 'admin' } },
+         { l: 'Members', ic: 'members', v: 'public', a: { kind: 'member' } },
+         { l: 'Imams', ic: 'imam', v: 'public', a: { kind: 'imam' } }]).concat(SEC_ITEMS, [{ l: 'My profile', ic: 'profile', v: 'profile' }]),
+  member: [{ l: 'Dashboard', ic: 'dashboard', v: 'home' }].concat(EXTRA_ITEMS, [
            { l: 'Members', ic: 'members', v: 'directory', a: { role: 'member' } },
            { l: 'Users', ic: 'users', v: 'directory', a: { role: 'user' } },
-           { l: 'Imams', ic: 'imam', v: 'directory', a: { role: 'imam' } }].concat(SEC_ITEMS, [{ l: 'My profile', ic: 'profile', v: 'profile' }]),
-  imam: [{ l: 'Dashboard', ic: 'dashboard', v: 'home' }].concat(SEC_ITEMS, [{ l: 'My profile', ic: 'profile', v: 'profile' }])
+           { l: 'Imams', ic: 'imam', v: 'directory', a: { role: 'imam' } }]).concat(SEC_ITEMS, [{ l: 'My profile', ic: 'profile', v: 'profile' }]),
+  imam: [{ l: 'Dashboard', ic: 'dashboard', v: 'home' }].concat(EXTRA_ITEMS, [
+         { l: 'Admins', ic: 'admin', v: 'public', a: { kind: 'admin' } },
+         { l: 'Members', ic: 'members', v: 'public', a: { kind: 'member' } }]).concat(SEC_ITEMS, [{ l: 'My profile', ic: 'profile', v: 'profile' }])
 };
 const ICON_KEYS = ['dashboard','users','imam','members','admin','madrasa','masjid','eidgah','kabristan','search','import','rates','settings','profile'];
 
@@ -408,6 +431,7 @@ async function leave(expired) {
 
 /* ============ SIDEBAR ============ */
 function isOn(n) {
+  if (n.a && n.a.kind) return D.view === 'public' && D.arg.kind === n.a.kind;
   if (n.a && n.a.role) return D.view === 'directory' && D.arg.role === n.a.role;
   if (n.a && n.a.sec) return D.view === 'sec' && D.arg.sec === n.a.sec;
   return D.view === n.v;
@@ -486,6 +510,25 @@ function listTable(rows) {
     </tr>`).join('')}</tbody></table></div>`;
 }
 
+/* ============ NOTICE + PENALTY (sab roles) ============ */
+async function noticeBlock() {
+  try {
+    const n = await api('apiNoticeList');
+    if (!n.list.length) return '';
+    return `<div class="sec-title"><h3>Notifications</h3><a data-go="notice">All →</a></div>` +
+      n.list.slice(0, 3).map(x => `<div class="rc-notice"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)}</div><div style="margin-top:4px">${esc(x.body)}</div></div>`).join('');
+  } catch (e) { return ''; }
+}
+async function penaltyBlock() {
+  try {
+    const p = await api('apiPenaltyList');
+    if (!p.list.length) return `<div class="sec-title"><h3>Penalty</h3></div><div class="card"><span class="muted">Koi penalty nahin hai.</span></div>`;
+    return `<div class="sec-title"><h3>Penalty</h3></div><div class="card">
+      <b style="color:#b42328">Total penalty: ${inr(p.total)}</b>
+      ${p.list.map(x => `<div class="pen-row"><span>${esc(x.year)} · ${esc(x.reason || 'Penalty')} <span class="muted">${esc(x.date)}</span></span><b>${inr(x.amount)}</b></div>`).join('')}</div>`;
+  } catch (e) { return ''; }
+}
+
 /* ============ HOME ============ */
 VIEWS.home = async (c) => {
   if (ROLE === 'imam') return imamHome(c);
@@ -495,7 +538,8 @@ VIEWS.home = async (c) => {
 async function userHome(c) {
   const p = MY.person, s = MY.summary;
   const pct = s.due ? Math.min(100, Math.round(s.paid / s.due * 100)) : 0;
-  c.innerHTML = `
+  const notes = await noticeBlock(), pen = await penaltyBlock();
+  c.innerHTML = `${notes}
     <div class="pagehead"><h2>Assalamu Alaikum, ${esc(p.name)}</h2></div>
     <p class="psub">Your membership and payments for ${esc(String(s.year))}</p>
     ${profileCard(p)}
@@ -508,15 +552,16 @@ async function userHome(c) {
     <div class="card" style="margin-top:12px"><b>Payment progress: ${pct}%</b><div class="pbar"><i style="width:${pct}%"></i></div>
       ${s.opening > 0 ? `<p class="muted">Back-year due included: ${inr(s.opening)}</p>` : ''}</div>
     <div class="sec-title"><h3>Recent transactions</h3><a data-go="khata">View all →</a></div>
-    <div class="card" style="padding:0">${txTable(MY.payments.slice(0, 5))}</div>`;
+    <div class="card" style="padding:0">${txTable(MY.payments.slice(0, 5))}</div>${pen}`;
 }
 async function memberHome(c) {
   const d = await api('apiPersonDirectory');
   LIST = d.list;
+  const notes = await noticeBlock(), pen = await penaltyBlock();
   const all = LIST, p = MY.person;
   const cnt = r => all.filter(x => x.role === r).length;
   const sum = k => all.reduce((s, x) => s + (x[k] || 0), 0);
-  c.innerHTML = `
+  c.innerHTML = `${notes}
     <div class="pagehead"><h2>Dashboard</h2></div>
     <p class="psub">Welcome, ${esc(p.name)}. You can see everyone's details. Only photo can be changed by you.</p>
     ${profileCard(p)}
@@ -533,11 +578,12 @@ async function memberHome(c) {
       <div class="tile t-green wide"><span class="ti">${iconHtml('money')}</span><span class="tx"><span class="lb">Total collected</span><b>${inr(sum('paid'))}</b></span></div>
     </div>
     <div class="sec-title"><h3>Latest members and users</h3><a data-go="directory" data-arg='{}'>View all →</a></div>
-    <div class="card" style="padding:0">${listTable(all.filter(x => x.role !== 'imam').slice(0, 8))}</div>`;
+    <div class="card" style="padding:0">${listTable(all.filter(x => x.role !== 'imam').slice(0, 8))}</div>${pen}`;
 }
 async function imamHome(c) {
   const p = MY.person, s = MY.salary || { current: 0, history: [], payouts: [] };
-  c.innerHTML = `
+  const notes = await noticeBlock(), pen = await penaltyBlock();
+  c.innerHTML = `${notes}
     <div class="pagehead"><h2>Assalamu Alaikum, ${esc(p.name)}</h2></div>
     <p class="psub">Your details and monthly salary report.</p>
     ${profileCard(p, `<div><span>Qualification</span><b>${esc(p.qualification || '—')}</b></div><div><span>WhatsApp</span><b>${esc(p.whatsapp || '—')}</b></div>`)}
@@ -550,7 +596,7 @@ async function imamHome(c) {
     <div class="sec-title"><h3>Salary received</h3></div>
     <div class="card" style="padding:0"><div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Paid by</th><th>Note</th></tr></thead><tbody>
       ${s.payouts.map(x => `<tr><td>${esc(x.date)}</td><td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td><td>${esc(x.note)}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">No payments received yet.</td></tr>'}
-    </tbody></table></div></div>`;
+    </tbody></table></div></div>${pen}`;
 }
 
 /* ============ KHATA (user) ============ */
@@ -595,6 +641,61 @@ VIEWS.directory = async (c, arg) => {
   };
   $('#q').addEventListener('input', draw);
   draw();
+};
+
+/* ============ NOTICE (read only) ============ */
+VIEWS.notice = async (c) => {
+  const n = await api('apiNoticeList');
+  c.innerHTML = `<div class="pagehead"><h2>Notifications</h2></div>
+    <p class="psub">Admin ki taraf se sabhi ko bheji gayi soochna.</p>
+    ${n.list.map(x => `<div class="rc-notice"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.by)}</div><div style="margin-top:4px;white-space:pre-wrap">${esc(x.body)}</div></div>`).join('') || '<div class="empty">Koi notice nahin.</div>'}`;
+};
+
+/* ============ KHARCH (read only, sabke liye) ============ */
+VIEWS.kharch = async (c) => {
+  const d = await api('apiExpenseList');
+  c.innerHTML = `<div class="pagehead"><h2>Kharch (expenses)</h2></div>
+    <p class="psub">Admin ne paisa kahan kharch kiya, uska hisab.</p>
+    <div class="card" style="padding:0"><div class="wrap"><table class="t"><thead><tr><th>Kharch</th><th>Date</th><th>Items</th><th>Total</th><th></th></tr></thead><tbody>
+      ${d.list.map(x => `<tr><td><b>${esc(x.title)}</b></td><td>${esc(x.date)}</td><td>${x.count}</td><td><b>${inr(x.total)}</b></td>
+        <td><button class="btn light sm" data-act="kharchView" data-id="${esc(x.receiptId)}">${ic('eye')}View</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">Koi kharch nahin.</td></tr>'}
+    </tbody></table></div></div>`;
+};
+VIEWS.kharchView = async (c, arg) => {
+  const r = await api('apiExpenseView', arg.id);
+  c.innerHTML = `<div class="toolbar"><button class="btn light sm" data-go="kharch" data-arg='{}'>← Back</button>
+    <button class="btn sm" data-act="printNow">${ic('print')}Print / PDF</button></div>
+    <div class="rc" id="rc">
+      <div class="rc-head"><div class="ttl" style="grid-column:1/-1"><h2>${esc(r.title)}</h2><p>Kharch receipt · ${esc(r.receiptId)} · ${esc(r.created)}</p></div></div>
+      <table class="rt"><thead><tr><th>#</th><th>Title</th><th>Description</th><th>Date</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>${r.items.map(i => `<tr><td>${i.itemNo}</td><td>${esc(i.title)}</td><td style="white-space:normal">${esc(i.description)}</td><td>${esc(i.date)}</td><td style="text-align:right">${inr(i.amount)}</td></tr>`).join('') || '<tr><td colspan="5">Koi item nahin.</td></tr>'}
+      <tr class="tot"><td colspan="4" style="text-align:right"><b>TOTAL</b></td><td style="text-align:right"><b>${inr(r.total)}</b></td></tr></tbody></table></div>`;
+};
+
+/* ============ PUBLIC DIRECTORY (user / imam): admin, member, imam ============ */
+VIEWS.public = async (c, arg) => {
+  const d = await api('apiPublicDirectory');
+  const kind = arg.kind || 'admin';
+  const rows = kind === 'admin' ? d.admins : d.list.filter(p => p.kind === kind);
+  const title = kind === 'admin' ? 'Admins' : kind === 'member' ? 'Members' : 'Imams';
+  const card = x => {
+    const isAdmin = kind === 'admin';
+    return `<div class="card pub-card">
+      <div class="dp" style="width:84px;height:84px;font-size:30px;flex:0 0 84px">${avatarHtml(x.name, x.photo)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="pname" style="font-size:17px">${esc(x.name)}</div>
+        ${isAdmin ? '' : `<div class="appid" style="font-size:14px"><small>Application ID</small>${esc(x.appNo)}</div>`}
+        <div class="muted" style="font-size:13px">Mobile: ${esc(x.mobile || '—')}</div>
+        ${x.kind === 'imam' ? `<div class="muted" style="font-size:13px">Qualification: ${esc(x.qualification || '—')}</div>` : ''}
+        ${isAdmin ? '' : `<div class="muted" style="font-size:13px">Address: ${esc(x.address || '—')}</div>
+          <div class="muted" style="font-size:13px">Join date: ${esc(x.joinDate || '—')}</div>`}
+        <div class="acts" style="margin-top:6px">${callLink(x.mobile)}${waLink(x.mobile)}</div>
+      </div></div>`;
+  };
+  c.innerHTML = `
+    <div class="pagehead"><h2>${title}</h2></div>
+    <p class="psub">Sirf naam, photo, mobile aur basic details dikhti hain. Payment details nahin.</p>
+    ${rows.map(card).join('') || '<div class="empty">No records.</div>'}`;
 };
 
 /* ============ PERSON VIEW (member sirf) ============ */
@@ -700,6 +801,8 @@ const ACTS = {
   person: (id) => go('person', { id: id }),
   receipt: (id) => openReceipt(id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
   dpMenu: () => openDp(),
+  kharchView: (id) => go('kharchView', { id: id }),
+  printNow: () => window.print(),
   dpPick: () => $('#dpFile').click(),
   dpSave: async () => {
     if (!DP_PENDING) return toast('Pehle photo chunein.');
