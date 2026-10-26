@@ -250,6 +250,32 @@ table.rt tr.mon td{background:#e9f3ec;font-weight:900}
   body.side-closed #menuBtn{display:grid}
   #scrim{display:none}
 }
+  /* ==== CUSTOM HEADER BANNER (wide + short) ==== */
+.hd{
+  min-height: 150px !important;
+  padding: 10px 14px 12px !important;
+  background-image:
+    linear-gradient(180deg, rgba(3,12,30,.30) 0%, rgba(3,12,30,.72) 100%),
+    url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjjDgpszHfyN9DudWXwe5y44SmXT8bsEiuI81Hh2X9KuoHl1dQ7YDh84U6yj6dgbd7CQ0BTIyJNGIhGw7bWwh_HTJL3jSU-lrih9npGDnurtevm-FjmlQZLbidyc45FVwxZxg47_bCqu1yCZsvRPonCsGZ08xAZsZiDF0U1U34bFBRk3sijPzv3tAn1wdE/s2172/1000332284.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* purana logo-based art hataao */
+.hd-art, .hd-pattern, .hd::after{ display: none !important; }
+
+/* andar ke elements chhote karo taaki header lamba na lage */
+.seal{ width: 46px !important; height: 46px !important; margin-top: 4px !important; border-width: 2px !important; }
+.seal svg.i{ width: 26px !important; height: 26px !important; }
+.orgname{ font-size: clamp(18px, 3.5vw, 24px) !important; margin-top: 4px !important; }
+.role{ padding: 3px 10px !important; font-size: 11px !important; margin-top: 4px !important; }
+.role svg.i{ width: 13px !important; height: 13px !important; }
+.tag{ font-size: 11px !important; margin-top: 2px !important; }
+
+@media(min-width:900px){
+  .hd{ padding: 10px 22px 12px !important; }
+}
 </style>
 </head>
 <body>
