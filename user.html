@@ -258,6 +258,7 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
     <div class="hd-pattern"></div>
     <div class="row">
       <button class="menubtn" id="menuBtn" aria-label="Menu"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <button class="btn light sm" onclick="goPage('index.html?stay=1')" style="margin-right:6px">Login page</button>
       <button class="avatar" id="av" aria-label="My profile"></button>
     </div>
     <div class="seal" id="seal"></div>
@@ -274,45 +275,7 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
 <input type="file" id="dpFile" accept="image/*" style="display:none">
 <div class="toast" id="toast"></div>
 
-<script>
-/*******************************************************************
- * api.js : sab pages ke liye ek hi server call.
- * Yahan sirf WEB_APP_URL badalna hai (Apps Script deploy ke baad).
- *******************************************************************/
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgoRQ1QBkFO7ZCIWgdGXFYnFjfZhZyE_9GzVEznqkfnHDculdhfFDEimhgENe_-Gju/exec';
-const API_TIMEOUT_MS = 20000;
-
-/* Ek action ko server par bhejta hai. Jawab JSON object hota hai. */
-function apiCall(action, args) {
-  return new Promise(function (resolve, reject) {
-    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timer = setTimeout(function () {
-      if (ctrl) ctrl.abort();
-      reject(new Error('Server did not respond in time. Please try again.'));
-    }, API_TIMEOUT_MS);
-    fetch(WEB_APP_URL, {
-      method: 'POST',
-      /* text/plain se browser pehle "preflight" nahin bhejta, isliye call tez hoti hai */
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: action, args: args || [] }),
-      signal: ctrl ? ctrl.signal : undefined
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (j) { clearTimeout(timer); resolve(j); })
-      .catch(function (e) {
-        clearTimeout(timer);
-        reject(new Error(e && e.name === 'AbortError' ? 'Server timeout.' : 'Network error. Check internet and try again.'));
-      });
-  });
-}
-
-/* Page ko doosre page par bhejta hai (same GitHub folder mein relative path) */
-function goPage(file) { window.location.href = file; }
-
-/* Role ke hisaab se page */
-const ROLE_PAGE = { super_admin: 'super_admin.html', admin: 'admin.html', member: 'member.html', imam: 'imam.html', user: 'user.html' };
-
-</script>
+<script src="api.js"></script>
 <script>
 const IC = {
   dashboard:'<rect x="3" y="3" width="8" height="8" rx="2.4"/><rect x="13" y="3" width="8" height="8" rx="2.4" class="s"/><rect x="3" y="13" width="8" height="8" rx="2.4" class="s"/><rect x="13" y="13" width="8" height="8" rx="2.4"/>',
@@ -522,10 +485,12 @@ async function noticeBlock() {
 async function penaltyBlock() {
   try {
     const p = await api('apiPenaltyList');
-    if (!p.list.length) return `<div class="sec-title"><h3>Penalty</h3></div><div class="card"><span class="muted">Koi penalty nahin hai.</span></div>`;
-    return `<div class="sec-title"><h3>Penalty</h3></div><div class="card">
-      <b style="color:#b42328">Total penalty: ${inr(p.total)}</b>
-      ${p.list.map(x => `<div class="pen-row"><span>${esc(x.year)} · ${esc(x.reason || 'Penalty')} <span class="muted">${esc(x.date)}</span></span><b>${inr(x.amount)}</b></div>`).join('')}</div>`;
+    const rows = p.list.map(x => `<div class="pen-row"><span>${esc(x.year)} saal · ${esc(x.reason || '')} <span class="muted">${esc(x.date)}</span></span><b>${inr(x.amount)}</b></div>`).join('');
+    return `<div class="sec-title"><h3>Back year penalty</h3></div>
+      <div class="card" style="border:2px solid #f6c6c8;background:#fff8f8">
+        <div class="pen-row" style="border:0"><b>Back year penalty</b><b style="color:#b42328;font-size:18px">${inr(p.total)}</b></div>
+        ${rows || '<div class="muted">Koi back year penalty nahin hai.</div>'}
+      </div>`;
   } catch (e) { return ''; }
 }
 
@@ -718,13 +683,32 @@ VIEWS.person = async (c, arg) => {
 VIEWS.sec = async (c, arg) => {
   const sec = arg.sec || 'madrasa';
   const d = await api('apiPersonSections', sec);
+  let postsHtml = '', postForm = '';
+  if (sec === 'madrasa') {
+    const pl = await api('apiPostList', sec);
+    const canPost = ROLE === 'imam';
+    postForm = canPost ? `<div class="card"><h3 class="sec">Post karein</h3><div class="fgrid">
+        <div><label class="fl">Title *</label><input class="inp" id="postTitle"></div>
+        <div><label class="fl">Description</label><textarea class="inp" id="postBody" rows="3"></textarea></div>
+        <div><label class="fl">Photo (optional)</label><input class="inp" type="file" id="postPhoto" accept="image/*"><input type="hidden" id="postPhotoUrl"></div>
+        <button class="btn green" data-act="postSubmit">Post karein</button></div></div>` : '';
+    postsHtml = `<div class="sec-title"><h3>Madrasa posts</h3></div>` + (pl.list.map(x => `<div class="card sec-card">
+        ${x.photo ? `<img src="${esc(x.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
+        <div><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.authorName)} (${esc(x.authorRole)})</div>
+        <p>${esc(x.body)}</p>
+        <div class="acts">${callLink(x.authorMobile)}${waLink(x.authorMobile)}
+          ${(ROLE === 'imam' && x.authorApp === MY.person.appNo) ? `<button class="btn red sm" data-act="postDel" data-id="${esc(x.id)}">Delete</button>` : ''}</div></div>
+      </div>`).join('') || '<div class="empty">Abhi koi post nahin.</div>');
+  }
   c.innerHTML = `
     <div class="pagehead"><h2>${SECS[sec]}</h2></div>
     <p class="psub">Latest updates from the committee.</p>
+    ${postForm}${postsHtml}
+    ${sec === 'madrasa' ? '<div class="sec-title"><h3>Updates</h3></div>' : ''}
     ${d.items.map(it => `<div class="card sec-card">
       ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml(SEC_ICON[sec])}</div>`}
       <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div><p>${esc(it.body)}</p></div>
-    </div>`).join('') || `<div class="empty">No updates yet for ${SECS[sec]}.</div>`}`;
+    </div>`).join('') || (sec === 'madrasa' ? '' : `<div class="empty">No updates yet for ${SECS[sec]}.</div>`)}`;
 };
 
 /* ============ PROFILE (sirf DP badal sakte hain) ============ */
@@ -802,6 +786,19 @@ const ACTS = {
   receipt: (id) => openReceipt(id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
   dpMenu: () => openDp(),
   kharchView: (id) => go('kharchView', { id: id }),
+  postSubmit: async () => {
+    const t = val('postTitle');
+    if (!t) return toast('Title likhein.');
+    let url = '';
+    const f = document.getElementById('postPhoto') && document.getElementById('postPhoto').files[0];
+    if (f) { const b64 = await fileToB64(f); url = (await api('apiPersonUploadPhoto', b64, f.type, f.name)).url; }
+    await api('apiPostCreate', 'madrasa', t, val('postBody'), url);
+    toast('Post ho gayi'); go('sec', { sec: 'madrasa' });
+  },
+  postDel: async (id) => {
+    if (!confirm('Ye post hata dein?')) return;
+    await api('apiPostDelete', id); go('sec', { sec: 'madrasa' });
+  },
   printNow: () => window.print(),
   dpPick: () => $('#dpFile').click(),
   dpSave: async () => {
