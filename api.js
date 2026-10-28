@@ -2,7 +2,7 @@
  * api.js : shared helper for all GitHub-hosted pages.
  * Sirf WEB_APP_URL badalna hai (Apps Script deploy ke baad).
  *******************************************************************/
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxjX32nmUH8tfXQmGljz78dQ-iriCRnzXYjBENPpiBXlrYG_SOsbgLP2bJIm7ow1y46IA/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzcvmNg6vxp1pKvh97g1yuKPuzEIUCQiCjb4_nC9XkZONTQy2seGEyWFNpaqPrJefpBdQ/exec';
 const API_TIMEOUT_MS = 20000;
 
 function apiCall(action, args) {
