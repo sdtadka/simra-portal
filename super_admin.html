@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Super Admin · Community Portal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--blue:#1e6bff;--green:#12a150;--orange:#ff8a00;--purple:#7c3aed;--red:#e5484d;--gold:#c99a2e;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--bg:#f4f7fc;--navy:#0b2a5b;--blue-t:#eaf1ff;--green-t:#e8f8ef;--orange-t:#fff3e2;--purple-t:#f1eaff;--red-t:#fdecec;--gold-t:#fbf4df;--side:264px}
@@ -219,54 +220,12 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
 @media print {
   @page { size: A4 portrait; margin: 5mm; }
   html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
-  
-  /* Sab kuch hide karo except receipt modal */
   body > *:not(#ov) { display: none !important; }
-  
-  /* Modal ko normal position par le aao */
-  #ov { 
-    position: static !important; 
-    background: none !important; 
-    display: block !important; 
-    overflow: visible !important; 
-    padding: 0 !important; 
-    margin: 0 !important; 
-    height: auto !important;
-    width: 100% !important;
-  }
-  #ov .box { 
-    box-shadow: none !important; 
-    max-height: none !important; 
-    overflow: visible !important; 
-    padding: 0 !important; 
-    margin: 0 !important; 
-    width: 100% !important; 
-    max-width: 100% !important; 
-    border-radius: 0 !important;
-    position: static !important;
-    transform: none !important;
-  }
-  
-  /* Close aur Print buttons hide karo */
+  #ov { position: static !important; background: none !important; display: block !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; height: auto !important; width: 100% !important; }
+  #ov .box { box-shadow: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; position: static !important; transform: none !important; }
   .noprint { display: none !important; }
-  
-  /* Receipt ka size fix karo taaki 1 page me aaye */
-  #rc { 
-    width: 100% !important; 
-    max-width: 195mm !important; 
-    border: 1.5px solid #1b4332 !important; 
-    padding: 4mm !important; 
-    margin: 0 auto !important;
-    box-sizing: border-box !important;
-    page-break-inside: avoid !important; 
-    page-break-after: avoid !important;
-  }
-  
-  /* Colors ko sahi print karne ke liye */
-  #rc * { 
-    -webkit-print-color-adjust: exact !important; 
-    print-color-adjust: exact !important; 
-  }
+  #rc { width: 100% !important; max-width: 195mm !important; border: 1.5px solid #1b4332 !important; padding: 4mm !important; margin: 0 auto !important; box-sizing: border-box !important; page-break-inside: avoid !important; page-break-after: avoid !important; }
+  #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 @media(min-width:900px){.hd{padding:16px 22px 26px}.big3{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.main{max-width:1100px;margin:0 auto}}
 @media(min-width:960px){.side{transform:none}body.side-closed .side{transform:translateX(-100%)}.pagewrap{margin-left:var(--side)}body.side-closed .pagewrap{margin-left:0}#menuBtn{display:none}body.side-closed #menuBtn{display:grid}#scrim{display:none}}
@@ -371,6 +330,12 @@ const ICON_FIELDS = [
 ];
 const val = id => { const e = document.getElementById(id); return e ? e.value : ''; };
 const todayIso = () => new Date().toISOString().slice(0, 10);
+
+function linkify(text) { 
+  if (!text) return ''; 
+  const urlRe = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig; 
+  return esc(text).replace(urlRe, '<a href="$1" target="_blank" style="color:#1e6bff;text-decoration:underline">$1</a>').replace(/\n/g, '<br>'); 
+}
 
 async function compressImage(file, maxDim = 900, quality = 0.82) {
   return new Promise((resolve, reject) => {
@@ -713,8 +678,8 @@ async function openPersonPage(c, appNo) {
         <div class="wrap"><table class="t"><thead><tr><th>Effective</th><th>Amount</th><th>Set by</th></tr></thead>
         <tbody>${((d.salary && d.salary.history) || []).map(h => `<tr><td>${esc(h.effective)}</td><td>${inr(h.amount)}</td><td>${esc(h.setBy)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No salary set yet.</td></tr>'}</tbody></table></div></div>
       <div class="card"><h3 class="sec">Salary payouts</h3>
-        <div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Paid by</th></tr></thead>
-        <tbody>${((d.salary && d.salary.payouts) || []).map(x => `<tr><td>${esc(x.date)}</td><td>${inr(x.amount)}</td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">No payouts yet.</td></tr>'}</tbody></table></div></div>`
+        <div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Paid by</th><th>Receipt</th></tr></thead>
+        <tbody>${((d.salary && d.salary.payouts) || []).map(x => `<tr><td>${esc(x.date)}</td><td>${inr(x.amount)}</td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td><td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : '—'}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">No payouts yet.</td></tr>'}</tbody></table></div></div>`
     : `
       <div class="sum">
         <div class="sumc" style="background:linear-gradient(135deg,#64748b,#334155)"><span>Total due</span><b>${inr(d.summary.due)}</b></div>
@@ -823,7 +788,7 @@ function showCreds(title, appNo, pw, tk) {
     `<button class="btn green" data-act="closeAndOpen" data-id="${esc(appNo)}">Done</button>`);
 }
 
-/* ============ PAYMENTS ============ */
+/* ============ PAYMENTS (with Penalty Option) ============ */
 async function openPay(appNo) {
   const d = await api('apiSuperGetPerson', appNo);
   const p = d.person, s = d.summary;
@@ -835,12 +800,19 @@ async function openPay(appNo) {
       <div><label class="fl">Date<input class="inp" id="pDate" type="date" value="${todayIso()}"></label></div>
       <div><label class="fl">Mode<select class="inp" id="pMode">${MODES.map(m => `<option>${m}</option>`).join('')}</select></label></div>
       <div><label class="fl">Transaction no. (online)<input class="inp" id="pTxn"></label></div>
+      <div style="grid-column:1/-1;background:#fff5f5;padding:10px;border-radius:10px;border:1px dashed #f6c6c8;margin-top:5px">
+        <div><label class="fl" style="color:#b42328">Add Penalty (₹) [Optional]<input class="inp" id="pPen" type="number" min="0" value="0"></label></div>
+        <div><label class="fl" style="color:#b42328">Penalty Reason<input class="inp" id="pPenReason" placeholder="e.g. Late payment"></label></div>
+      </div>
       <div><label class="fl">Note<input class="inp" id="pNote"></label></div>
     </div>`,
     `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPay">Receive</button>`);
   $('#btnPay').addEventListener('click', async () => {
     const b = $('#btnPay'); if (b.disabled) return; b.disabled = true;
     try {
+      const penAmt = Number(val('pPen'));
+      if (penAmt > 0) await api('apiPenaltyAdd', appNo, new Date().getFullYear(), penAmt, val('pPenReason'));
+      
       const r = await api('apiAddPayment', { appNo, amount: val('pAmt'), date: val('pDate'), mode: val('pMode'), txnRef: val('pTxn'), note: val('pNote') });
       toast('Payment received'); await openReceipt(r.receiptId);
     } catch (e) { if (e.message !== 'expired') toast(e.message); b.disabled = false; }
@@ -857,13 +829,13 @@ function openPayout(appNo) {
   $('#btnOut').addEventListener('click', async () => {
     const b = $('#btnOut'); if (b.disabled) return; b.disabled = true;
     try {
-      await api('apiAddSalaryPayout', appNo, val('oAmt'), val('oDate'), val('oMode'), val('oTxn'), val('oNote'));
-      closeM(); toast('Payout recorded'); openPersonPage($('#main'), appNo);
+      const r = await api('apiAddSalaryPayout', appNo, val('oAmt'), val('oDate'), val('oMode'), val('oTxn'), val('oNote'));
+      closeM(); toast('Payout recorded'); await openReceipt(r.receiptId); openPersonPage($('#main'), appNo);
     } catch (e) { if (e.message !== 'expired') toast(e.message); b.disabled = false; }
   });
 }
 
-/* ============ RECEIPT (A4 print) ============ */
+/* ============ RECEIPT (A4 print + PDF Download) ============ */
 async function openReceipt(id) {
   const r = await api('apiSuperReceipt', id);
   const o = r.org, p = r.person;
@@ -898,10 +870,10 @@ async function openReceipt(id) {
     <tbody>${rowsHtml || '<tr><td colspan="7">No transactions.</td></tr>'}</tbody></table>
     <div class="rc-sig">
       <div><div class="si">${o.sigCollector ? `<img src="${esc(o.sigCollector)}" alt="" onerror="this.remove()">` : ''}</div><div class="ln"></div><b>${esc(r.issuedBy || '—')}</b>(Collector)</div>
-      <div class="seal-img"><div class="si">${seal}</div><b>MOHAR / SEAL</b></div>
+      <div class="seal-img"><div class="si">${seal}</div></div>
       <div><div class="si">${o.sigAuth ? `<img src="${esc(o.sigAuth)}" alt="" onerror="this.remove()">` : ''}</div><div class="ln"></div><b>${esc(o.name)}</b>Authorised</div>
     </div></div>`,
-  `<button class="btn light noprint" data-act="close">Close</button><button class="btn noprint" data-act="printNow">${ic('print')}Print / PDF</button>`, true);
+  `<button class="btn light noprint" data-act="close">Close</button><button class="btn noprint" data-act="downloadPdf" style="background:var(--blue)">Download PDF</button><button class="btn noprint" data-act="printNow">${ic('print')}Print / PDF</button>`, true);
 }
 
 /* ============ PENALTY ============ */
@@ -1001,7 +973,7 @@ VIEWS.posts = async (c) => {
     ${d.list.map(x => `<div class="card post">
       ${x.photo ? `<img src="${esc(x.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
       <div><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.authorName)} (${esc(x.authorRole)})</div>
-        <p>${esc(x.body)}</p>
+        <p>${linkify(x.body)}</p>
         <div class="acts">${callLink(x.authorMobile)}${waLink(x.authorMobile)}
           <button class="btn red sm" data-act="delPost" data-id="${esc(x.id)}">Delete</button></div></div>
     </div>`).join('') || '<div class="empty">No posts yet.</div>'}`;
@@ -1018,7 +990,7 @@ VIEWS.sec = async (c, arg) => {
     ${d.items.map(it => `<div class="card sec-card">
       ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml(sec)}</div>`}
       <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div>
-        <p>${esc(it.body)}</p>
+        <p>${linkify(it.body)}</p>
         <div class="acts" style="margin-top:6px">
           <button class="btn light sm" data-act="editSection" data-id="${esc(it.id)}" data-sec="${sec}">Edit</button>
           <button class="btn red sm" data-act="delSection" data-id="${esc(it.id)}" data-sec="${sec}">Delete</button>
@@ -1029,7 +1001,8 @@ function openSectionForm(sec, it) {
   modal(`${it ? 'Edit' : 'Add'} · ${SECS[sec]}`, `<div class="fgrid">
       <div><label class="fl">Title *<input class="inp" id="sTitle" value="${esc(it ? it.title : '')}"></label></div>
       <div><label class="fl">Details<textarea id="sBody">${esc(it ? it.body : '')}</textarea></label></div>
-      <div><label class="fl">Photo<input class="inp" type="file" id="sPhoto" accept="image/*"></label>
+      <div><label class="fl">Photo File<input class="inp" type="file" id="sPhoto" accept="image/*"></label></div>
+      <div><label class="fl">OR Photo URL<input class="inp" id="sPhotoUrlText" placeholder="https://..."></label>
         <input type="hidden" id="sPhotoUrl" value="${esc(it ? it.photo : '')}">
         <img id="sPrev" src="${it && it.photo ? esc(it.photo) : ''}" style="${it && it.photo ? 'width:64px;height:64px;border-radius:12px;object-fit:cover;margin-top:6px' : 'display:none;width:64px;height:64px;border-radius:12px;object-fit:cover;margin-top:6px'}" alt=""></div>
     </div>`,
@@ -1037,7 +1010,8 @@ function openSectionForm(sec, it) {
   $('#btnSec').addEventListener('click', async () => {
     const b = $('#btnSec'); if (b.disabled) return; b.disabled = true;
     try {
-      await api('apiSectionSave', { id: it ? it.id : '', section: sec, title: val('sTitle'), body: val('sBody'), photo: val('sPhotoUrl') });
+      let finalUrl = val('sPhotoUrlText') || val('sPhotoUrl');
+      await api('apiSectionSave', { id: it ? it.id : '', section: sec, title: val('sTitle'), body: val('sBody'), photo: finalUrl });
       closeM(); toast('Saved'); go('sec', { sec });
     } catch (e) { if (e.message !== 'expired') toast(e.message); b.disabled = false; }
   });
@@ -1277,6 +1251,17 @@ const ACTS = {
   close: () => closeM(),
   printNow: () => window.print(),
   copy: (id, el) => copyText(el.dataset.v),
+  downloadPdf: () => {
+    const element = document.getElementById('rc');
+    const opt = {
+      margin: 5,
+      filename: 'Receipt_' + Date.now() + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  },
   closeAndOpen: (id) => { closeM(); openPersonPage($('#main'), id).catch(e => { if (e.message !== 'expired') toast(e.message); }); },
   toggleCreds: () => { SHOW_CREDS = !SHOW_CREDS; go(D.view, D.arg); },
   showPw: (id, el) => {
