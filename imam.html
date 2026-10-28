@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Imam · Community Portal</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 :root{--blue:#1e6bff;--green:#12a150;--orange:#ff8a00;--purple:#7c3aed;--red:#e5484d;--gold:#c99a2e;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--bg:#f4f7fc;--navy:#0b2a5b;--blue-t:#eaf1ff;--green-t:#e8f8ef;--orange-t:#fff3e2;--purple-t:#f1eaff;--red-t:#fdecec;--gold-t:#fbf4df;--side:264px}
 html,body{overflow-x:hidden}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;min-height:100vh}
 button,input,select,textarea{font:inherit;color:inherit}
-a{color:inherit}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 svg.i .s{fill:currentColor;fill-opacity:.18;stroke-opacity:.55}
 img.ic{width:100%;height:100%;object-fit:cover;display:block}
@@ -29,47 +29,38 @@ img.ic{width:100%;height:100%;object-fit:cover;display:block}
 .side-logo img{width:100%;height:100%;object-fit:cover}
 .side-brand{flex:1;min-width:0}
 .side-brand b{display:block;font-size:14.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.side-brand span{font-size:11px;opacity:.78;font-weight:600;letter-spacing:.3px}
-#sideClose{width:34px;height:34px;border-radius:10px;border:0;background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;cursor:pointer;flex:0 0 34px;transition:.15s}
-#sideClose:hover{background:rgba(255,255,255,.3)}
-#sideClose svg.i{width:18px;height:18px}
+.side-brand span{font-size:11px;opacity:.78;font-weight:600}
+#sideClose{width:34px;height:34px;border-radius:10px;border:0;background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;cursor:pointer;flex:0 0 34px}
 .side-search{padding:12px 12px 2px}
-.side-search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line);border-radius:11px;background:#f7f9fd url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") no-repeat 11px center;font-size:13px;outline:none}
-.side-search input:focus{border-color:#bcd3ff;background-color:#fff}
-.side-nav{flex:1;overflow-y:auto;padding:4px 10px 18px;scrollbar-width:thin}
+.side-search input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#f7f9fd;font-size:13px;outline:none}
+.side-nav{flex:1;overflow-y:auto;padding:4px 10px 18px}
 .sgroup{font-size:10.5px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#94a3b8;padding:14px 10px 6px}
 .sitem{display:flex;align-items:center;gap:11px;width:100%;padding:8px 10px;border:0;background:none;border-radius:12px;cursor:pointer;text-align:left;font-size:14px;font-weight:600;color:#334155;position:relative;transition:background .15s,color .15s}
 .sitem:hover{background:#f2f7ff;color:var(--navy)}
-.sitem .si{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:#f1f5fb;color:#5b6b85;flex:0 0 36px;transition:.18s}
+.sitem .si{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:#f1f5fb;color:#5b6b85;flex:0 0 36px}
 .sitem .si svg.i{width:20px;height:20px}
 .sitem .sl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sitem.on{background:linear-gradient(90deg,#eaf1ff,#f7faff);color:var(--blue);font-weight:800}
-.sitem.on .si{background:linear-gradient(135deg,#1e6bff,#4f8dff);color:#fff;box-shadow:0 8px 16px -8px var(--blue)}
-.sitem.on::before{content:'';position:absolute;left:-10px;top:8px;bottom:8px;width:4px;border-radius:0 4px 4px 0;background:var(--blue)}
-.sitem.logout{color:var(--red);margin-top:2px}
+.sitem.on .si{background:linear-gradient(135deg,#1e6bff,#4f8dff);color:#fff}
+.sitem.logout{color:var(--red)}
 .sitem.logout .si{background:var(--red-t);color:var(--red)}
-.sitem.logout:hover{background:#fff1f1}
-.side-foot{padding:10px 14px 14px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-align:center;letter-spacing:.3px}
+.side-foot{padding:10px 14px 14px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-align:center}
 #scrim{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:120;opacity:0;pointer-events:none;transition:opacity .25s}
 #scrim.on{opacity:1;pointer-events:auto}
 .hd{position:relative;overflow:hidden;padding:12px 14px 22px;text-align:center;color:#fff;background:linear-gradient(135deg,#071c40 0%,#0f3d7f 48%,#0a2a5c 100%)}
-.hd-pattern{position:absolute;inset:0;pointer-events:none;opacity:.55;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.22' stroke-width='1.1'%3E%3Cpath d='M70 10l16 16-16 16-16-16z'/%3E%3Cpath d='M70 42l28 28-28 28-28-28z'/%3E%3Ccircle cx='70' cy='70' r='7'/%3E%3Cpath d='M0 70h26M114 70h26M70 0v10M70 130v10'/%3E%3C/g%3E%3C/svg%3E");background-size:140px 140px}
-.hd-art{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;opacity:.16;filter:blur(2px)}
-.hd-art img{width:120%;height:120%;object-fit:cover}
-.hd::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 90% at 50% -20%,rgba(96,170,255,.55),transparent 62%),linear-gradient(180deg,rgba(3,12,30,0),rgba(3,12,30,.5))}
+.hd::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 90% at 50% -20%,rgba(96,170,255,.55),transparent 62%)}
 .hd>*{position:relative;z-index:2}
 .hd .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.menubtn{width:42px;height:42px;border-radius:12px;flex:0 0 42px;display:grid;place-items:center;cursor:pointer;color:#fff;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:.15s}
-.menubtn:hover{background:rgba(255,255,255,.28)}
+.menubtn{width:42px;height:42px;border-radius:12px;flex:0 0 42px;display:grid;place-items:center;cursor:pointer;color:#fff;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16)}
 .menubtn svg.i{width:22px;height:22px}
-.avatar{width:42px;height:42px;border-radius:50%;flex:0 0 42px;display:grid;place-items:center;cursor:pointer;border:2px solid rgba(255,255,255,.85);background:linear-gradient(135deg,#94a3b8,#475569);color:#fff;overflow:hidden;font-weight:700;font-size:16px;box-shadow:0 8px 18px -8px rgba(0,0,0,.65)}
+.avatar{width:42px;height:42px;border-radius:50%;flex:0 0 42px;display:grid;place-items:center;cursor:pointer;border:2px solid rgba(255,255,255,.85);background:linear-gradient(135deg,#94a3b8,#475569);color:#fff;overflow:hidden;font-weight:700;font-size:16px}
 .avatar img{width:100%;height:100%;object-fit:cover}
-.seal{width:76px;height:76px;margin:4px auto 0;border-radius:50%;background:rgba(255,255,255,.97);border:2px solid rgba(255,255,255,.7);display:grid;place-items:center;overflow:hidden;color:var(--navy);box-shadow:0 12px 26px -12px rgba(0,0,0,.8),0 0 0 7px rgba(255,255,255,.12)}
+.seal{width:76px;height:76px;margin:4px auto 0;border-radius:50%;background:rgba(255,255,255,.97);border:2px solid rgba(255,255,255,.7);display:grid;place-items:center;overflow:hidden;color:var(--navy)}
 .seal img{width:100%;height:100%;object-fit:cover}
-.orgname{margin-top:10px;font-size:clamp(25px,5vw,34px);font-weight:900;color:#fff;line-height:1.16;letter-spacing:.2px;text-shadow:0 3px 16px rgba(0,0,0,.45);word-break:break-word}
-.role{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:13px;border:1px solid rgba(255,255,255,.42);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.orgname{margin-top:10px;font-size:clamp(25px,5vw,34px);font-weight:900;color:#fff;line-height:1.16}
+.role{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:13px;border:1px solid rgba(255,255,255,.42)}
 .role svg.i{width:16px;height:16px}
-.tag{margin-top:7px;color:#9fe8bd;font-weight:600;font-size:13px;letter-spacing:.3px}
+.tag{margin-top:7px;color:#9fe8bd;font-weight:600;font-size:13px}
 .pagewrap{transition:margin-left .3s cubic-bezier(.4,0,.2,1)}
 .main{padding:14px 12px 40px}
 .pagehead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 4px;border-left:5px solid var(--blue);padding-left:10px}
@@ -124,9 +115,9 @@ h3.sec::before{content:'';width:4px;height:18px;border-radius:4px;background:var
 .chipbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;font-size:12.5px}
 .chipbtn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .chip{display:inline-block;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700}
-.c-paid{background:#d9f5e4;color:#127a45}.c-due{background:#fde0e1;color:#b42328}.c-imam{background:var(--orange-t);color:#b35f00}.c-role{background:var(--blue-t);color:var(--blue)}
+.c-paid{background:#d9f5e4;color:#127a45}.c-due{background:#fde0e1;color:#b42328}.c-imam{background:var(--orange-t);color:#b35f00}.c-blk{background:#e5e7eb;color:#374151}.c-role{background:var(--blue-t);color:var(--blue)}
 .wrap{overflow-x:auto}
-table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:600px}
+table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:640px}
 table.t th{text-align:left;padding:9px 8px;background:#f7f9fd;color:var(--muted);font-weight:700;font-size:12px;border-bottom:1px solid var(--line);white-space:nowrap}
 table.t td{padding:9px 8px;border-bottom:1px solid #eef1f6;vertical-align:middle;white-space:nowrap}
 tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
@@ -140,7 +131,7 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .dp{width:132px;height:132px;border-radius:50%;background:linear-gradient(135deg,var(--blue-t),#dfe9ff);display:grid;place-items:center;font-size:44px;font-weight:800;color:var(--blue);overflow:hidden;border:4px solid #fff;box-shadow:0 12px 24px -12px var(--blue)}
 .dp[data-act]{cursor:pointer}
 .dp img{width:100%;height:100%;object-fit:cover}
-.appid{font-size:24px;font-weight:800;letter-spacing:1px;color:var(--navy);font-family:Arial,sans-serif}
+.appid{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--navy);font-family:Arial,sans-serif}
 .appid small{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase}
 .pname{font-size:20px;font-weight:800;color:var(--navy)}
 .info{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:12px;text-align:left}
@@ -155,6 +146,11 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .sec-card img,.sec-card .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
 .sec-card .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
 .sec-card p{color:var(--muted);margin-top:4px;line-height:1.6;white-space:pre-wrap}
+.post{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
+.post img,.post .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
+.post .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
+.pen-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed #e6eaf2;font-size:13px}
+.rc-notice{background:#fffbe6;border:1px solid #f0dfb0;border-radius:14px;padding:12px;margin-bottom:10px}
 #ov{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center;z-index:200}
 #ov.open{display:flex}
 #ov .box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:640px;max-height:94vh;overflow:auto;padding:18px 16px 22px;position:relative}
@@ -165,8 +161,8 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 @media(min-width:700px){#ov{align-items:center}#ov .box{border-radius:20px}}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;display:none;z-index:260;max-width:92vw;text-align:center}
 .rc{background:#fff;border:2px solid #1b4332;border-radius:8px;padding:10px 12px;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:11px;color:#000}
-.rc-head{display:grid;grid-template-columns:50px 1fr 50px;align-items:center;gap:8px;border-bottom:2px solid #1b4332;padding-bottom:5px;margin-bottom:5px}
-.rc-head .lg{width:46px;height:46px;border-radius:50%;border:2px solid #1b4332;display:grid;place-items:center;overflow:hidden}
+.rc-head{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;gap:8px;border-bottom:2px solid #1b4332;padding-bottom:5px;margin-bottom:5px}
+.rc-head .lg{width:56px;height:56px;border-radius:50%;border:2px solid #1b4332;display:grid;place-items:center;overflow:hidden}
 .rc-head .lg img{width:100%;height:100%;object-fit:cover}
 .rc-head .ttl{text-align:center}
 .rc-head h2{font-size:15px;font-weight:900;text-transform:uppercase}
@@ -185,68 +181,34 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 table.rt{width:100%;border-collapse:collapse;font-size:9px;border:1px solid #000}
 table.rt th{background:#1b4332;color:#fff;padding:2px 3px;text-align:left;font-size:8.5px;font-weight:900}
 table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-space:nowrap}
-.rc-sig{display:flex;justify-content:space-between;margin-top:8px;gap:12px}
-.rc-sig div{width:150px;text-align:center;font-size:9px}
-.rc-sig .si{height:28px;display:flex;align-items:flex-end;justify-content:center}
-.rc-sig .si img{max-height:28px;max-width:120px;object-fit:contain}
-.rc-sig .ln{border-bottom:1px solid #000;margin:2px 0 2px}
+.rc-sig{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:10px}
+.rc-sig>div{width:33%;text-align:center;font-size:9px}
+.rc-sig .si{height:34px;display:flex;align-items:flex-end;justify-content:center}
+.rc-sig .si img{max-height:34px;max-width:130px;object-fit:contain}
+.rc-sig .ln{border-bottom:1px solid #000;margin:2px 0}
 .rc-sig b{display:block;font-size:9px;font-weight:900}
-@media print{
-  @page{size:A4 portrait;margin:6mm}
-  body *{visibility:hidden}
-  #rc,#rc *{visibility:visible}
-  #rc{position:absolute;left:0;top:0;width:198mm;padding:4mm;border:1.5px solid #1b4332;border-radius:0;font-size:9px;max-height:285mm;overflow:hidden}
-  .noprint{display:none!important}
-  #ov{position:static!important;background:none!important;display:block!important;padding:0!important}
-  #ov .box{box-shadow:none;max-height:none;overflow:visible;padding:0;width:100%;max-width:100%}
-  .side,#scrim,.hd,#topbar,#boot,.toast{display:none!important}
-  .pagewrap{margin-left:0!important}
-}
-@media(min-width:900px){
-  .hd{padding:16px 22px 26px}
-  .big3{grid-template-columns:repeat(3,1fr)}
-  .tiles{grid-template-columns:repeat(3,1fr)}
-  .main{max-width:1100px;margin:0 auto}
-}
-@media(min-width:960px){
-  .side{transform:none;box-shadow:10px 0 34px -26px rgba(15,23,42,.5)}
-  body.side-closed .side{transform:translateX(-100%)}
-  .pagewrap{margin-left:var(--side)}
-  body.side-closed .pagewrap{margin-left:0}
-  #menuBtn{display:none}
-  body.side-closed #menuBtn{display:grid}
-  #scrim{display:none}
-}
+.rc-sig .seal-img img{max-height:52px;max-width:80px;object-fit:contain;opacity:.85}
 
-.rc-notice{background:#fffbe6;border:1px solid #f0dfb0;border-radius:14px;padding:12px;margin-bottom:10px}
-.rc-notice b{color:var(--navy)}
-.pen-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed #e6eaf2;font-size:13px}
-@media print{
-  #rc{width:190mm!important;padding:3mm!important;font-size:8px!important;max-height:282mm!important;overflow:hidden!important}
-  #rc .rc-head h2{font-size:12px!important}
-  #rc table.rt td,#rc table.rt th{padding:0 2px!important;font-size:7.5px!important}
-  #rc .rc-box div,#rc .rc-sum div{font-size:7.5px!important;padding:0!important}
-  #rc .rc-sum b{font-size:9px!important}
-  #rc .rc-sig{margin-top:4px!important}
-  #rc .rc-sig .si{height:20px!important}
-  #rc .rc-sig div{font-size:7.5px!important;width:120px!important}
+@media print {
+  @page { size: A4 portrait; margin: 5mm; }
+  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
+  body > *:not(#ov) { display: none !important; }
+  #ov { position: static !important; background: none !important; display: block !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; height: auto !important; width: 100% !important; }
+  #ov .box { box-shadow: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; position: static !important; transform: none !important; }
+  .noprint { display: none !important; }
+  #rc { width: 100% !important; max-width: 195mm !important; border: 1.5px solid #1b4332 !important; padding: 4mm !important; margin: 0 auto !important; box-sizing: border-box !important; page-break-inside: avoid !important; page-break-after: avoid !important; }
+  #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
-
-.hd .row{justify-content:flex-end}
-.sec-title .muted{font-size:12px}
-.profile .appid{font-size:24px}
+@media(min-width:900px){.hd{padding:16px 22px 26px}.big3{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.main{max-width:1100px;margin:0 auto}}
+@media(min-width:960px){.side{transform:none}body.side-closed .side{transform:translateX(-100%)}.pagewrap{margin-left:var(--side)}body.side-closed .pagewrap{margin-left:0}#menuBtn{display:none}body.side-closed #menuBtn{display:grid}#scrim{display:none}}
 </style>
 </head>
 <body>
-
 <div id="topbar"><i></i></div>
 <div id="boot"><div class="bt" id="bootT">Connecting…</div><div class="bar"><i id="bootBar"></i></div><div class="bs" id="bootS">Please wait</div></div>
 <aside class="side" id="side">
-  <div class="side-top">
-    <div class="side-logo" id="sideLogo"></div>
-    <div class="side-brand"><b id="sideName">Community</b><span>Imam</span></div>
-    <button id="sideClose" aria-label="Close menu"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-  </div>
+  <div class="side-top"><div class="side-logo" id="sideLogo"></div><div class="side-brand"><b id="sideName">Community</b><span>Imam</span></div>
+  <button id="sideClose"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="side-search"><input id="navSearch" placeholder="Search menu…" autocomplete="off"></div>
   <nav class="side-nav" id="sideNav"></nav>
   <div class="side-foot">Ilm • Iman • Seva</div>
@@ -254,12 +216,13 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
 <div id="scrim"></div>
 <div class="pagewrap">
   <header class="hd">
-    <div class="hd-art" id="hdrArt"></div>
     <div class="hd-pattern"></div>
     <div class="row">
-      <button class="menubtn" id="menuBtn" aria-label="Menu"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-      <button class="btn light sm" onclick="goPage('index.html?stay=1')" style="margin-right:6px">Login page</button>
-      <button class="avatar" id="av" aria-label="My profile"></button>
+      <button class="menubtn" id="menuBtn"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn light sm" onclick="goPage('index.html?stay=1')">Login page</button>
+        <button class="avatar" id="av"></button>
+      </div>
     </div>
     <div class="seal" id="seal"></div>
     <div class="orgname" id="orgName">Community</div>
@@ -268,15 +231,13 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
   </header>
   <main class="main" id="main"><div class="loading">Loading…</div></main>
 </div>
-<div id="ov"><div class="box" id="ovBox">
-  <button class="x noprint" data-act="close" aria-label="Close">×</button>
-  <div class="ttl" id="ovT"></div><div id="ovB"></div><div class="foot" id="ovF"></div>
-</div></div>
+<div id="ov"><div class="box" id="ovBox"><button class="x noprint" data-act="close">×</button><div class="ttl" id="ovT"></div><div id="ovB"></div><div class="foot" id="ovF"></div></div></div>
 <input type="file" id="dpFile" accept="image/*" style="display:none">
 <div class="toast" id="toast"></div>
 
 <script src="api.js"></script>
 <script>
+/* ============ ICONS ============ */
 const IC = {
   dashboard:'<rect x="3" y="3" width="8" height="8" rx="2.4"/><rect x="13" y="3" width="8" height="8" rx="2.4" class="s"/><rect x="3" y="13" width="8" height="8" rx="2.4" class="s"/><rect x="13" y="13" width="8" height="8" rx="2.4"/>',
   users:'<circle cx="9.5" cy="8" r="3.6"/><path d="M2.8 20.2c.5-3.6 3.2-5.9 6.7-5.9s6.2 2.3 6.7 5.9"/><circle cx="17.5" cy="9" r="2.6" class="s"/><path d="M16.4 14.6c2.9.2 5 2.2 5.5 5.4" class="s"/>',
@@ -289,94 +250,79 @@ const IC = {
   eidgah:'<path d="M3.5 20.5v-7.2a8.5 8.5 0 0 1 17 0v7.2"/><path d="M2 20.5h20"/><path d="M9 20.5v-4.2a3 3 0 0 1 6 0v4.2" class="s"/>',
   kabristan:'<path d="M7.5 20.5V11a4.5 4.5 0 0 1 9 0v9.5"/><path d="M5 20.5h14"/><path d="M13.6 6.6a2.4 2.4 0 1 0 0 3.8 3 3 0 0 1 0-3.8z" class="s"/>',
   search:'<circle cx="11" cy="11" r="6.8"/><path d="M20.5 20.5L16 16"/>',
-  import:'<path d="M12 3.5v10"/><path d="M8.2 10.2L12 14l3.8-3.8"/><path d="M4.5 16.5v2.2a2.3 2.3 0 0 0 2.3 2.3h10.4a2.3 2.3 0 0 0 2.3-2.3v-2.2"/>',
-  download:'<path d="M12 3.5v10"/><path d="M8.2 10.2L12 14l3.8-3.8"/><path d="M4.5 16.5v2.2a2.3 2.3 0 0 0 2.3 2.3h10.4a2.3 2.3 0 0 0 2.3-2.3v-2.2"/>',
   rates:'<path d="M3.5 12.4V4.8a1.3 1.3 0 0 1 1.3-1.3h7.6l8.1 8.1-8.9 8.9z"/><circle cx="8.2" cy="8.2" r="1.5" class="s"/>',
-  tag:'<path d="M3.5 12.4V4.8a1.3 1.3 0 0 1 1.3-1.3h7.6l8.1 8.1-8.9 8.9z"/><circle cx="8.2" cy="8.2" r="1.5" class="s"/>',
-  settings:'<path d="M4 7.5h9M17.5 7.5H20M4 16.5h2.5M11 16.5h9"/><circle cx="15" cy="7.5" r="2.4"/><circle cx="8.5" cy="16.5" r="2.4"/>',
-  profile:'<circle cx="12" cy="8.2" r="4"/><path d="M4.5 20.5c.9-4.2 3.9-6.4 7.5-6.4s6.6 2.2 7.5 6.4"/>',
-  logout:'<path d="M14.5 4.5h3.2a2.3 2.3 0 0 1 2.3 2.3v10.4a2.3 2.3 0 0 1-2.3 2.3h-3.2"/><path d="M10 16.2L5.8 12 10 7.8"/><path d="M5.8 12H15"/>',
-  phone:'<path d="M21 16.6v2.6a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.5 2 2 0 0 1 3.1 1.3h2.6a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L6.7 9.3a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
-  chat:'<path d="M20.5 11.7a8.2 8.2 0 0 1-11.9 7.3L3.5 20.5l1.6-4.9A8.2 8.2 0 1 1 20.5 11.7z"/>',
   money:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.8" class="s"/><path d="M6 10v4M18 10v4" class="s"/>',
-  hourglass:'<path d="M6.5 2.5h11M6.5 21.5h11"/><path d="M8 2.5c0 4.6 4 6.2 4 9.5s-4 4.9-4 9.5"/><path d="M16 2.5c0 4.6-4 6.2-4 9.5s4 4.9 4 9.5"/>',
   alert:'<path d="M12 3.5L21.5 20H2.5z"/><path d="M12 9.5v4.5M12 17.5v.2"/>',
   check:'<path d="M4.5 12.5l5 5 10-11"/>',
   eye:'<path d="M2 12s3.8-6.5 10-6.5S22 12 22 12s-3.8 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   print:'<path d="M6.5 9V3h11v6"/><path d="M6.5 18H4.6A2.1 2.1 0 0 1 2.5 15.9v-4.8A2.1 2.1 0 0 1 4.6 9h14.8a2.1 2.1 0 0 1 2.1 2.1v4.8a2.1 2.1 0 0 1-2.1 2.1h-1.9"/><rect x="6.5" y="14.5" width="11" height="7" rx="1"/>',
-  edit:'<path d="M12 20.5h9"/><path d="M16.7 3.3a2.3 2.3 0 0 1 3.3 3.3L7.4 19.2 3 20.5l1.3-4.4z"/>',
-  trash:'<path d="M3.5 6.5h17M9 6.5V3.8h6v2.7"/><path d="M6 6.5l1 14h10l1-14"/><path d="M10 10.5v6M14 10.5v6" class="s"/>',
-  lock:'<rect x="4.5" y="10.5" width="15" height="10" rx="2.4"/><path d="M7.8 10.5V7.2a4.2 4.2 0 0 1 8.4 0v3.3"/>',
-  calendar:'<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  logout:'<path d="M14.5 4.5h3.2a2.3 2.3 0 0 1 2.3 2.3v10.4a2.3 2.3 0 0 1-2.3 2.3h-3.2"/><path d="M10 16.2L5.8 12 10 7.8"/><path d="M5.8 12H15"/>',
+  phone:'<path d="M21 16.6v2.6a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.5 2 2 0 0 1 3.1 1.3h2.6a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L6.7 9.3a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
+  chat:'<path d="M20.5 11.7a8.2 8.2 0 0 1-11.9 7.3L3.5 20.5l1.6-4.9A8.2 8.2 0 1 1 20.5 11.7z"/>',
+  profile:'<circle cx="12" cy="8.2" r="4"/><path d="M4.5 20.5c.9-4.2 3.9-6.4 7.5-6.4s6.6 2.2 7.5 6.4"/>',
   arrow:'<path d="M4.5 12h15M13.5 6l6 6-6 6"/>',
   mosque:'<path d="M3.5 21V11.5C3.5 7 7.3 4 12 4s8.5 3 8.5 7.5V21"/><path d="M2 21h20"/><path d="M12 2v2"/><path d="M9.5 21v-3.5a2.5 2.5 0 0 1 5 0V21" class="s"/>'
 };
 const ic = (n, size) => `<svg class="i" viewBox="0 0 24 24"${size ? ` width="${size}" height="${size}"` : ''}>${IC[n] || IC.user}</svg>`;
-
-</script>
-<script>
-
-const ROLE = 'imam';
-const LS_S = 'pl_session';
-const SECS = { madrasa: 'Madrasa', masjid: 'Masjid', eidgah: 'Eidgah', kabristan: 'Kabristan' };
-const SEC_ICON = { madrasa: 'madrasa', masjid: 'masjid', eidgah: 'eidgah', kabristan: 'kabristan' };
-const LBL = { user: 'User', imam: 'Imam', member: 'Member', admin: 'Admin' };
-const ROLE_NAME = { user: 'User', imam: 'Imam', member: 'Member' };
-const EXTRA_ITEMS = [
-  { l: 'Notices', ic: 'alert', v: 'notice' },
-  { l: 'Kharch (expenses)', ic: 'rates', v: 'kharch' }
-];
-const SEC_ITEMS = [
-  { l: 'Madrasa', ic: 'madrasa', v: 'sec', a: { sec: 'madrasa' } },
-  { l: 'Masjid', ic: 'masjid', v: 'sec', a: { sec: 'masjid' } },
-  { l: 'Eidgah', ic: 'eidgah', v: 'sec', a: { sec: 'eidgah' } },
-  { l: 'Kabristan', ic: 'kabristan', v: 'sec', a: { sec: 'kabristan' } }
-];
-const MENU = {
-  user: [{ l: 'Dashboard', ic: 'dashboard', v: 'home' }, { l: 'Khata book', ic: 'rates', v: 'khata' }].concat(EXTRA_ITEMS, [
-         { l: 'Admins', ic: 'admin', v: 'public', a: { kind: 'admin' } },
-         { l: 'Members', ic: 'members', v: 'public', a: { kind: 'member' } },
-         { l: 'Imams', ic: 'imam', v: 'public', a: { kind: 'imam' } }]).concat(SEC_ITEMS, [{ l: 'My profile', ic: 'profile', v: 'profile' }]),
-  member: [{ l: 'Dashboard', ic: 'dashboard', v: 'home' }].concat(EXTRA_ITEMS, [
-           { l: 'Members', ic: 'members', v: 'directory', a: { role: 'member' } },
-           { l: 'Users', ic: 'users', v: 'directory', a: { role: 'user' } },
-           { l: 'Imams', ic: 'imam', v: 'directory', a: { role: 'imam' } }]).concat(SEC_ITEMS, [{ l: 'My profile', ic: 'profile', v: 'profile' }]),
-  imam: [{ l: 'Dashboard', ic: 'dashboard', v: 'home' }].concat(EXTRA_ITEMS, [
-         { l: 'Admins', ic: 'admin', v: 'public', a: { kind: 'admin' } },
-         { l: 'Members', ic: 'members', v: 'public', a: { kind: 'member' } }]).concat(SEC_ITEMS, [{ l: 'My profile', ic: 'profile', v: 'profile' }])
-};
-const ICON_KEYS = ['dashboard','users','imam','members','admin','madrasa','masjid','eidgah','kabristan','search','import','rates','settings','profile'];
-
-let TOKEN = null, ME = null, MY = null, MY_PHOTO = '', D = { view: 'home', arg: {} }, ICONS = {}, DP_PENDING = null, LIST = [], BUSY = 0;
-
-const $ = s => document.querySelector(s);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+let ICONS = {};
 function iconHtml(key, fallback) {
   const url = ICONS[key];
   if (!url) return ic(fallback || key);
   const fb = ic(fallback || key).replace(/"/g, '&quot;');
   return `<img class="ic" src="${esc(url)}" alt="" onerror="this.outerHTML='${fb}'">`;
 }
-function avatarHtml(name, url) { return url ? `<img src="${esc(url)}" alt="">` : esc((name || '?').charAt(0).toUpperCase()); }
-function digits(m) { const x = String(m || '').replace(/\D/g, ''); return x.length === 10 ? '91' + x : x; }
-function callLink(m) { const d = digits(m); return d ? `<a class="cl call" href="tel:+${d}">${ic('phone')}Call</a>` : ''; }
-function waLink(m) { const d = digits(m); return d ? `<a class="cl wa" href="https://wa.me/${d}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>` : ''; }
-function toast(m) { const el = $('#toast'); el.textContent = m; el.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(() => el.style.display = 'none', 2600); }
-function bootProgress(pct, title, sub) { $('#bootBar').style.width = pct + '%'; if (title) $('#bootT').textContent = title; if (sub) $('#bootS').textContent = sub; }
-function bootDone() { $('#boot').classList.add('gone'); }
-function showError(text) { $('#main').innerHTML = '<div class="errbox"><b>Page could not load.</b><br>' + esc(text) + '</div>'; }
-window.onerror = function (msg) { showError('Script error: ' + msg); };
-function modal(title, body, foot, wide) {
-  $('#ovT').textContent = title; $('#ovB').innerHTML = body; $('#ovF').innerHTML = foot || '';
-  $('#ovBox').classList.toggle('wide', !!wide); $('#ov').classList.add('open');
+
+/* ============ HELPERS ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+const LS_S = 'pl_session';
+let TOKEN = null, ME = null, MY = null, MY_PHOTO = '', D = { view: 'home', arg: {} };
+let CUR_PERSON = null, DP_PENDING = null, BUSY = 0;
+const SECS = { madrasa: 'Madrasa', masjid: 'Masjid', eidgah: 'Eidgah', kabristan: 'Kabristan' };
+const SEC_ICON = { madrasa: 'madrasa', masjid: 'masjid', eidgah: 'eidgah', kabristan: 'kabristan' };
+const LBL = { user: 'User', imam: 'Imam', member: 'Member', admin: 'Admin', super_admin: 'Super Admin' };
+const val = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+
+async function compressImage(file, maxDim = 900, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > maxDim || h > maxDim) {
+        const r = Math.min(maxDim / w, maxDim / h);
+        w = Math.round(w * r); h = Math.round(h * r);
+      }
+      const cvs = document.createElement('canvas');
+      cvs.width = w; cvs.height = h;
+      const ctx = cvs.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      cvs.toBlob(blob => {
+        if (!blob) return reject(new Error('Compression failed'));
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          b64: String(reader.result).split(',')[1],
+          mime: blob.type || 'image/jpeg',
+          name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg'
+        });
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Invalid image file')); };
+    img.src = objectUrl;
+  });
 }
-function closeM() { $('#ov').classList.remove('open'); }
-function fileToB64(f) { return new Promise(res => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.readAsDataURL(f); }); }
+
 function busyStart() { BUSY++; $('#topbar').style.display = 'block'; }
 function busyEnd() { BUSY = Math.max(0, BUSY - 1); if (!BUSY) $('#topbar').style.display = 'none'; }
+function bootProgress(p, t, s) { $('#bootBar').style.width = p + '%'; if (t) $('#bootT').textContent = t; if (s) $('#bootS').textContent = s; }
+function bootDone() { $('#boot').classList.add('gone'); }
+function showError(t) { $('#main').innerHTML = '<div class="errbox"><b>Page could not load.</b><br>' + esc(t) + '</div>'; }
+window.onerror = m => showError('Script error: ' + m);
 
-/* Server call: TOKEN apne aap */
 async function api(fn, ...a) {
   busyStart();
   try {
@@ -386,41 +332,77 @@ async function api(fn, ...a) {
     return r;
   } finally { busyEnd(); }
 }
+function toast(m) { const el = $('#toast'); el.textContent = m; el.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(() => el.style.display = 'none', 2600); }
+function digits(m) { const x = String(m || '').replace(/\D/g, ''); return x.length === 10 ? '91' + x : x; }
+function callLink(m) { const d = digits(m); return d ? `<a class="cl call" href="tel:+${d}">${ic('phone')}Call</a>` : ''; }
+function waLink(m) { const d = digits(m); return d ? `<a class="cl wa" href="https://wa.me/${d}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>` : ''; }
+function modal(title, body, foot, wide) { $('#ovT').textContent = title; $('#ovB').innerHTML = body; $('#ovF').innerHTML = foot || ''; $('#ovBox').classList.toggle('wide', !!wide); $('#ov').classList.add('open'); }
+function closeM() { $('#ov').classList.remove('open'); }
+function avatarHtml(name, url) { return url ? `<img src="${esc(url)}" alt="">` : esc((name || 'I').charAt(0).toUpperCase()); }
 async function leave(expired) {
   if (!expired && TOKEN) { try { await apiCall('apiLogout', [TOKEN]); } catch (e) {} }
   localStorage.removeItem(LS_S);
   goPage('index.html');
 }
 
-/* ============ SIDEBAR ============ */
+/* ============ NAV ============ */
+const MENU = [
+  { group: 'Main', items: [
+    { l: 'Dashboard', ic: 'dashboard', v: 'home' }
+  ]},
+  { group: 'Community', items: [
+    { l: 'Madrasa', ic: 'madrasa', v: 'madrasa' },
+    { l: 'Masjid', ic: 'masjid', v: 'sec', a: { sec: 'masjid' } },
+    { l: 'Eidgah', ic: 'eidgah', v: 'sec', a: { sec: 'eidgah' } },
+    { l: 'Kabristan', ic: 'kabristan', v: 'sec', a: { sec: 'kabristan' } },
+    { l: 'Notices', ic: 'alert', v: 'notice' }
+  ]},
+  { group: 'Directory', items: [
+    { l: 'Admins', ic: 'admin', v: 'admins' },
+    { l: 'Members', ic: 'members', v: 'members' }
+  ]},
+  { group: 'Account', items: [
+    { l: 'My profile', ic: 'profile', v: 'profile' }
+  ]}
+];
 function isOn(n) {
-  if (n.a && n.a.kind) return D.view === 'public' && D.arg.kind === n.a.kind;
-  if (n.a && n.a.role) return D.view === 'directory' && D.arg.role === n.a.role;
   if (n.a && n.a.sec) return D.view === 'sec' && D.arg.sec === n.a.sec;
   return D.view === n.v;
 }
 function drawNav() {
-  const items = MENU[ROLE] || [];
-  $('#sideNav').innerHTML = `<div class="sgroup">Main</div>` + items.map(n =>
-    `<button class="sitem ${isOn(n) ? 'on' : ''}" data-go="${n.v}" data-arg='${JSON.stringify(n.a || {})}' data-l="${esc(n.l.toLowerCase())}">
-      <span class="si">${iconHtml(n.ic)}</span><span class="sl">${n.l}</span></button>`).join('') +
-    `<div class="sgroup">Account</div>
-     <button class="sitem logout" data-act="logout" data-l="logout"><span class="si">${ic('logout')}</span><span class="sl">Logout</span></button>`;
+  let h = '';
+  MENU.forEach(g => {
+    h += `<div class="sgroup">${g.group}</div>` + g.items.map(n =>
+      `<button class="sitem ${isOn(n) ? 'on' : ''}" data-go="${n.v}" data-arg='${JSON.stringify(n.a || {})}' data-l="${esc(n.l.toLowerCase())}">
+        <span class="si">${iconHtml(n.ic)}</span><span class="sl">${n.l}</span></button>`).join('');
+  });
+  h += `<div class="sgroup">Account</div><button class="sitem logout" data-act="logout" data-l="logout"><span class="si">${ic('logout')}</span><span class="sl">Logout</span></button>`;
+  $('#sideNav').innerHTML = h;
 }
-function hideDrawer() { $('#side').classList.remove('open'); $('#scrim').classList.remove('on'); }
+function filterNav(q) {
+  q = (q || '').trim().toLowerCase();
+  const nav = $('#sideNav'); if (!nav) return;
+  let grp = null, shown = false;
+  Array.prototype.forEach.call(nav.children, el => {
+    if (el.classList.contains('sgroup')) { grp = el; shown = false; el.style.display = 'none'; return; }
+    if (el.classList.contains('sitem')) {
+      const ok = !q || (el.dataset.l || el.textContent.toLowerCase()).includes(q);
+      el.style.display = ok ? '' : 'none';
+      if (ok && grp && !shown) { grp.style.display = ''; shown = true; }
+    }
+  });
+}
 const isDesk = () => window.innerWidth >= 960;
-$('#menuBtn').addEventListener('click', () => {
-  if (isDesk()) document.body.classList.remove('side-closed');
-  else { $('#side').classList.add('open'); $('#scrim').classList.add('on'); }
-});
+function hideDrawer() { $('#side').classList.remove('open'); $('#scrim').classList.remove('on'); }
+$('#menuBtn').addEventListener('click', () => { if (isDesk()) document.body.classList.remove('side-closed'); else { $('#side').classList.add('open'); $('#scrim').classList.add('on'); } });
 $('#sideClose').addEventListener('click', () => { if (isDesk()) document.body.classList.add('side-closed'); else hideDrawer(); });
 $('#scrim').addEventListener('click', hideDrawer);
+document.addEventListener('input', e => { if (e.target.id === 'navSearch') filterNav(e.target.value); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') hideDrawer(); });
 
-/* ============ ROUTER ============ */
 const VIEWS = {};
 async function go(view, arg) {
-  D = { view: view, arg: arg || {} };
+  D = { view, arg: arg || {} };
   hideDrawer(); drawNav(); window.scrollTo(0, 0);
   const c = $('#main');
   c.innerHTML = '<div class="loading">Loading…</div>';
@@ -428,401 +410,252 @@ async function go(view, arg) {
   catch (e) { if (e.message !== 'expired') c.innerHTML = `<div class="errbox">${esc(e.message)}</div>`; }
 }
 
-/* ============ SHARED BLOCKS ============ */
-function profileCard(p, extra) {
-  const mine = !!(MY && p.appNo === MY.person.appNo);
-  return `<div class="card profile">
-    <div class="dp" ${mine ? 'data-act="dpMenu"' : ''} title="${mine ? 'Change photo' : ''}">${avatarHtml(p.name, p.photoUrl)}</div>
-    <div class="appid"><small>Application ID</small>${esc(p.appNo)}</div>
-    <div class="pname">${esc(p.name)}</div>
-    <div class="acts" style="justify-content:center"><span class="chip c-role">${esc(LBL[p.role] || p.role)}</span></div>
-    <div class="acts" style="justify-content:center">${callLink(p.mobile)}${waLink(p.role === 'imam' && p.whatsapp ? p.whatsapp : p.mobile)}</div>
-    <div class="info" style="width:100%">
-      <div><span>Father's name</span><b>${esc(p.father || '—')}</b></div>
-      <div><span>Mobile</span><b>${esc(p.mobile || '—')}</b></div>
-      <div><span>Address</span><b>${esc(p.address || '—')}</b></div>
-      <div><span>Admin</span><b>${esc(p.adminName || '—')}</b></div>
-      <div><span>Join date</span><b>${esc(p.joinDate || '—')}</b></div>
-      ${extra || ''}
-    </div></div>`;
-}
-function txTable(list) {
-  if (!list.length) return '<div class="empty">No transactions yet.</div>';
-  return `<div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Collected by</th><th></th></tr></thead><tbody>
-    ${list.map(x => `<tr><td>${esc(x.date)}</td>
-      <td>${x.direction === 'REVERSAL' ? '<span class="chip c-due">Reversal</span>' : '<span class="chip c-paid">Payment</span>'}</td>
-      <td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td>
-      <td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
-}
-function receiptTable(list) {
-  return `<div class="wrap"><table class="t"><thead><tr><th>Receipt ID</th><th>Issued</th><th>Total paid</th><th>Balance</th><th></th></tr></thead><tbody>
-    ${list.map(r => `<tr><td class="mono"><b>${esc(r.receiptId)}</b></td><td>${esc(r.issued)}</td><td>${inr(r.totalPaid)}</td><td>${inr(r.balance)}</td>
-      <td><button class="btn light sm" data-act="receipt" data-id="${esc(r.receiptId)}">${ic('eye')}View</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">No receipts yet.</td></tr>'}</tbody></table></div>`;
-}
-function listTable(rows) {
-  if (!rows.length) return '<div class="empty">No records.</div>';
-  return `<div class="wrap"><table class="t"><thead><tr><th>App ID</th><th>Name</th><th>Role</th><th>Mobile</th><th>Due</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody>
-    ${rows.map(p => `<tr class="${p.role === 'imam' ? '' : (p.tag === 'paid' ? 'row-paid' : 'row-due')}">
-      <td class="mono"><b>${esc(p.appNo)}</b></td>
-      <td><button class="nm" data-act="person" data-id="${esc(p.appNo)}">${esc(p.name)}</button></td>
-      <td><span class="chip c-role">${LBL[p.role] || p.role}</span></td>
-      <td>${esc(p.mobile || '—')}</td>
-      <td>${p.role === 'imam' ? '—' : inr(p.due)}</td><td>${p.role === 'imam' ? '—' : inr(p.paid)}</td>
-      <td><b>${p.role === 'imam' ? '—' : inr(p.baki)}</b></td>
-      <td>${p.role === 'imam' ? '<span class="chip c-imam">Imam</span>' : (p.tag === 'paid' ? '<span class="chip c-paid">Paid</span>' : '<span class="chip c-due">Due</span>')}</td>
-    </tr>`).join('')}</tbody></table></div>`;
-}
-
-/* ============ NOTICE + PENALTY (sab roles) ============ */
-async function noticeBlock() {
-  try {
-    const n = await api('apiNoticeList');
-    if (!n.list.length) return '';
-    return `<div class="sec-title"><h3>Notifications</h3><a data-go="notice">All →</a></div>` +
-      n.list.slice(0, 3).map(x => `<div class="rc-notice"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)}</div><div style="margin-top:4px">${esc(x.body)}</div></div>`).join('');
-  } catch (e) { return ''; }
-}
-async function penaltyBlock() {
-  try {
-    const p = await api('apiPenaltyList');
-    const rows = p.list.map(x => `<div class="pen-row"><span>${esc(x.year)} saal · ${esc(x.reason || '')} <span class="muted">${esc(x.date)}</span></span><b>${inr(x.amount)}</b></div>`).join('');
-    return `<div class="sec-title"><h3>Back year penalty</h3></div>
-      <div class="card" style="border:2px solid #f6c6c8;background:#fff8f8">
-        <div class="pen-row" style="border:0"><b>Back year penalty</b><b style="color:#b42328;font-size:18px">${inr(p.total)}</b></div>
-        ${rows || '<div class="muted">Koi back year penalty nahin hai.</div>'}
-      </div>`;
-  } catch (e) { return ''; }
-}
-
-/* ============ HOME ============ */
+/* ============ HOME (Dashboard) ============ */
 VIEWS.home = async (c) => {
-  if (ROLE === 'imam') return imamHome(c);
-  if (ROLE === 'member') return memberHome(c);
-  return userHome(c);
-};
-async function userHome(c) {
-  const p = MY.person, s = MY.summary;
-  const pct = s.due ? Math.min(100, Math.round(s.paid / s.due * 100)) : 0;
-  const notes = await noticeBlock(), pen = await penaltyBlock();
-  c.innerHTML = `${notes}
+  const ov = await api('apiImamOverview');
+  MY = ov.me;
+  const p = MY.person, s = MY.salary || { current: 0 };
+  const notes = await api('apiNoticeList').catch(() => ({ list: [] }));
+  c.innerHTML = `
+    ${notes.list.length ? `<div class="sec-title"><h3>Recent Notifications</h3><a data-go="notice">All →</a></div>` + notes.list.slice(0, 3).map(x =>
+      `<div class="rc-notice"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)}</div><div style="margin-top:4px">${esc(x.body)}</div></div>`).join('') : ''}
     <div class="pagehead"><h2>Assalamu Alaikum, ${esc(p.name)}</h2></div>
-    <p class="psub">Your membership and payments for ${esc(String(s.year))}</p>
-    ${profileCard(p)}
-    <div class="sec-title"><h3>Payments</h3></div>
-    <div class="big3">
-      <button class="big g-purple" data-go="khata"><span class="ic">${iconHtml('rates')}</span><span><span class="lb">Total due</span><b style="font-size:22px">${inr(s.due)}</b></span></button>
-      <button class="big g-green" data-go="khata"><span class="ic">${iconHtml('check')}</span><span><span class="lb">Paid</span><b style="font-size:22px">${inr(s.paid)}</b></span></button>
-      <button class="big g-orange" data-go="khata"><span class="ic">${iconHtml('money')}</span><span><span class="lb">Balance</span><b style="font-size:22px">${inr(s.baki)}</b></span></button>
-    </div>
-    <div class="card" style="margin-top:12px"><b>Payment progress: ${pct}%</b><div class="pbar"><i style="width:${pct}%"></i></div>
-      ${s.opening > 0 ? `<p class="muted">Back-year due included: ${inr(s.opening)}</p>` : ''}</div>
-    <div class="sec-title"><h3>Recent transactions</h3><a data-go="khata">View all →</a></div>
-    <div class="card" style="padding:0">${txTable(MY.payments.slice(0, 5))}</div>${pen}`;
-}
-async function memberHome(c) {
-  const d = await api('apiPersonDirectory');
-  LIST = d.list;
-  const notes = await noticeBlock(), pen = await penaltyBlock();
-  const all = LIST, p = MY.person;
-  const cnt = r => all.filter(x => x.role === r).length;
-  const sum = k => all.reduce((s, x) => s + (x[k] || 0), 0);
-  c.innerHTML = `${notes}
-    <div class="pagehead"><h2>Dashboard</h2></div>
-    <p class="psub">Welcome, ${esc(p.name)}. You can see everyone's details. Only photo can be changed by you.</p>
-    ${profileCard(p)}
-    <div class="sec-title"><h3>Total count</h3></div>
-    <div class="big3">
-      <button class="big g-purple" data-go="directory" data-arg='{"role":"member"}'><span class="ic">${iconHtml('members')}</span><span><span class="lb">Members</span><b>${cnt('member')}</b></span><span class="go">${ic('arrow')}</span></button>
-      <button class="big g-blue" data-go="directory" data-arg='{"role":"user"}'><span class="ic">${iconHtml('users')}</span><span><span class="lb">Users</span><b>${cnt('user')}</b></span><span class="go">${ic('arrow')}</span></button>
-      <button class="big g-orange" data-go="directory" data-arg='{"role":"imam"}'><span class="ic">${iconHtml('imam')}</span><span><span class="lb">Imams</span><b>${cnt('imam')}</b></span><span class="go">${ic('arrow')}</span></button>
-    </div>
-    <div class="sec-title"><h3>Money</h3></div>
-    <div class="tiles">
-      <div class="tile t-green"><span class="ti">${iconHtml('check')}</span><span class="tx"><span class="lb">Paid members</span><b>${all.filter(x => x.tag === 'paid').length}</b></span></div>
-      <div class="tile t-red"><span class="ti">${iconHtml('alert')}</span><span class="tx"><span class="lb">Due members</span><b>${all.filter(x => x.tag === 'due').length}</b></span></div>
-      <div class="tile t-green wide"><span class="ti">${iconHtml('money')}</span><span class="tx"><span class="lb">Total collected</span><b>${inr(sum('paid'))}</b></span></div>
-    </div>
-    <div class="sec-title"><h3>Latest members and users</h3><a data-go="directory" data-arg='{}'>View all →</a></div>
-    <div class="card" style="padding:0">${listTable(all.filter(x => x.role !== 'imam').slice(0, 8))}</div>${pen}`;
-}
-async function imamHome(c) {
-  const p = MY.person, s = MY.salary || { current: 0, history: [], payouts: [] };
-  const notes = await noticeBlock(), pen = await penaltyBlock();
-  c.innerHTML = `${notes}
-    <div class="pagehead"><h2>Assalamu Alaikum, ${esc(p.name)}</h2></div>
-    <p class="psub">Your details and monthly salary report.</p>
-    ${profileCard(p, `<div><span>Qualification</span><b>${esc(p.qualification || '—')}</b></div><div><span>WhatsApp</span><b>${esc(p.whatsapp || '—')}</b></div>`)}
-    <div class="sec-title"><h3>Salary</h3></div>
-    <div class="sumc" style="background:linear-gradient(135deg,#ff8a00,#ffb020);margin-bottom:12px"><span>Current monthly salary</span><b>${inr(s.current)}</b></div>
-    <div class="sec-title"><h3>Salary history</h3></div>
-    <div class="card" style="padding:0"><div class="wrap"><table class="t"><thead><tr><th>Effective from</th><th>Monthly amount</th><th>Set by</th></tr></thead><tbody>
-      ${s.history.map(h => `<tr><td>${esc(h.effective)}</td><td>${inr(h.amount)}</td><td>${esc(h.setBy)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No salary set yet.</td></tr>'}
-    </tbody></table></div></div>
-    <div class="sec-title"><h3>Salary received</h3></div>
-    <div class="card" style="padding:0"><div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Paid by</th><th>Note</th></tr></thead><tbody>
-      ${s.payouts.map(x => `<tr><td>${esc(x.date)}</td><td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td><td>${esc(x.note)}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">No payments received yet.</td></tr>'}
-    </tbody></table></div></div>${pen}`;
-}
-
-/* ============ KHATA (user) ============ */
-VIEWS.khata = async (c) => {
-  const s = MY.summary;
-  c.innerHTML = `
-    <div class="pagehead"><h2>Khata book</h2></div>
-    <p class="psub">Every payment you have made. Eye icon par click karke receipt dekhein.</p>
-    <div class="sum">
-      <div class="sumc" style="background:linear-gradient(135deg,#64748b,#334155)"><span>Total due</span><b>${inr(s.due)}</b></div>
-      <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a)"><span>Paid</span><b>${inr(s.paid)}</b></div>
-      <div class="sumc" style="background:linear-gradient(135deg,#e5484d,#ff7a7d);grid-column:1/-1"><span>Balance</span><b>${inr(s.baki)}</b></div>
-    </div>
-    <div class="sec-title"><h3>Receipts</h3></div>
-    <div class="card" style="padding:0">${receiptTable(MY.receipts)}</div>
-    <div class="sec-title"><h3>All transactions</h3></div>
-    <div class="card" style="padding:0">${txTable(MY.payments)}</div>`;
-};
-
-/* ============ DIRECTORY (member) ============ */
-VIEWS.directory = async (c, arg) => {
-  const d = await api('apiPersonDirectory');
-  LIST = d.list;
-  const role = arg.role || '';
-  const title = role ? (ROLE_NAME[role] || role) + 's' : 'Members & users';
-  c.innerHTML = `
-    <div class="pagehead"><h2>${title}</h2></div>
-    <p class="psub">Read only. Naam par click karke poori details dekhein.</p>
-    <div class="toolbar"><input class="inp" id="q" placeholder="Search name, mobile or App ID"></div>
-    <div class="chips" style="margin-bottom:10px">
-      <button class="chipbtn ${!role ? 'on' : ''}" data-go="directory" data-arg='{}'>All</button>
-      <button class="chipbtn ${role === 'member' ? 'on' : ''}" data-go="directory" data-arg='{"role":"member"}'>Members</button>
-      <button class="chipbtn ${role === 'user' ? 'on' : ''}" data-go="directory" data-arg='{"role":"user"}'>Users</button>
-      <button class="chipbtn ${role === 'imam' ? 'on' : ''}" data-go="directory" data-arg='{"role":"imam"}'>Imams</button>
-    </div>
-    <div class="card" style="padding:0"><div id="tbl"></div></div>`;
-  const draw = () => {
-    const q = ($('#q').value || '').trim().toLowerCase();
-    const rows = LIST.filter(p => (!role || p.role === role) &&
-      (!q || p.name.toLowerCase().includes(q) || String(p.mobile).includes(q) || p.appNo.includes(q)));
-    $('#tbl').innerHTML = listTable(rows);
-  };
-  $('#q').addEventListener('input', draw);
-  draw();
-};
-
-/* ============ NOTICE (read only) ============ */
-VIEWS.notice = async (c) => {
-  const n = await api('apiNoticeList');
-  c.innerHTML = `<div class="pagehead"><h2>Notifications</h2></div>
-    <p class="psub">Admin ki taraf se sabhi ko bheji gayi soochna.</p>
-    ${n.list.map(x => `<div class="rc-notice"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.by)}</div><div style="margin-top:4px;white-space:pre-wrap">${esc(x.body)}</div></div>`).join('') || '<div class="empty">Koi notice nahin.</div>'}`;
-};
-
-/* ============ KHARCH (read only, sabke liye) ============ */
-VIEWS.kharch = async (c) => {
-  const d = await api('apiExpenseList');
-  c.innerHTML = `<div class="pagehead"><h2>Kharch (expenses)</h2></div>
-    <p class="psub">Admin ne paisa kahan kharch kiya, uska hisab.</p>
-    <div class="card" style="padding:0"><div class="wrap"><table class="t"><thead><tr><th>Kharch</th><th>Date</th><th>Items</th><th>Total</th><th></th></tr></thead><tbody>
-      ${d.list.map(x => `<tr><td><b>${esc(x.title)}</b></td><td>${esc(x.date)}</td><td>${x.count}</td><td><b>${inr(x.total)}</b></td>
-        <td><button class="btn light sm" data-act="kharchView" data-id="${esc(x.receiptId)}">${ic('eye')}View</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">Koi kharch nahin.</td></tr>'}
-    </tbody></table></div></div>`;
-};
-VIEWS.kharchView = async (c, arg) => {
-  const r = await api('apiExpenseView', arg.id);
-  c.innerHTML = `<div class="toolbar"><button class="btn light sm" data-go="kharch" data-arg='{}'>← Back</button>
-    <button class="btn sm" data-act="printNow">${ic('print')}Print / PDF</button></div>
-    <div class="rc" id="rc">
-      <div class="rc-head"><div class="ttl" style="grid-column:1/-1"><h2>${esc(r.title)}</h2><p>Kharch receipt · ${esc(r.receiptId)} · ${esc(r.created)}</p></div></div>
-      <table class="rt"><thead><tr><th>#</th><th>Title</th><th>Description</th><th>Date</th><th style="text-align:right">Amount</th></tr></thead>
-      <tbody>${r.items.map(i => `<tr><td>${i.itemNo}</td><td>${esc(i.title)}</td><td style="white-space:normal">${esc(i.description)}</td><td>${esc(i.date)}</td><td style="text-align:right">${inr(i.amount)}</td></tr>`).join('') || '<tr><td colspan="5">Koi item nahin.</td></tr>'}
-      <tr class="tot"><td colspan="4" style="text-align:right"><b>TOTAL</b></td><td style="text-align:right"><b>${inr(r.total)}</b></td></tr></tbody></table></div>`;
-};
-
-/* ============ PUBLIC DIRECTORY (user / imam): admin, member, imam ============ */
-VIEWS.public = async (c, arg) => {
-  const d = await api('apiPublicDirectory');
-  const kind = arg.kind || 'admin';
-  const rows = kind === 'admin' ? d.admins : d.list.filter(p => p.kind === kind);
-  const title = kind === 'admin' ? 'Admins' : kind === 'member' ? 'Members' : 'Imams';
-  const card = x => {
-    const isAdmin = kind === 'admin';
-    return `<div class="card pub-card">
-      <div class="dp" style="width:84px;height:84px;font-size:30px;flex:0 0 84px">${avatarHtml(x.name, x.photo)}</div>
-      <div style="flex:1;min-width:0">
-        <div class="pname" style="font-size:17px">${esc(x.name)}</div>
-        ${isAdmin ? '' : `<div class="appid" style="font-size:14px"><small>Application ID</small>${esc(x.appNo)}</div>`}
-        <div class="muted" style="font-size:13px">Mobile: ${esc(x.mobile || '—')}</div>
-        ${x.kind === 'imam' ? `<div class="muted" style="font-size:13px">Qualification: ${esc(x.qualification || '—')}</div>` : ''}
-        ${isAdmin ? '' : `<div class="muted" style="font-size:13px">Address: ${esc(x.address || '—')}</div>
-          <div class="muted" style="font-size:13px">Join date: ${esc(x.joinDate || '—')}</div>`}
-        <div class="acts" style="margin-top:6px">${callLink(x.mobile)}${waLink(x.mobile)}</div>
-      </div></div>`;
-  };
-  c.innerHTML = `
-    <div class="pagehead"><h2>${title}</h2></div>
-    <p class="psub">Sirf naam, photo, mobile aur basic details dikhti hain. Payment details nahin.</p>
-    ${rows.map(card).join('') || '<div class="empty">No records.</div>'}`;
-};
-
-/* ============ PERSON VIEW (member sirf) ============ */
-VIEWS.person = async (c, arg) => {
-  const d = await api('apiPersonView', arg.id);
-  const p = d.person, s = d.summary, imam = p.role === 'imam';
-  c.innerHTML = `
-    <div class="toolbar"><button class="btn light sm" data-go="directory" data-arg='{}'>← Back</button></div>
-    ${profileCard(p, imam ? `<div><span>Qualification</span><b>${esc(p.qualification || '—')}</b></div>` : '')}
-    ${imam ? '' : `<div class="sum" style="margin-top:12px">
-        <div class="sumc" style="background:linear-gradient(135deg,#64748b,#334155)"><span>Total due</span><b>${inr(s.due)}</b></div>
-        <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a)"><span>Paid</span><b>${inr(s.paid)}</b></div>
-        <div class="sumc" style="background:linear-gradient(135deg,#e5484d,#ff7a7d);grid-column:1/-1"><span>Balance</span><b>${inr(s.baki)}</b></div>
-      </div>
-      <div class="sec-title"><h3>Receipts</h3></div><div class="card" style="padding:0">${receiptTable(d.receipts)}</div>
-      <div class="sec-title"><h3>Transactions</h3></div><div class="card" style="padding:0">${txTable(d.payments)}</div>`}`;
-};
-
-/* ============ SECTIONS (sab roles, read only) ============ */
-VIEWS.sec = async (c, arg) => {
-  const sec = arg.sec || 'madrasa';
-  const d = await api('apiPersonSections', sec);
-  let postsHtml = '', postForm = '';
-  if (sec === 'madrasa') {
-    const pl = await api('apiPostList', sec);
-    const canPost = ROLE === 'imam';
-    postForm = canPost ? `<div class="card"><h3 class="sec">Post karein</h3><div class="fgrid">
-        <div><label class="fl">Title *</label><input class="inp" id="postTitle"></div>
-        <div><label class="fl">Description</label><textarea class="inp" id="postBody" rows="3"></textarea></div>
-        <div><label class="fl">Photo (optional)</label><input class="inp" type="file" id="postPhoto" accept="image/*"><input type="hidden" id="postPhotoUrl"></div>
-        <button class="btn green" data-act="postSubmit">Post karein</button></div></div>` : '';
-    postsHtml = `<div class="sec-title"><h3>Madrasa posts</h3></div>` + (pl.list.map(x => `<div class="card sec-card">
-        ${x.photo ? `<img src="${esc(x.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
-        <div><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.authorName)} (${esc(x.authorRole)})</div>
-        <p>${esc(x.body)}</p>
-        <div class="acts">${callLink(x.authorMobile)}${waLink(x.authorMobile)}
-          ${(ROLE === 'imam' && x.authorApp === MY.person.appNo) ? `<button class="btn red sm" data-act="postDel" data-id="${esc(x.id)}">Delete</button>` : ''}</div></div>
-      </div>`).join('') || '<div class="empty">Abhi koi post nahin.</div>');
-  }
-  c.innerHTML = `
-    <div class="pagehead"><h2>${SECS[sec]}</h2></div>
-    <p class="psub">Latest updates from the committee.</p>
-    ${postForm}${postsHtml}
-    ${sec === 'madrasa' ? '<div class="sec-title"><h3>Updates</h3></div>' : ''}
-    ${d.items.map(it => `<div class="card sec-card">
-      ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml(SEC_ICON[sec])}</div>`}
-      <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div><p>${esc(it.body)}</p></div>
-    </div>`).join('') || (sec === 'madrasa' ? '' : `<div class="empty">No updates yet for ${SECS[sec]}.</div>`)}`;
-};
-
-/* ============ PROFILE (sirf DP badal sakte hain) ============ */
-VIEWS.profile = async (c) => {
-  const p = MY.person;
-  c.innerHTML = `
-    <div class="pagehead"><h2>My profile</h2></div>
-    <p class="psub">Aap sirf apni photo badal sakte hain. Baki details fixed hain.</p>
-    ${profileCard(p)}
-    <div class="card"><button class="btn red" data-act="logout" style="width:100%">${ic('logout')}Logout</button></div>`;
-};
-
-/* ============ DP: Save / Replace / Delete ============ */
-function openDp() {
-  DP_PENDING = null;
-  const cur = MY.person.photoUrl;
-  modal('My photo', `<div class="profile"><div class="dp" id="dpPrev">${avatarHtml(MY.person.name, cur)}</div>
-      <p class="hint" id="dpHint">${cur ? 'Replace se badlein ya Delete se hatayein.' : 'Photo chunein.'}</p></div>`,
-    `<div class="acts" id="dpBtns" style="width:100%;justify-content:center">
-       ${cur ? '<button class="btn red sm" data-act="dpDelete">Delete</button>' : ''}
-       <button class="btn light sm" data-act="dpPick">${cur ? 'Replace' : 'Choose photo'}</button>
-       <button class="btn light sm" data-act="close">Cancel</button></div>`);
-}
-function showDpPending(url) {
-  $('#dpPrev').innerHTML = `<img src="${esc(url)}" alt="">`;
-  $('#dpHint').textContent = 'Nayi photo chuni gayi. Save dabayein, ya Replace se dusri chunein.';
-  $('#dpBtns').innerHTML = `<button class="btn green sm" data-act="dpSave">Save</button>
-    <button class="btn light sm" data-act="dpPick">Replace</button>
-    <button class="btn light sm" data-act="close">Cancel</button>`;
-}
-
-/* ============ RECEIPT (ek A4 page, sirf date) ============ */
-async function openReceipt(id) {
-  const r = await api('apiReceiptView', id);
-  const o = r.org, p = r.person;
-  const logo = o.logo ? `<img src="${esc(o.logo)}" alt="">` : ic('mosque', 26);
-  const rowsHtml = r.rows.map(x => `<tr><td>${x.no}</td><td>${esc(x.date)}</td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td>
-      <td style="text-align:right">${x.reversal ? '−' : ''}${inr(Math.abs(x.amount))}</td><td style="text-align:right">${inr(x.balanceAfter)}</td></tr>`).join('');
-  modal('Receipt', `<div class="rc" id="rc">
-    <div class="rc-head"><div class="lg">${logo}</div>
-      <div class="ttl"><h2>${esc(o.name)}</h2><p>${esc(o.address)}${o.reg ? ' · ' + esc(o.reg) : ''}</p></div>
-      <div class="lg">${logo}</div></div>
-    <div class="rc-meta"><span>Receipt: <b>${esc(r.receiptId)}</b></span><span>Date: <b>${esc(r.issued)}</b></span><span>Year: <b>${r.year}</b></span></div>
-    <div class="rc-mid">
-      <div class="rc-box">
-        <div><span>Application ID</span><b class="rcid">${esc(p.appNo)}</b></div>
-        <div><span>Name</span><b>${esc(p.name)}</b></div>
+    <p class="psub">Your dashboard overview.</p>
+    <div class="card profile">
+      <div class="dp" data-act="dpMenu">${avatarHtml(p.name, p.photoUrl)}</div>
+      <div class="appid"><small>Application ID</small>${esc(p.appNo)}</div>
+      <div class="pname">${esc(p.name)}</div>
+      <div class="acts" style="justify-content:center"><span class="chip c-role">Imam</span></div>
+      <div class="acts" style="justify-content:center">${callLink(p.mobile)}${waLink(p.whatsapp || p.mobile)}</div>
+      <div class="info" style="width:100%">
         <div><span>Father's name</span><b>${esc(p.father || '—')}</b></div>
         <div><span>Mobile</span><b>${esc(p.mobile || '—')}</b></div>
         <div><span>Address</span><b>${esc(p.address || '—')}</b></div>
-        <div><span>Admin</span><b>${esc(p.adminName || '—')}</b></div>
-      </div>
-      <div class="rc-sum">
-        <div><span>Total due</span><b>${inr(r.due)}</b></div>
-        <div><span>Total paid</span><b>${inr(r.paid)}</b></div>
-        <div><span>Balance</span><b>${inr(r.balance)}</b></div>
-        <div><span>Transactions</span><b>${r.rows.length}</b></div>
+        <div><span>Join date</span><b>${esc(p.joinDate || '—')}</b></div>
+        <div><span>Qualification</span><b>${esc(p.qualification || '—')}</b></div>
+        <div><span>WhatsApp</span><b>${esc(p.whatsapp || '—')}</b></div>
+        <div style="grid-column:1/-1"><span>Current Salary</span><b style="font-size:18px;color:var(--green)">${inr(s.current)} / month</b></div>
       </div>
     </div>
-    <table class="rt"><thead><tr><th>#</th><th>Date</th><th>Mode</th><th>Txn no.</th><th>Collector</th><th style="text-align:right">Amount</th><th style="text-align:right">Balance</th></tr></thead>
-    <tbody>${rowsHtml || '<tr><td colspan="7">No transactions.</td></tr>'}</tbody></table>
-    <div class="rc-sig">
-      <div><div class="si">${r.sigCollector ? `<img src="${esc(r.sigCollector)}" alt="">` : ''}</div><div class="ln"></div><b>${esc(r.issuedBy || '—')}</b>(Collector)</div>
-      <div><div class="si">${r.sigAuth ? `<img src="${esc(r.sigAuth)}" alt="">` : ''}</div><div class="ln"></div><b>${esc(o.name)}</b>Authorised signatory</div>
-    </div></div>`,
-  `<button class="btn light noprint" data-act="close">Close</button><button class="btn noprint" data-act="printNow">${ic('print')}Print / PDF</button>`, true);
-}
+    <div class="sec-title"><h3>Community Overview</h3></div>
+    <div class="tiles">
+      <button class="tile t-blue" data-go="admins"><span class="ti">${iconHtml('admin')}</span><span class="tx"><span class="lb">Admins</span><b>${ov.admins.length}</b></span></button>
+      <button class="tile t-purple" data-go="members"><span class="ti">${iconHtml('members')}</span><span class="tx"><span class="lb">Members</span><b>${ov.members.length}</b></span></button>
+      <button class="tile t-green" data-go="madrasa"><span class="ti">${iconHtml('madrasa')}</span><span class="tx"><span class="lb">Madrasa Updates</span><b>${ov.sections.madrasa || 0}</b></span></button>
+      <button class="tile t-blue" data-go="sec" data-arg='{"sec":"masjid"}'><span class="ti">${iconHtml('masjid')}</span><span class="tx"><span class="lb">Masjid Updates</span><b>${ov.sections.masjid || 0}</b></span></button>
+      <button class="tile t-orange" data-go="sec" data-arg='{"sec":"eidgah"}'><span class="ti">${iconHtml('eidgah')}</span><span class="tx"><span class="lb">Eidgah Updates</span><b>${ov.sections.eidgah || 0}</b></span></button>
+      <button class="tile t-red wide" data-go="sec" data-arg='{"sec":"kabristan"}'><span class="ti">${iconHtml('kabristan')}</span><span class="tx"><span class="lb">Kabristan Updates</span><b>${ov.sections.kabristan || 0}</b></span></button>
+    </div>`;
+};
+
+/* ============ MADRASA (Posts + Sections) ============ */
+VIEWS.madrasa = async (c) => {
+  const [secData, postData] = await Promise.all([
+    api('apiPersonSections', 'madrasa'),
+    api('apiPostList', 'madrasa')
+  ]);
+  c.innerHTML = `
+    <div class="pagehead"><h2>Madrasa</h2></div>
+    <p class="psub">You can post updates here for everyone.</p>
+    <div class="card">
+      <h3 class="sec">Post new update</h3>
+      <div class="fgrid">
+        <div><label class="fl">Title *<input class="inp" id="postTitle"></label></div>
+        <div><label class="fl">Description<textarea class="inp" id="postBody" rows="3"></textarea></label></div>
+        <div><label class="fl">Photo (optional)<input class="inp" type="file" id="postPhoto" accept="image/*"><input type="hidden" id="postPhotoUrl"></label></div>
+        <button class="btn green" data-act="postSubmit">Publish Post</button>
+      </div>
+    </div>
+    <div class="sec-title"><h3>Madrasa Posts</h3></div>
+    ${postData.list.map(x => `<div class="card post">
+      ${x.photo ? `<img src="${esc(x.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
+      <div><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.authorName)} (${esc(x.authorRole)})</div>
+        <p>${esc(x.body)}</p>
+        <div class="acts">${callLink(x.authorMobile)}${waLink(x.authorMobile)}
+          ${(x.authorApp === MY.person.appNo) ? `<button class="btn red sm" data-act="postDel" data-id="${esc(x.id)}">Delete</button>` : ''}</div></div>
+    </div>`).join('') || '<div class="empty">No posts yet.</div>'}
+    <div class="sec-title"><h3>Official Announcements</h3></div>
+    ${secData.items.map(it => `<div class="card sec-card">
+      ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
+      <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div><p>${esc(it.body)}</p></div>
+    </div>`).join('') || '<div class="empty">No announcements yet.</div>'}`;
+};
+
+/* ============ SECTIONS (Masjid, Eidgah, Kabristan) ============ */
+VIEWS.sec = async (c, arg) => {
+  const sec = arg.sec || 'masjid';
+  const d = await api('apiPersonSections', sec);
+  c.innerHTML = `
+    <div class="pagehead"><h2>${SECS[sec]}</h2></div>
+    <p class="psub">Updates from the committee.</p>
+    ${d.items.map(it => `<div class="card sec-card">
+      ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml(SEC_ICON[sec])}</div>`}
+      <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div><p>${esc(it.body)}</p></div>
+    </div>`).join('') || `<div class="empty">No updates yet for ${SECS[sec]}.</div>`}`;
+};
+
+/* ============ NOTICES ============ */
+VIEWS.notice = async (c) => {
+  const n = await api('apiNoticeList');
+  c.innerHTML = `
+    <div class="pagehead"><h2>Notices</h2></div>
+    <p class="psub">Add a notice for everyone. (You can delete your own notices).</p>
+    <div class="card"><div class="fgrid">
+      <div><label class="fl">Title *<input class="inp" id="nTitle"></label></div>
+      <div><label class="fl">Message<textarea id="nBody" rows="3"></textarea></label></div>
+      <button class="btn green" data-act="postNotice">Post notice</button>
+    </div></div>
+    ${n.list.map(x => `<div class="rc-notice">
+      <div style="display:flex;justify-content:space-between;gap:8px">
+        <b>${esc(x.title)}</b>
+        ${x.by === ME.username ? `<button class="btn red sm" data-act="delNotice" data-id="${esc(x.id)}">Delete</button>` : ''}
+      </div>
+      <div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.by)}</div>
+      <div style="margin-top:4px;white-space:pre-wrap">${esc(x.body)}</div>
+    </div>`).join('') || '<div class="empty">No notices yet.</div>'}`;
+};
+
+/* ============ DIRECTORY: ADMINS ============ */
+VIEWS.admins = async (c) => {
+  const ov = await api('apiImamOverview');
+  c.innerHTML = `<div class="pagehead"><h2>Admins</h2></div>
+    <p class="psub">Committee administrators.</p>
+    ${ov.admins.map(x => `
+      <div class="card" style="display:flex;gap:14px;align-items:flex-start">
+        <div class="dp" style="width:84px;height:84px;font-size:30px;flex:0 0 84px">${avatarHtml(x.name, x.photo)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="pname" style="font-size:17px">${esc(x.name)}</div>
+          <div class="muted" style="font-size:13px">Role: <b>${esc(LBL[x.role] || x.role)}</b></div>
+          <div class="muted" style="font-size:13px">Mobile: ${esc(x.mobile || '—')}</div>
+          <div class="acts" style="margin-top:6px">${callLink(x.mobile)}${waLink(x.mobile)}</div>
+        </div></div>`).join('') || '<div class="empty">No admins found.</div>'}`;
+};
+
+/* ============ DIRECTORY: MEMBERS ============ */
+VIEWS.members = async (c) => {
+  const ov = await api('apiImamOverview');
+  c.innerHTML = `<div class="pagehead"><h2>Members</h2></div>
+    <p class="psub">Committee members.</p>
+    ${ov.members.map(x => `
+      <div class="card" style="display:flex;gap:14px;align-items:flex-start">
+        <div class="dp" style="width:84px;height:84px;font-size:30px;flex:0 0 84px">${avatarHtml(x.name, x.photo)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="pname" style="font-size:17px">${esc(x.name)}</div>
+          <div class="appid" style="font-size:14px"><small>Application ID</small>${esc(x.appNo)}</div>
+          <div class="muted" style="font-size:13px">Mobile: ${esc(x.mobile || '—')}</div>
+          <div class="acts" style="margin-top:6px">${callLink(x.mobile)}${waLink(x.mobile)}</div>
+        </div></div>`).join('') || '<div class="empty">No members found.</div>'}`;
+};
+
+/* ============ MY PROFILE ============ */
+VIEWS.profile = async (c) => {
+  const d = await api('apiMyPerson');
+  MY = d;
+  const p = d.person, s = d.salary || { current: 0, history: [], payouts: [] };
+  c.innerHTML = `
+    <div class="pagehead"><h2>My profile</h2></div>
+    <div class="card profile">
+      <div class="dp" data-act="dpMenu">${avatarHtml(p.name, p.photoUrl)}</div>
+      <div class="appid"><small>Application ID</small>${esc(p.appNo)}</div>
+      <div class="pname">${esc(p.name)}</div>
+      <div class="acts" style="justify-content:center"><span class="chip c-role">Imam</span></div>
+      <div class="info" style="width:100%">
+        <div><span>Father's name</span><b>${esc(p.father || '—')}</b></div>
+        <div><span>Mobile</span><b>${esc(p.mobile || '—')}</b></div>
+        <div><span>Address</span><b>${esc(p.address || '—')}</b></div>
+        <div><span>Join date</span><b>${esc(p.joinDate || '—')}</b></div>
+        <div><span>Qualification</span><b>${esc(p.qualification || '—')}</b></div>
+        <div><span>WhatsApp</span><b>${esc(p.whatsapp || '—')}</b></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="sec">Salary History</h3>
+      <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a);margin-bottom:10px"><span>Current Salary</span><b>${inr(s.current)} / month</b></div>
+      <div class="wrap"><table class="t"><thead><tr><th>Effective</th><th>Amount</th><th>Set by</th></tr></thead>
+        <tbody>${s.history.map(h => `<tr><td>${esc(h.effective)}</td><td>${inr(h.amount)}</td><td>${esc(h.setBy)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No history yet.</td></tr>'}</tbody></table></div>
+    </div>
+    <div class="card">
+      <h3 class="sec">Salary Received</h3>
+      <div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn</th><th>By</th></tr></thead>
+        <tbody>${s.payouts.map(x => `<tr><td>${esc(x.date)}</td><td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">No payouts yet.</td></tr>'}</tbody></table></div>
+    </div>
+    <div class="card"><button class="btn red" data-act="logout" style="width:100%">${ic('logout')}Logout</button></div>`;
+};
 
 /* ============ ACTIONS ============ */
 const ACTS = {
   logout: () => leave(false),
   close: () => closeM(),
-  printNow: () => window.print(),
-  person: (id) => go('person', { id: id }),
-  receipt: (id) => openReceipt(id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
-  dpMenu: () => openDp(),
-  kharchView: (id) => go('kharchView', { id: id }),
+  dpMenu: () => openDpModal(),
+  dpPick: () => $('#dpFile').click(),
+  dpSave: async () => {
+    if (!DP_PENDING) return toast('Choose a photo first.');
+    $('#dpHint').textContent = 'Uploading…';
+    try {
+      const r = await api('apiPersonUploadPhoto', DP_PENDING.b64, DP_PENDING.mime, DP_PENDING.name);
+      await api('apiPersonSetPhoto', r.url);
+      DP_PENDING = null;
+      $('#av').innerHTML = avatarHtml(MY.person.name, r.url);
+      MY.person.photoUrl = r.url;
+      toast('Photo saved'); closeM();
+      go(D.view, D.arg);
+    } catch (e) { toast('Upload failed: ' + e.message); $('#dpHint').textContent = 'Upload failed.'; }
+  },
+  dpDelete: async () => {
+    if (!confirm('Remove your photo?')) return;
+    await api('apiPersonSetPhoto', '');
+    MY.person.photoUrl = '';
+    $('#av').innerHTML = avatarHtml(MY.person.name, '');
+    toast('Photo removed'); closeM();
+    go(D.view, D.arg);
+  },
   postSubmit: async () => {
     const t = val('postTitle');
     if (!t) return toast('Title likhein.');
     let url = '';
     const f = document.getElementById('postPhoto') && document.getElementById('postPhoto').files[0];
-    if (f) { const b64 = await fileToB64(f); url = (await api('apiPersonUploadPhoto', b64, f.type, f.name)).url; }
+    if (f) { const b64 = await compressImage(f); url = (await api('apiPersonUploadPhoto', b64.b64, b64.mime, b64.name)).url; }
     await api('apiPostCreate', 'madrasa', t, val('postBody'), url);
-    toast('Post ho gayi'); go('sec', { sec: 'madrasa' });
+    toast('Post ho gayi'); go('madrasa', {});
   },
   postDel: async (id) => {
     if (!confirm('Ye post hata dein?')) return;
-    await api('apiPostDelete', id); go('sec', { sec: 'madrasa' });
+    await api('apiPostDelete', id); toast('Deleted'); go('madrasa', {});
   },
-  printNow: () => window.print(),
-  dpPick: () => $('#dpFile').click(),
-  dpSave: async () => {
-    if (!DP_PENDING) return toast('Pehle photo chunein.');
-    $('#dpHint').textContent = 'Uploading…';
-    const r = await api('apiPersonUploadPhoto', DP_PENDING.b64, DP_PENDING.mime, DP_PENDING.name);
-    await api('apiPersonSetPhoto', r.url);
-    DP_PENDING = null; MY.person.photoUrl = r.url;
-    $('#av').innerHTML = avatarHtml(MY.person.name, r.url);
-    closeM(); toast('Photo saved');
-    go(D.view, D.arg);
+  postNotice: async () => {
+    await api('apiNoticePost', val('nTitle'), val('nBody'));
+    toast('Notice posted'); go('notice', {});
   },
-  dpDelete: async () => {
-    if (!confirm('Photo hata dein?')) return;
-    await api('apiPersonSetPhoto', '');
-    MY.person.photoUrl = '';
-    $('#av').innerHTML = avatarHtml(MY.person.name, '');
-    closeM(); toast('Photo removed');
-    go(D.view, D.arg);
+  delNotice: async (id) => {
+    if (!confirm('Remove this notice?')) return;
+    await api('apiNoticeDelete', id); toast('Deleted'); go('notice', {});
   }
 };
+
+function openDpModal() {
+  DP_PENDING = null;
+  const cur = MY.person.photoUrl;
+  modal('My photo', `<div class="profile">
+      <div class="dp" id="dpPrev">${avatarHtml(MY.person.name, cur)}</div>
+      <p class="hint" id="dpHint">${cur ? 'Replace or Delete.' : 'Choose a photo.'}</p>
+    </div>`,
+    `<div class="acts" style="width:100%;justify-content:center" id="dpBtns">
+       ${cur ? `<button class="btn red sm" data-act="dpDelete">Delete</button>` : ''}
+       <button class="btn light sm" data-act="dpPick">${cur ? 'Replace' : 'Choose photo'}</button>
+       <button class="btn light sm" data-act="close">Cancel</button></div>`);
+}
+function showDpPending(url) {
+  $('#dpPrev').innerHTML = `<img src="${esc(url)}" alt="">`;
+  $('#dpHint').textContent = 'New photo ready. Press Save.';
+  $('#dpBtns').innerHTML = `<button class="btn green sm" data-act="dpSave">Save</button>
+    <button class="btn light sm" data-act="dpPick">Replace</button>
+    <button class="btn light sm" data-act="close">Cancel</button>`;
+}
+
+/* ============ EVENTS ============ */
 document.addEventListener('click', async e => {
   const g = e.target.closest('[data-go]');
-  if (g) { hideDrawer(); return go(g.dataset.go, JSON.parse(g.dataset.arg || '{}')); }
+  if (g) { closeM(); try { return go(g.dataset.go, JSON.parse(g.dataset.arg || '{}')); } catch (err) { return toast(err.message); } }
   if (e.target.closest('#av')) return go('profile', {});
   const b = e.target.closest('[data-act]');
   if (!b) return;
@@ -832,45 +665,52 @@ document.addEventListener('click', async e => {
   catch (err) { if (err.message !== 'expired') toast(err.message); }
 });
 document.addEventListener('change', async e => {
-  if (e.target.id !== 'dpFile') return;
-  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-  if (f.size > 1.4 * 1024 * 1024) return toast('Photo 1.4 MB se chhoti honi chahiye.');
-  const b64 = await fileToB64(f);
-  DP_PENDING = { b64: b64, mime: f.type, name: f.name };
-  showDpPending('data:' + f.type + ';base64,' + b64);
+  if (e.target.id === 'dpFile') {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    if (!/^image\//.test(f.type)) return toast('Choose an image file.');
+    try {
+      $('#dpHint').textContent = 'Processing…';
+      const compressed = await compressImage(f);
+      DP_PENDING = compressed;
+      showDpPending('data:' + compressed.mime + ';base64,' + compressed.b64);
+      toast('Photo ready — press Save');
+    } catch (err) { toast('Could not process image: ' + err.message); }
+  }
 });
 
-/* ============ HEADER ============ */
 function applyOrg(o) {
-  $('#orgName').textContent = o.name || 'Community';
-  $('#sideName').textContent = o.name || 'Community';
-  const seal = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 46);
-  $('#seal').innerHTML = seal;
-  $('#sideLogo').innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="">` : ic('mosque');
-  $('#hdrArt').innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="">` : '';
+  if (o.name !== undefined) {
+    $('#orgName').textContent = o.name || 'Community';
+    const sn = document.getElementById('sideName');
+    if (sn) sn.textContent = o.name || 'Community';
+  }
+  const seal = $('#seal');
+  if (seal) seal.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 46);
+  const sl = document.getElementById('sideLogo');
+  if (sl) sl.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="">` : ic('mosque');
 }
 
-/* ============ BOOT ============ */
 async function boot() {
   TOKEN = localStorage.getItem(LS_S);
   if (!TOKEN) return goPage('index.html');
   try {
-    bootProgress(15, 'Checking your login…', 'Verifying session');
+    bootProgress(15, 'Checking your login…', '');
     const r = await apiCall('apiSession', [TOKEN]);
     if (!r || !r.ok) return leave(true);
-    if (r.user.role !== ROLE) return goPage(ROLE_PAGE[r.user.role] || 'index.html');
+    if (!r.user) return leave(true);
+    if (r.user.role !== 'imam') return goPage(ROLE_PAGE[r.user.role] || 'index.html');
     if (r.mustChange) return goPage('index.html');
     ME = r.user;
-    $('#roleName').textContent = ROLE_NAME[ROLE] || ROLE;
+    $('#roleName').textContent = 'Imam';
     applyOrg({ name: (r.org && r.org.name) || 'Community', logo: (r.org && r.org.logo) || '' });
-    bootProgress(35, 'Loading icons…', 'Dashboard pictures');
+    bootProgress(35, 'Loading icons…', '');
     const ic2 = await apiCall('apiGetIcons', [TOKEN]).catch(() => null);
     ICONS = (ic2 && ic2.icons) || {};
-    bootProgress(60, 'Loading your details…', 'Profile and payments');
+    bootProgress(60, 'Loading your details…', '');
     MY = await api('apiMyPerson');
     $('#av').innerHTML = avatarHtml(MY.person.name, MY.person.photoUrl);
+    bootProgress(85, 'Loading page…', '');
     startIdle();
-    bootProgress(90, 'Loading page…', 'Almost ready');
     await go('home', {});
     bootProgress(100, 'Ready', 'Welcome');
     setTimeout(bootDone, 250);
@@ -887,20 +727,6 @@ function startIdle() {
   }, 60000);
 }
 boot();
-
-document.addEventListener('input', e => { if (e.target.id === 'navSearch') filterNav(e.target.value); });
-function filterNav(q) {
-  q = (q || '').trim().toLowerCase();
-  const nav = $('#sideNav'); if (!nav) return;
-  let group = null, shown = false;
-  Array.prototype.forEach.call(nav.children, el => {
-    if (el.classList.contains('sgroup')) { group = el; shown = false; el.style.display = 'none'; return; }
-    const ok = !q || (el.dataset.l || '').includes(q);
-    el.style.display = ok ? '' : 'none';
-    if (ok && group && !shown) { group.style.display = ''; shown = true; }
-  });
-}
-
 </script>
 </body>
 </html>
