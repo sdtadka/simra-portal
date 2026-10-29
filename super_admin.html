@@ -223,7 +223,7 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 
 <!-- Scripts -->
 <script src="api.js"></script>
-<script src="receipt.js"></script> <!-- Ye line receipt.js ko link karti hai -->
+<script src="receipt.js"></script>
 <script>
 /* ============ ICONS ============ */
 const IC = {
@@ -475,15 +475,15 @@ VIEWS.dash = async (c) => {
     </table></div></div>`;
 };
 
-/* ============ PEOPLE LIST (Strict Filtering) ============ */
+/* ============ PEOPLE LIST ============ */
 VIEWS.people = async (c, arg) => {
   const role = arg.role || ''; const status = arg.status || 'all'; const adminId = arg.adminId || '';
   const [d, o] = await Promise.all([api('apiSuperPeople', role, status, adminId), api('apiSuperOverview')]);
   ADMINS = o.admins || []; PEOPLE_CACHE = d.list;
-  
+
   const title = role ? (role === 'user' ? 'Users' : role === 'imam' ? 'Imams' : 'Members') : 'All people';
   const chip = (s, l) => `<button class="chipbtn ${status === s ? 'on' : ''}" data-go="people" data-arg='${JSON.stringify({ role, adminId, status: s })}'>${l}</button>`;
-  
+
   c.innerHTML = `
     <div class="pagehead"><h2>${title}</h2></div>
     <p class="psub">${d.list.length} records</p>
@@ -497,7 +497,7 @@ VIEWS.people = async (c, arg) => {
       <button class="btn green sm" data-act="addPerson" data-id="${role || 'member'}">${ic('plus')}Add</button>
     </div>
     <div class="card" style="padding:0"><div class="wrap" id="tbl"></div></div>`;
-    
+
   $('#fAdm').addEventListener('change', e => go('people', { role, status, adminId: e.target.value }));
   $('#q').addEventListener('input', drawRows);
   drawRows();
@@ -505,7 +505,7 @@ VIEWS.people = async (c, arg) => {
   function drawRows() {
     const q = ($('#q').value || '').trim().toLowerCase();
     const rows = PEOPLE_CACHE.filter(p => !q || p.name.toLowerCase().includes(q) || String(p.mobile).includes(q) || p.appNo.includes(q));
-    
+
     let head = `<tr><th>#</th><th>App no.</th><th>Name</th><th>Mobile</th><th>Role</th><th>Admin</th>`;
     if (role === 'user') head += `<th>Due</th><th>Paid</th><th>Balance</th>`;
     if (role === 'imam') head += `<th>Salary</th>`;
@@ -516,16 +516,16 @@ VIEWS.people = async (c, arg) => {
         : p.role === 'user' ? (p.tag === 'paid' ? '<span class="chip c-paid">Paid</span>' : '<span class="chip c-due">Due</span>')
         : p.role === 'imam' ? '<span class="chip c-imam">Imam</span>' : '<span class="chip c-role">Member</span>';
       const cls = p.role === 'user' ? (p.tag === 'paid' ? 'row-paid' : 'row-due') : '';
-      
+
       let cols = `<td>${i + 1}</td><td class="mono"><b>${esc(p.appNo)}</b></td>
         <td><button class="nm" data-act="openPerson" data-id="${esc(p.appNo)}">${esc(p.name)}</button></td>
-        <td>${esc(p.mobile || '—')} <span style="display:inline-flex;margin-left:4px">${waLink(p.mobile, '')}</span></td>
+        <td>${esc(p.mobile || '—')} <span style="display:inline-flex;margin-left:4px">${waLink(p.mobile)}</span></td>
         <td><span class="chip c-role">${esc(LBL[p.role] || p.role)}</span></td>
         <td>${esc(p.adminName || '—')}</td>`;
-        
+
       if (role === 'user') cols += `<td>${inr(p.due)}</td><td>${inr(p.paid)}</td><td><b>${inr(p.baki)}</b></td>`;
       if (role === 'imam') cols += `<td>${inr(p.salary)}/mo</td>`;
-      
+
       cols += `<td>${st}</td>${SHOW_CREDS ? `<td class="mono">${esc(p.passwordPlain || '—')}</td><td class="mono">${esc(p.tokenPlain || '—')}</td>` : ''}`;
       cols += `<td><div class="acts">
           <button class="btn light sm" data-act="openPerson" data-id="${esc(p.appNo)}">View</button>
@@ -535,7 +535,7 @@ VIEWS.people = async (c, arg) => {
         </div></td>`;
       return `<tr class="${cls}">${cols}</tr>`;
     }).join('');
-    
+
     $('#tbl').innerHTML = `<table class="t"><thead>${head}</thead><tbody>${body || '<tr><td colspan="14" class="muted">No records.</td></tr>'}</tbody></table>`;
   }
 };
@@ -547,7 +547,7 @@ async function openPersonPage(c, appNo) {
   const isUser = p.role === 'user'; const isImam = p.role === 'imam';
   CUR_PERSON = { appNo: p.appNo, role: p.role, name: p.name, father: p.father, mobile: p.mobile, email: p.email, address: p.address, joinIso: p.joinIso, adminId: p.adminId, opening: (d.summary && d.summary.opening) || 0, salary: (d.salary && d.salary.current) || 0, qualification: p.qualification, whatsapp: p.whatsapp, photoUrl: p.photoUrl };
   const contact = p.role === 'imam' && p.whatsapp ? p.whatsapp : p.mobile;
-  
+
   c.innerHTML = `
     <div class="toolbar"><button class="btn light sm" data-go="people" data-arg='{}'>← Back</button></div>
     <div class="card profile">
@@ -624,13 +624,13 @@ async function openPersonPage(c, appNo) {
           <td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">No transactions yet.</td></tr>'}</tbody></table></div></div>` : `<div class="empty">No financial data for Members.</div>`}`;
 }
 
-/* ============ ADD / EDIT PERSON FORM (Custom ID logic) ============ */
+/* ============ ADD / EDIT PERSON FORM ============ */
 function personForm(role, p, admins) {
   const v = k => p ? esc(p[k] ?? '') : '';
   const isUser = role === 'user'; const isImam = role === 'imam';
   const photoUrl = p && p.photoUrl ? esc(p.photoUrl) : '';
   const prevStyle = photoUrl ? 'width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px' : 'display:none;width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px';
-  
+
   return `<div class="fgrid">
     ${!p && !isUser ? `<div><label class="fl" style="color:var(--blue);font-weight:800">Custom User ID * (Required)<input class="inp" id="fAppNo" placeholder="Enter unique ID"></label></div>` : ''}
     <div><label class="fl">Name *<input class="inp" id="fName" value="${v('name')}"></label></div>
@@ -663,9 +663,9 @@ async function openPersonForm(role, appNo) {
   if (appNo) { const d = await api('apiSuperGetPerson', appNo); p = d.person; p.opening = (d.summary && d.summary.opening) || 0; p.salary = (d.salary && d.salary.current) || 0; role = p.role; }
   let admins = null;
   if (ME.role === 'super_admin') { const o = await api('apiSuperOverview'); admins = (o.admins || []).filter(a => a.status === 'ACTIVE'); if (!admins.length) admins = null; }
-  
+
   modal(p ? 'Edit · ' + p.name : 'Add · ' + (LBL[role] || role), personForm(role, p, admins), `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnSave">Save</button>`);
-  
+
   $('#btnSave').addEventListener('click', async () => {
     const btn = $('#btnSave'); if (btn.disabled) return; btn.disabled = true;
     try {
@@ -702,7 +702,7 @@ async function openPay(appNo) {
   const d = await api('apiSuperGetPerson', appNo);
   const p = d.person, s = d.summary;
   if (s.baki <= 0) return toast('No balance left.');
-  
+
   modal('Receive payment · ' + p.name, `
     <p class="hint">Balance: <b>${inr(s.baki)}</b>${s.penalty > 0 ? ` (includes ${inr(s.penalty)} penalty)` : ''}.</p>
     <div class="fgrid">
@@ -718,15 +718,15 @@ async function openPay(appNo) {
       <div><label class="fl">Note<input class="inp" id="pNote"></label></div>
     </div>`,
     `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPay">Receive</button>`);
-    
+
   $('#btnPay').addEventListener('click', async () => {
     const b = $('#btnPay'); if (b.disabled) return; b.disabled = true;
     try {
       const penAmt = Number(val('pPen'));
       if (penAmt > 0) await api('apiPenaltyAdd', appNo, new Date().getFullYear(), penAmt, val('pPenReason'));
       const r = await api('apiAddPayment', { appNo, amount: val('pAmt'), date: val('pDate'), mode: val('pMode'), txnRef: val('pTxn'), note: val('pNote') });
-      toast('Payment received'); 
-      openReceipt(r.receiptId); // Call global function from receipt.js
+      toast('Payment received');
+      openReceipt(r.receiptId);
     } catch (e) { if (e.message !== 'expired') toast(e.message); b.disabled = false; }
   });
 }
@@ -738,13 +738,13 @@ function openPayout(appNo) {
       <div><label class="fl">Transaction no. (online)<input class="inp" id="oTxn"></label></div>
       <div><label class="fl">Note<input class="inp" id="oNote"></label></div></div>`,
     `<button class="btn light" data-act="close">Cancel</button><button class="btn purple" id="btnOut">Save</button>`);
-    
+
   $('#btnOut').addEventListener('click', async () => {
     const b = $('#btnOut'); if (b.disabled) return; b.disabled = true;
     try {
       const r = await api('apiAddSalaryPayout', appNo, val('oAmt'), val('oDate'), val('oMode'), val('oTxn'), val('oNote'));
-      closeM(); toast('Payout recorded'); 
-      openReceipt(r.receiptId); // Call global function from receipt.js
+      closeM(); toast('Payout recorded');
+      openReceipt(r.receiptId);
       openPersonPage($('#main'), appNo);
     } catch (e) { if (e.message !== 'expired') toast(e.message); b.disabled = false; }
   });
@@ -844,7 +844,7 @@ VIEWS.posts = async (c) => {
   c.innerHTML = `
     <div class="pagehead"><h2>Madrasa posts</h2></div>
     <p class="psub">Posts from Imam's Madrasa. Visible to everyone.</p>
-    
+
     <div class="toolbar">
       <button class="btn green" data-act="newPost">${ic('plus')} Add New Post</button>
     </div>
@@ -1138,14 +1138,14 @@ VIEWS.profile = async (c) => {
     <div class="acts"><button class="btn green" data-act="saveProfile">Save profile</button></div>`;
 };
 
-/* ============ ACTIONS ============ */
+/* ============ NEW POST MODAL ============ */
 function openNewPostForm() {
   modal('Create New Post', `<div class="fgrid">
     <div><label class="fl">Title *<input class="inp" id="postTitle"></label></div>
     <div><label class="fl">Content<textarea class="inp" id="postBody" rows="4"></textarea></label></div>
     <div><label class="fl">Photo (Optional)<input class="inp" type="file" id="postPhoto" accept="image/*"></label></div>
   </div>`, `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPostSave">Publish</button>`);
-  
+
   $('#btnPostSave').addEventListener('click', async () => {
     const btn = $('#btnPostSave'); if (btn.disabled) return; btn.disabled = true;
     try {
@@ -1162,6 +1162,8 @@ function openNewPostForm() {
     } catch(e) { toast(e.message); btn.disabled = false; }
   });
 }
+
+/* ============ ACTIONS ============ */
 const ACTS = {
   newPost: () => openNewPostForm(),
   logout: () => leave(false),
@@ -1228,7 +1230,12 @@ const ACTS = {
   },
   pay: (id) => openPay(id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
   payout: (id) => openPayout(id),
-  receipt: (id) => openReceipt(id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
+  receipt: (id) => {
+    try {
+      const r = openReceipt(id);
+      if (r && typeof r.catch === 'function') r.catch(e => { if (e.message !== 'expired') toast(e.message); });
+    } catch (e) { if (e.message !== 'expired') toast(e.message); }
+  },
   addPenaltyForPerson: (id) => {
     D = { view: 'penalty', arg: {} };
     go('penalty', {}).then(() => { setTimeout(() => { const inp = $('#pApp'); if (inp) inp.value = id; }, 300); });
@@ -1302,7 +1309,7 @@ const ACTS = {
       logoUrl: val('sLogo'), sealUrl: val('sSeal'), sigCollector: val('sSigC'), sigAuth: val('sSigA'),
       driveFolderId: val('sDrive'),
       headerBg:val('sHeaderBg')});
-    applyOrg({ name: val('sName'), logo: val('sLogo') });
+    applyOrg({ name: val('sName'), logo: val('sLogo'), headerBg: val('sHeaderBg') });
     toast('Settings saved'); go('settings', {});
   },
   saveProfile: async () => {
@@ -1445,16 +1452,14 @@ function applyOrg(o) {
     const sn = document.getElementById('sideName');
     if (sn) sn.textContent = o.name || 'Community';
   }
-  
-  // BACKGROUND IMAGE LOGIC
+
+  // HEADER BACKGROUND LOGIC
   if (o.headerBg !== undefined) {
     const hd = document.querySelector('.hd');
     if (hd) {
       if (o.headerBg) {
-        // 
         hd.style.background = `linear-gradient(135deg, rgba(7,28,64,0.8) 0%, rgba(15,61,127,0.8) 48%, rgba(10,42,92,0.8) 100%), url('${o.headerBg}') center/cover no-repeat`;
       } else {
-        // 
         hd.style.background = 'linear-gradient(135deg, #071c40 0%, #0f3d7f 48%, #0a2a5c 100%)';
       }
     }
@@ -1466,6 +1471,7 @@ function applyOrg(o) {
   if (sl) sl.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="">` : ic('mosque');
 }
 
+/* ============ BOOT ============ */
 async function boot() {
   TOKEN = localStorage.getItem(LS_S);
   if (!TOKEN) return goPage('index.html');
@@ -1478,11 +1484,11 @@ async function boot() {
     if (r.mustChange) return goPage('index.html');
     ME = r.user;
     $('#roleName').textContent = 'Super Admin';
-    ({ name: (r.oapplyOrg({ 
-  name: (r.org && r.org.name) || 'Community', 
-  logo: (r.org && r.org.logo) || '',
-  headerBg: (r.org && r.org.headerBg) || ''
-});
+    applyOrg({
+      name: (r.org && r.org.name) || 'Community',
+      logo: (r.org && r.org.logo) || '',
+      headerBg: (r.org && r.org.headerBg) || ''
+    });
     bootProgress(35, 'Loading icons…', '');
     const ic2 = await apiCall('apiGetIcons', [TOKEN]).catch(() => null);
     ICONS = (ic2 && ic2.icons) || {};
