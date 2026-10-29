@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b2a5b">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Islamic Committee — Portal</title>
@@ -970,5 +973,12 @@ $('btnPw').addEventListener('click', async function () {
   newCaptcha();
 })();
 </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+    });
+  }
+  </script>
 </body>
 </html>
