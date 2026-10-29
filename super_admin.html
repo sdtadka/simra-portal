@@ -1300,7 +1300,7 @@ const ACTS = {
   saveOrg: async () => {
     await api('apiSuperSaveOrg', { orgName: val('sName'), orgAddress: val('sAddr'), orgReg: val('sReg'),
       logoUrl: val('sLogo'), sealUrl: val('sSeal'), sigCollector: val('sSigC'), sigAuth: val('sSigA'),
-      driveFolderId: val('sDrive')
+      driveFolderId: val('sDrive'),
       headerBg:val('sHeaderBg')});
     applyOrg({ name: val('sName'), logo: val('sLogo') });
     toast('Settings saved'); go('settings', {});
@@ -1428,6 +1428,7 @@ async function saveDpUrl(target, url) {
   } else {
     const p = CUR_PERSON; if (!p) return;
     await api('apiSuperSavePerson', {
+      isEdit:true,
       appNo: p.appNo, role: p.role, name: p.name, father: p.father, mobile: p.mobile,
       email: p.email || '', address: p.address, joinDate: p.joinIso || '', adminId: p.adminId || '',
       photoUrl: url, password: '', token: '',
@@ -1481,7 +1482,7 @@ async function boot() {
   name: (r.org && r.org.name) || 'Community', 
   logo: (r.org && r.org.logo) || '',
   headerBg: (r.org && r.org.headerBg) || ''
-});});
+});
     bootProgress(35, 'Loading icons…', '');
     const ic2 = await apiCall('apiGetIcons', [TOKEN]).catch(() => null);
     ICONS = (ic2 && ic2.icons) || {};
