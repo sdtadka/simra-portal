@@ -1094,6 +1094,7 @@ VIEWS.settings = async (c) => {
         <div><label class="fl">Address<input class="inp" id="sAddr" value="${esc(s.orgAddress)}"></label></div>
         <div><label class="fl">Registration no.<input class="inp" id="sReg" value="${esc(s.orgReg)}"></label></div>
         <div><label class="fl">Logo URL<input class="inp" id="sLogo" value="${esc(s.logoUrl)}"></label></div>
+        <div><label class="fl">Header Background Image URL<input class="inp" id="sHeaderBg" value="${esc(s.headerBg || '')}" placeholder="https://..."></label></div>
         <div><label class="fl">Seal / Mohar URL<input class="inp" id="sSeal" value="${esc(s.sealUrl)}"></label></div>
         <div><label class="fl">Collector signature URL<input class="inp" id="sSigC" value="${esc(s.sigCollector)}"></label></div>
         <div><label class="fl">Authorised signature URL<input class="inp" id="sSigA" value="${esc(s.sigAuth)}"></label></div>
@@ -1299,7 +1300,8 @@ const ACTS = {
   saveOrg: async () => {
     await api('apiSuperSaveOrg', { orgName: val('sName'), orgAddress: val('sAddr'), orgReg: val('sReg'),
       logoUrl: val('sLogo'), sealUrl: val('sSeal'), sigCollector: val('sSigC'), sigAuth: val('sSigA'),
-      driveFolderId: val('sDrive') });
+      driveFolderId: val('sDrive')
+      headerBg:val('sHeaderBg')});
     applyOrg({ name: val('sName'), logo: val('sLogo') });
     toast('Settings saved'); go('settings', {});
   },
@@ -1442,6 +1444,21 @@ function applyOrg(o) {
     const sn = document.getElementById('sideName');
     if (sn) sn.textContent = o.name || 'Community';
   }
+  
+  // BACKGROUND IMAGE LOGIC
+  if (o.headerBg !== undefined) {
+    const hd = document.querySelector('.hd');
+    if (hd) {
+      if (o.headerBg) {
+        // 
+        hd.style.background = `linear-gradient(135deg, rgba(7,28,64,0.8) 0%, rgba(15,61,127,0.8) 48%, rgba(10,42,92,0.8) 100%), url('${o.headerBg}') center/cover no-repeat`;
+      } else {
+        // 
+        hd.style.background = 'linear-gradient(135deg, #071c40 0%, #0f3d7f 48%, #0a2a5c 100%)';
+      }
+    }
+  }
+
   const seal = $('#seal');
   if (seal) seal.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 46);
   const sl = document.getElementById('sideLogo');
@@ -1460,7 +1477,11 @@ async function boot() {
     if (r.mustChange) return goPage('index.html');
     ME = r.user;
     $('#roleName').textContent = 'Super Admin';
-    applyOrg({ name: (r.org && r.org.name) || 'Community', logo: (r.org && r.org.logo) || '' });
+    ({ name: (r.oapplyOrg({ 
+  name: (r.org && r.org.name) || 'Community', 
+  logo: (r.org && r.org.logo) || '',
+  headerBg: (r.org && r.org.headerBg) || ''
+});});
     bootProgress(35, 'Loading icons…', '');
     const ic2 = await apiCall('apiGetIcons', [TOKEN]).catch(() => null);
     ICONS = (ic2 && ic2.icons) || {};
