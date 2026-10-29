@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Super Admin · Community Portal</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--blue:#1e6bff;--green:#12a150;--orange:#ff8a00;--purple:#7c3aed;--red:#e5484d;--gold:#c99a2e;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--bg:#f4f7fc;--navy:#0b2a5b;--blue-t:#eaf1ff;--green-t:#e8f8ef;--orange-t:#fff3e2;--purple-t:#f1eaff;--red-t:#fdecec;--gold-t:#fbf4df;--side:264px}
-html,body{overflow-x:hidden}
+html,body{overflow-x:hidden;user-select:none;-webkit-user-select:none}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;min-height:100vh}
+@media(min-width:960px){html,body{user-select:auto;-webkit-user-select:auto}}
 button,input,select,textarea{font:inherit;color:inherit}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 svg.i .s{fill:currentColor;fill-opacity:.18;stroke-opacity:.55}
@@ -181,51 +182,6 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .cred-box div{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .cred-box b{font-family:"Courier New",monospace;font-size:17px;word-break:break-all}
 .cred-box small{color:#94a3b8;font-size:11px;text-transform:uppercase;display:block}
-
-/* RECEIPT CSS */
-.rc{background:#fff;border:2px solid #1b4332;border-radius:8px;padding:10px 12px;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:11px;color:#000}
-.rc-head{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;gap:8px;border-bottom:2px solid #1b4332;padding-bottom:5px;margin-bottom:5px}
-.rc-head .lg{width:56px;height:56px;border-radius:50%;border:2px solid #1b4332;display:grid;place-items:center;overflow:hidden}
-.rc-head .lg img{width:100%;height:100%;object-fit:cover}
-.rc-head .ttl{text-align:center}
-.rc-head h2{font-size:15px;font-weight:900;text-transform:uppercase}
-.rc-head p{font-size:9.5px;font-weight:700}
-.rc-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;border:1px solid #000;padding:3px 6px;margin-bottom:5px;font-size:10px}
-.rc-mid{display:grid;grid-template-columns:1.3fr 1fr;gap:5px;margin-bottom:5px}
-.rc-box{border:1px solid #000;padding:4px 6px}
-.rc-box div{display:flex;justify-content:space-between;gap:6px;padding:1px 0;border-bottom:1px dotted #777;font-size:9.5px}
-.rc-box div:last-child{border:0}
-.rc-box span{font-weight:700;text-transform:uppercase}
-.rc-box b{text-align:right;font-weight:900}
-.rc-box .rcid{font-size:12px}
-.rc-sum{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.rc-sum div{border:1px solid #000;padding:3px;text-align:center;font-size:8.5px}
-.rc-sum b{display:block;font-size:11px;font-weight:900}
-table.rt{width:100%;border-collapse:collapse;font-size:9px;border:1px solid #000}
-table.rt th{background:#1b4332;color:#fff;padding:2px 3px;text-align:left;font-size:8.5px;font-weight:900}
-table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-space:nowrap}
-.rc-sig{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:10px}
-.rc-sig>div{width:33%;text-align:center;font-size:9px}
-.rc-sig .si{height:34px;display:flex;align-items:flex-end;justify-content:center}
-.rc-sig .si img{max-height:34px;max-width:130px;object-fit:contain}
-.rc-sig .ln{border-bottom:1px solid #000;margin:2px 0}
-.rc-sig b{display:block;font-size:9px;font-weight:900}
-.rc-sig .seal-img img{max-height:52px;max-width:80px;object-fit:contain;opacity:.85}
-
-@media print {
-  @page { size: A4 portrait; margin: 5mm; }
-  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
-  
-  body * { visibility: hidden !important; }
-  #ov, #ov * { visibility: visible !important; }
-  #rc, #rc * { visibility: visible !important; }
-  
-  #ov { position: absolute !important; left: 0 !important; top: 0 !important; background: none !important; display: block !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; }
-  #ov .box { box-shadow: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; position: static !important; transform: none !important; }
-  .noprint { display: none !important; }
-  #rc { width: 100% !important; max-width: 195mm !important; border: 1.5px solid #1b4332 !important; padding: 4mm !important; margin: 0 auto !important; box-sizing: border-box !important; page-break-inside: avoid !important; page-break-after: avoid !important; background: #fff !important; }
-  #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-}
 @media(min-width:900px){.hd{padding:16px 22px 26px}.big3{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.main{max-width:1100px;margin:0 auto}}
 @media(min-width:960px){.side{transform:none}body.side-closed .side{transform:translateX(-100%)}.pagewrap{margin-left:var(--side)}body.side-closed .pagewrap{margin-left:0}#menuBtn{display:none}body.side-closed #menuBtn{display:grid}#scrim{display:none}}
 </style>
@@ -262,7 +218,9 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
 <input type="file" id="dpFile" accept="image/*" style="display:none">
 <div class="toast" id="toast"></div>
 
+<!-- Scripts -->
 <script src="api.js"></script>
+<script src="receipt.js"></script> <!-- Ye line receipt.js ko link karti hai -->
 <script>
 /* ============ ICONS ============ */
 const IC = {
@@ -338,24 +296,13 @@ async function compressImage(file, maxDim = 900, quality = 0.82) {
     img.onload = () => {
       URL.revokeObjectURL(objectUrl);
       let w = img.naturalWidth, h = img.naturalHeight;
-      if (w > maxDim || h > maxDim) {
-        const r = Math.min(maxDim / w, maxDim / h);
-        w = Math.round(w * r); h = Math.round(h * r);
-      }
-      const cvs = document.createElement('canvas');
-      cvs.width = w; cvs.height = h;
-      const ctx = cvs.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
-      ctx.drawImage(img, 0, 0, w, h);
+      if (w > maxDim || h > maxDim) { const r = Math.min(maxDim / w, maxDim / h); w = Math.round(w * r); h = Math.round(h * r); }
+      const cvs = document.createElement('canvas'); cvs.width = w; cvs.height = h;
+      const ctx = cvs.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
       cvs.toBlob(blob => {
         if (!blob) return reject(new Error('Compression failed'));
         const reader = new FileReader();
-        reader.onload = () => resolve({
-          b64: String(reader.result).split(',')[1],
-          mime: blob.type || 'image/jpeg',
-          name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg',
-          size: blob.size
-        });
+        reader.onload = () => resolve({ b64: String(reader.result).split(',')[1], mime: blob.type || 'image/jpeg', name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg', size: blob.size });
         reader.readAsDataURL(blob);
       }, 'image/jpeg', quality);
     };
@@ -365,24 +312,8 @@ async function compressImage(file, maxDim = 900, quality = 0.82) {
 }
 
 function drawMoneyBar(collected, expenses, salary) {
-  const total = Math.max(collected, 1);
-  const expPct = Math.min(100, (expenses / total) * 100);
-  const salPct = Math.min(100 - expPct, (salary / total) * 100);
-  const balPct = Math.max(0, 100 - expPct - salPct);
-  const net = collected - expenses - salary;
-  return `<div class="money-graph">
-    <div class="money-bar">
-      ${expPct > 0 ? `<div style="width:${expPct}%;background:linear-gradient(90deg,#e5484d,#ff7a7d)"></div>` : ''}
-      ${salPct > 0 ? `<div style="width:${salPct}%;background:linear-gradient(90deg,#7c3aed,#a86bff)"></div>` : ''}
-      ${balPct > 0 ? `<div style="width:${balPct}%;background:linear-gradient(90deg,#12a150,#34c77a)"></div>` : ''}
-    </div>
-    <div class="money-legend">
-      <span><span class="dot" style="background:#e5484d"></span>Expenses ${inr(expenses)}</span>
-      <span><span class="dot" style="background:#7c3aed"></span>Salary ${inr(salary)}</span>
-      <span><span class="dot" style="background:#12a150"></span>Balance ${inr(Math.max(0, net))}</span>
-    </div>
-    <div class="money-net" style="color:${net >= 0 ? 'var(--green)' : 'var(--red)'}">Net Balance: ${inr(net)}</div>
-  </div>`;
+  const total = Math.max(collected, 1); const expPct = Math.min(100, (expenses / total) * 100); const salPct = Math.min(100 - expPct, (salary / total) * 100); const balPct = Math.max(0, 100 - expPct - salPct); const net = collected - expenses - salary;
+  return `<div class="money-graph"><div class="money-bar">${expPct > 0 ? `<div style="width:${expPct}%;background:linear-gradient(90deg,#e5484d,#ff7a7d)"></div>` : ''}${salPct > 0 ? `<div style="width:${salPct}%;background:linear-gradient(90deg,#7c3aed,#a86bff)"></div>` : ''}${balPct > 0 ? `<div style="width:${balPct}%;background:linear-gradient(90deg,#12a150,#34c77a)"></div>` : ''}</div><div class="money-legend"><span><span class="dot" style="background:#e5484d"></span>Expenses ${inr(expenses)}</span><span><span class="dot" style="background:#7c3aed"></span>Salary ${inr(salary)}</span><span><span class="dot" style="background:#12a150"></span>Balance ${inr(Math.max(0, net))}</span></div><div class="money-net" style="color:${net >= 0 ? 'var(--green)' : 'var(--red)'}">Net Balance: ${inr(net)}</div></div>`;
 }
 
 function busyStart() { BUSY++; $('#topbar').style.display = 'block'; }
@@ -401,7 +332,6 @@ async function api(fn, ...a) {
     return r;
   } finally { busyEnd(); }
 }
-
 function toast(m) { const el = $('#toast'); el.textContent = m; el.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(() => el.style.display = 'none', 2600); }
 function digits(m) { const x = String(m || '').replace(/\D/g, ''); return x.length === 10 ? '91' + x : x; }
 function callLink(m) { const d = digits(m); return d ? `<a class="cl call" href="tel:+${d}">${ic('phone')}Call</a>` : ''; }
@@ -409,17 +339,9 @@ function waLink(m) { const d = digits(m); return d ? `<a class="cl wa" href="htt
 function modal(title, body, foot, wide) { $('#ovT').textContent = title; $('#ovB').innerHTML = body; $('#ovF').innerHTML = foot || ''; $('#ovBox').classList.toggle('wide', !!wide); $('#ov').classList.add('open'); }
 function closeM() { $('#ov').classList.remove('open'); $('#ovB').innerHTML = ''; $('#ovF').innerHTML = ''; }
 function copyText(s) { try { navigator.clipboard.writeText(s); toast('Copied'); } catch (e) { toast('Copy manually'); } }
-function downloadCsv(name, text) {
-  const b = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name;
-  document.body.appendChild(a); a.click(); a.remove();
-}
+function downloadCsv(name, text) { const b = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
 function avatarHtml(name, url) { return url ? `<img src="${esc(url)}" alt="">` : esc((name || 'S').charAt(0).toUpperCase()); }
-async function leave(expired) {
-  if (!expired && TOKEN) { try { await apiCall('apiLogout', [TOKEN]); } catch (e) {} }
-  localStorage.removeItem(LS_S);
-  goPage('index.html');
-}
+async function leave(expired) { if (!expired && TOKEN) { try { await apiCall('apiLogout', [TOKEN]); } catch (e) {} } localStorage.removeItem(LS_S); goPage('index.html'); }
 
 /* ============ NAV ============ */
 const GROUPS = [
@@ -498,10 +420,7 @@ async function go(view, arg) {
 /* ============ DASHBOARD ============ */
 VIEWS.dash = async (c) => {
   const [o, r, expTry, salTry] = await Promise.all([
-    api('apiSuperOverview'),
-    api('apiDashboard'),
-    api('apiExpenseList').catch(() => ({ list: [] })),
-    api('apiSalaryTotal').catch(() => ({ total: 0 }))
+    api('apiSuperOverview'), api('apiDashboard'), api('apiExpenseList').catch(() => ({ list: [] })), api('apiSalaryTotal').catch(() => ({ total: 0 }))
   ]);
   ADMINS = o.admins || [];
   const expensesTotal = (expTry.list || []).reduce((a, x) => a + (x.total || 0), 0);
@@ -509,12 +428,8 @@ VIEWS.dash = async (c) => {
   const collected = o.collected || 0;
   const netBalance = collected - expensesTotal - salaryTotal;
   const arrow = '<span class="go">' + ic('arrow') + '</span>';
-  const big = (cls, k, l, v, view, arg) =>
-    `<button class="big ${cls}" data-go="${view}" data-arg='${JSON.stringify(arg || {})}'>
-       <span class="ic">${iconHtml(k)}</span><span><span class="lb">${l}</span><b>${v}</b></span>${arrow}</button>`;
-  const tile = (cls, k, l, v, view, arg) =>
-    `<button class="tile ${cls}" data-go="${view}" data-arg='${JSON.stringify(arg || {})}'>
-       <span class="ti">${iconHtml(k)}</span><span class="tx"><span class="lb">${l}</span><b>${v}</b></span></button>`;
+  const big = (cls, k, l, v, view, arg) => `<button class="big ${cls}" data-go="${view}" data-arg='${JSON.stringify(arg || {})}'><span class="ic">${iconHtml(k)}</span><span><span class="lb">${l}</span><b>${v}</b></span>${arrow}</button>`;
+  const tile = (cls, k, l, v, view, arg) => `<button class="tile ${cls}" data-go="${view}" data-arg='${JSON.stringify(arg || {})}'><span class="ti">${iconHtml(k)}</span><span class="tx"><span class="lb">${l}</span><b>${v}</b></span></button>`;
   c.innerHTML = `
     <div class="pagehead"><h2>Dashboard</h2></div>
     <p class="psub">Welcome, ${esc(ME.name)} · Year ${o.year}</p>
@@ -557,14 +472,15 @@ VIEWS.dash = async (c) => {
     </table></div></div>`;
 };
 
-/* ============ PEOPLE LIST ============ */
+/* ============ PEOPLE LIST (Strict Filtering) ============ */
 VIEWS.people = async (c, arg) => {
-  const role = arg.role || '', status = arg.status || 'all', adminId = arg.adminId || '';
+  const role = arg.role || ''; const status = arg.status || 'all'; const adminId = arg.adminId || '';
   const [d, o] = await Promise.all([api('apiSuperPeople', role, status, adminId), api('apiSuperOverview')]);
-  ADMINS = o.admins || [];
-  PEOPLE_CACHE = d.list;
+  ADMINS = o.admins || []; PEOPLE_CACHE = d.list;
+  
   const title = role ? (role === 'user' ? 'Users' : role === 'imam' ? 'Imams' : 'Members') : 'All people';
   const chip = (s, l) => `<button class="chipbtn ${status === s ? 'on' : ''}" data-go="people" data-arg='${JSON.stringify({ role, adminId, status: s })}'>${l}</button>`;
+  
   c.innerHTML = `
     <div class="pagehead"><h2>${title}</h2></div>
     <p class="psub">${d.list.length} records</p>
@@ -574,10 +490,11 @@ VIEWS.people = async (c, arg) => {
       <select class="inp" id="fAdm" style="max-width:200px"><option value="">All admins</option>
         ${ADMINS.map(a => `<option value="${esc(a.adminId)}" ${a.adminId === adminId ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select>
       <button class="btn light sm" data-act="toggleCreds">${ic('lock')}${SHOW_CREDS ? 'Hide' : 'Show'} passwords</button>
-      <button class="btn orange sm" data-act="resetAllTokens">${ic('refresh')}Reset all tokens</button>
+      <button class="btn orange sm" data-act="resetAllTokens">${ic('refresh')}Reset tokens</button>
       <button class="btn green sm" data-act="addPerson" data-id="${role || 'member'}">${ic('plus')}Add</button>
     </div>
     <div class="card" style="padding:0"><div class="wrap" id="tbl"></div></div>`;
+    
   $('#fAdm').addEventListener('change', e => go('people', { role, status, adminId: e.target.value }));
   $('#q').addEventListener('input', drawRows);
   drawRows();
@@ -585,30 +502,37 @@ VIEWS.people = async (c, arg) => {
   function drawRows() {
     const q = ($('#q').value || '').trim().toLowerCase();
     const rows = PEOPLE_CACHE.filter(p => !q || p.name.toLowerCase().includes(q) || String(p.mobile).includes(q) || p.appNo.includes(q));
-    const head = `<tr><th>#</th><th>App no.</th><th>Name</th><th>Mobile</th><th>Role</th><th>Admin</th>${role === 'user' || !role ? '<th>Due</th><th>Paid</th><th>Balance</th>' : ''}${role === 'imam' || !role ? '<th>Salary</th>' : ''}<th>Status</th>${SHOW_CREDS ? '<th>Password</th><th>Token</th>' : ''}<th>Actions</th></tr>`;
+    
+    let head = `<tr><th>#</th><th>App no.</th><th>Name</th><th>Mobile</th><th>Role</th><th>Admin</th>`;
+    if (role === 'user') head += `<th>Due</th><th>Paid</th><th>Balance</th>`;
+    if (role === 'imam') head += `<th>Salary</th>`;
+    head += `<th>Status</th>${SHOW_CREDS ? '<th>Password</th><th>Token</th>' : ''}<th>Actions</th></tr>`;
+
     const body = rows.map((p, i) => {
       const st = p.blocked ? '<span class="chip c-blk">Blocked</span>'
         : p.role === 'user' ? (p.tag === 'paid' ? '<span class="chip c-paid">Paid</span>' : '<span class="chip c-due">Due</span>')
         : p.role === 'imam' ? '<span class="chip c-imam">Imam</span>' : '<span class="chip c-role">Member</span>';
       const cls = p.role === 'user' ? (p.tag === 'paid' ? 'row-paid' : 'row-due') : '';
-      const userCols = (role === 'user' || !role) ? `<td>${p.role === 'user' ? inr(p.due) : '—'}</td><td>${p.role === 'user' ? inr(p.paid) : '—'}</td><td><b>${p.role === 'user' ? inr(p.baki) : '—'}</b></td>` : '';
-      const staffCols = (role === 'imam' || !role) ? `<td>${p.role === 'imam' ? inr(p.salary) + '/mo' : '—'}</td>` : '';
-      return `<tr class="${cls}">
-        <td>${i + 1}</td><td class="mono"><b>${esc(p.appNo)}</b></td>
+      
+      let cols = `<td>${i + 1}</td><td class="mono"><b>${esc(p.appNo)}</b></td>
         <td><button class="nm" data-act="openPerson" data-id="${esc(p.appNo)}">${esc(p.name)}</button></td>
         <td>${esc(p.mobile || '—')} <span style="display:inline-flex;margin-left:4px">${waLink(p.mobile, '')}</span></td>
         <td><span class="chip c-role">${esc(LBL[p.role] || p.role)}</span></td>
-        <td>${esc(p.adminName || '—')}</td>
-        ${userCols}${staffCols}
-        <td>${st}</td>
-        ${SHOW_CREDS ? `<td class="mono">${esc(p.passwordPlain || '—')}</td><td class="mono">${esc(p.tokenPlain || '—')}</td>` : ''}
-        <td><div class="acts">
+        <td>${esc(p.adminName || '—')}</td>`;
+        
+      if (role === 'user') cols += `<td>${inr(p.due)}</td><td>${inr(p.paid)}</td><td><b>${inr(p.baki)}</b></td>`;
+      if (role === 'imam') cols += `<td>${inr(p.salary)}/mo</td>`;
+      
+      cols += `<td>${st}</td>${SHOW_CREDS ? `<td class="mono">${esc(p.passwordPlain || '—')}</td><td class="mono">${esc(p.tokenPlain || '—')}</td>` : ''}`;
+      cols += `<td><div class="acts">
           <button class="btn light sm" data-act="openPerson" data-id="${esc(p.appNo)}">View</button>
           <button class="btn light sm" data-act="editPerson" data-id="${esc(p.appNo)}">Edit</button>
           <button class="btn sm ${p.blocked ? 'green' : 'gold'}" data-act="toggleBlock" data-id="${esc(p.appNo)}" data-st="${p.blocked ? 'ACTIVE' : 'BLOCKED'}">${p.blocked ? 'Unblock' : 'Block'}</button>
           <button class="btn red sm" data-act="delPerson" data-id="${esc(p.appNo)}">Delete</button>
-        </div></td></tr>`;
+        </div></td>`;
+      return `<tr class="${cls}">${cols}</tr>`;
     }).join('');
+    
     $('#tbl').innerHTML = `<table class="t"><thead>${head}</thead><tbody>${body || '<tr><td colspan="14" class="muted">No records.</td></tr>'}</tbody></table>`;
   }
 };
@@ -617,10 +541,10 @@ VIEWS.people = async (c, arg) => {
 async function openPersonPage(c, appNo) {
   const d = await api('apiSuperGetPerson', appNo);
   const p = d.person;
-  const isUser = p.role === 'user';
-  const isImam = p.role === 'imam';
+  const isUser = p.role === 'user'; const isImam = p.role === 'imam';
   CUR_PERSON = { appNo: p.appNo, role: p.role, name: p.name, father: p.father, mobile: p.mobile, email: p.email, address: p.address, joinIso: p.joinIso, adminId: p.adminId, opening: (d.summary && d.summary.opening) || 0, salary: (d.salary && d.salary.current) || 0, qualification: p.qualification, whatsapp: p.whatsapp, photoUrl: p.photoUrl };
   const contact = p.role === 'imam' && p.whatsapp ? p.whatsapp : p.mobile;
+  
   c.innerHTML = `
     <div class="toolbar"><button class="btn light sm" data-go="people" data-arg='{}'>← Back</button></div>
     <div class="card profile">
@@ -697,15 +621,15 @@ async function openPersonPage(c, appNo) {
           <td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">No transactions yet.</td></tr>'}</tbody></table></div></div>` : `<div class="empty">No financial data for Members.</div>`}`;
 }
 
-/* ============ ADD / EDIT PERSON FORM ============ */
+/* ============ ADD / EDIT PERSON FORM (Custom ID logic) ============ */
 function personForm(role, p, admins) {
   const v = k => p ? esc(p[k] ?? '') : '';
-  const isUser = role === 'user';
-  const isImam = role === 'imam';
+  const isUser = role === 'user'; const isImam = role === 'imam';
   const photoUrl = p && p.photoUrl ? esc(p.photoUrl) : '';
-  const prevStyle = photoUrl ? 'width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px;border:2px solid #fff;box-shadow:0 4px 12px -4px rgba(0,0,0,.3)' : 'display:none;width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px';
+  const prevStyle = photoUrl ? 'width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px' : 'display:none;width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px';
+  
   return `<div class="fgrid">
-    ${p ? '' : `<div><label class="fl">User ID / App No. (optional, leave blank for auto)<input class="inp" id="fAppNo" placeholder="e.g. 1078692002"></label></div>`}
+    ${!p && !isUser ? `<div><label class="fl" style="color:var(--blue);font-weight:800">Custom User ID * (Required)<input class="inp" id="fAppNo" placeholder="Enter unique ID"></label></div>` : ''}
     <div><label class="fl">Name *<input class="inp" id="fName" value="${v('name')}"></label></div>
     <div><label class="fl">Father's name<input class="inp" id="fFather" value="${v('father')}"></label></div>
     <div><label class="fl">Mobile<input class="inp" id="fMobile" maxlength="10" inputmode="numeric" value="${v('mobile')}"></label></div>
@@ -733,26 +657,17 @@ function personForm(role, p, admins) {
 }
 async function openPersonForm(role, appNo) {
   let p = null;
-  if (appNo) {
-    const d = await api('apiSuperGetPerson', appNo);
-    p = d.person;
-    p.opening = (d.summary && d.summary.opening) || 0;
-    p.salary = (d.salary && d.salary.current) || 0;
-    role = p.role;
-  }
+  if (appNo) { const d = await api('apiSuperGetPerson', appNo); p = d.person; p.opening = (d.summary && d.summary.opening) || 0; p.salary = (d.salary && d.salary.current) || 0; role = p.role; }
   let admins = null;
-  if (ME.role === 'super_admin') {
-    const o = await api('apiSuperOverview');
-    admins = (o.admins || []).filter(a => a.status === 'ACTIVE');
-    if (!admins.length) admins = null;
-  }
-  modal(p ? 'Edit · ' + p.name : 'Add · ' + (LBL[role] || role), personForm(role, p, admins),
-    `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnSave">Save</button>`);
+  if (ME.role === 'super_admin') { const o = await api('apiSuperOverview'); admins = (o.admins || []).filter(a => a.status === 'ACTIVE'); if (!admins.length) admins = null; }
+  
+  modal(p ? 'Edit · ' + p.name : 'Add · ' + (LBL[role] || role), personForm(role, p, admins), `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnSave">Save</button>`);
+  
   $('#btnSave').addEventListener('click', async () => {
     const btn = $('#btnSave'); if (btn.disabled) return; btn.disabled = true;
     try {
       const body = {
-        appNo: p ? p.appNo : val('fAppNo'),
+        appNo: p ? p.appNo : (document.getElementById('fAppNo') ? val('fAppNo') : ''),
         role: role,
         name: val('fName'), father: val('fFather'), mobile: val('fMobile'),
         email: val('fEmail'), address: val('fAddr'), joinDate: val('fJoin'),
@@ -766,8 +681,7 @@ async function openPersonForm(role, appNo) {
       if (!p) return showCreds('New person added', r.appNo, r.password, r.token);
       if (r.password || r.token) return showCreds('Login details updated', r.appNo, r.password, r.token);
       closeM(); toast('Saved'); openPersonPage($('#main'), p.appNo);
-    } catch (e) { if (e.message !== 'expired') toast(e.message); }
-    finally { btn.disabled = false; }
+    } catch (e) { if (e.message !== 'expired') toast(e.message); } finally { btn.disabled = false; }
   });
 }
 function showCreds(title, appNo, pw, tk) {
@@ -784,6 +698,7 @@ async function openPay(appNo) {
   const d = await api('apiSuperGetPerson', appNo);
   const p = d.person, s = d.summary;
   if (s.baki <= 0) return toast('No balance left.');
+  
   modal('Receive payment · ' + p.name, `
     <p class="hint">Balance: <b>${inr(s.baki)}</b>${s.penalty > 0 ? ` (includes ${inr(s.penalty)} penalty)` : ''}.</p>
     <div class="fgrid">
@@ -799,13 +714,15 @@ async function openPay(appNo) {
       <div><label class="fl">Note<input class="inp" id="pNote"></label></div>
     </div>`,
     `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPay">Receive</button>`);
+    
   $('#btnPay').addEventListener('click', async () => {
     const b = $('#btnPay'); if (b.disabled) return; b.disabled = true;
     try {
       const penAmt = Number(val('pPen'));
       if (penAmt > 0) await api('apiPenaltyAdd', appNo, new Date().getFullYear(), penAmt, val('pPenReason'));
       const r = await api('apiAddPayment', { appNo, amount: val('pAmt'), date: val('pDate'), mode: val('pMode'), txnRef: val('pTxn'), note: val('pNote') });
-      toast('Payment received'); await openReceipt(r.receiptId);
+      toast('Payment received'); 
+      openReceipt(r.receiptId); // Call global function from receipt.js
     } catch (e) { if (e.message !== 'expired') toast(e.message); b.disabled = false; }
   });
 }
@@ -817,55 +734,16 @@ function openPayout(appNo) {
       <div><label class="fl">Transaction no. (online)<input class="inp" id="oTxn"></label></div>
       <div><label class="fl">Note<input class="inp" id="oNote"></label></div></div>`,
     `<button class="btn light" data-act="close">Cancel</button><button class="btn purple" id="btnOut">Save</button>`);
+    
   $('#btnOut').addEventListener('click', async () => {
     const b = $('#btnOut'); if (b.disabled) return; b.disabled = true;
     try {
       const r = await api('apiAddSalaryPayout', appNo, val('oAmt'), val('oDate'), val('oMode'), val('oTxn'), val('oNote'));
-      closeM(); toast('Payout recorded'); await openReceipt(r.receiptId); openPersonPage($('#main'), appNo);
+      closeM(); toast('Payout recorded'); 
+      openReceipt(r.receiptId); // Call global function from receipt.js
+      openPersonPage($('#main'), appNo);
     } catch (e) { if (e.message !== 'expired') toast(e.message); b.disabled = false; }
   });
-}
-
-/* ============ RECEIPT (A4 print + PDF Download) ============ */
-async function openReceipt(id) {
-  const r = await api('apiSuperReceipt', id);
-  const o = r.org, p = r.person;
-  const logo = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 26);
-  const seal = o.seal ? `<img src="${esc(o.seal)}" alt="" onerror="this.remove()">` : '';
-  const rowsHtml = r.rows.map(x => `<tr>
-    <td>${x.no}</td><td>${esc(x.date)}</td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td>
-    <td>${esc(x.collector)}</td>
-    <td style="text-align:right">${x.reversal ? '−' : ''}${inr(Math.abs(x.amount))}</td>
-    <td style="text-align:right">${inr(x.balanceAfter)}</td></tr>`).join('');
-  modal('Receipt', `<div class="rc" id="rc">
-    <div class="rc-head"><div class="lg">${logo}</div>
-      <div class="ttl"><h2>${esc(o.name)}</h2><p>${esc(o.address)}${o.reg ? ' · ' + esc(o.reg) : ''}</p></div>
-      <div class="lg">${logo}</div></div>
-    <div class="rc-meta"><span>Receipt: <b>${esc(r.receiptId)}</b></span><span>Date: <b>${esc(r.issued)}</b></span><span>Year: <b>${r.year}</b></span></div>
-    <div class="rc-mid">
-      <div class="rc-box">
-        <div><span>Application ID</span><b class="rcid">${esc(p.appNo)}</b></div>
-        <div><span>Name</span><b>${esc(p.name)}</b></div>
-        <div><span>Father's name</span><b>${esc(p.father || '—')}</b></div>
-        <div><span>Mobile</span><b>${esc(p.mobile || '—')}</b></div>
-        <div><span>Address</span><b>${esc(p.address || '—')}</b></div>
-      </div>
-      <div class="rc-sum">
-        <div><span>Total due</span><b>${inr(r.due)}</b></div>
-        <div><span>Total paid</span><b>${inr(r.paid)}</b></div>
-        <div><span>Balance</span><b>${inr(r.balance)}</b></div>
-        <div><span>Transactions</span><b>${r.rows.length}</b></div>
-        ${r.penalty > 0 ? `<div style="grid-column:1/-1;border:1px solid #b42328;background:#fff5f5;color:#b42328"><span>Penalty Included</span><b>${inr(r.penalty)}</b></div>` : ''}
-      </div>
-    </div>
-    <table class="rt"><thead><tr><th>#</th><th>Date</th><th>Mode</th><th>Txn no.</th><th>Collector</th><th style="text-align:right">Amount</th><th style="text-align:right">Balance</th></tr></thead>
-    <tbody>${rowsHtml || '<tr><td colspan="7">No transactions.</td></tr>'}</tbody></table>
-    <div class="rc-sig">
-      <div><div class="si">${o.sigCollector ? `<img src="${esc(o.sigCollector)}" alt="" onerror="this.remove()">` : ''}</div><div class="ln"></div><b>${esc(r.issuedBy || '—')}</b>(Collector)</div>
-      <div class="seal-img"><div class="si">${seal}</div></div>
-      <div><div class="si">${o.sigAuth ? `<img src="${esc(o.sigAuth)}" alt="" onerror="this.remove()">` : ''}</div><div class="ln"></div><b>${esc(o.name)}</b>Authorised</div>
-    </div></div>`,
-  `<button class="btn light noprint" data-act="close">Close</button><button class="btn noprint" data-act="downloadPdf" style="background:var(--blue)">Download JPG</button><button class="btn noprint" data-act="printNow">${ic('print')}Print / PDF</button>`, true);
 }
 
 /* ============ PENALTY ============ */
@@ -873,7 +751,7 @@ VIEWS.penalty = async (c) => {
   const d = await api('apiPenaltyList');
   c.innerHTML = `
     <div class="pagehead"><h2>Penalty</h2></div>
-    <p class="psub">Penalty added to user's balance. Shows in their dashboard's "Back year penalty" box.</p>
+    <p class="psub">Penalty is applied to users with previous due balances.</p>
     <div class="card"><div class="fgrid two">
       <div><label class="fl">User App ID *<input class="inp" id="pApp" inputmode="numeric"></label></div>
       <div><label class="fl">Year *<input class="inp" id="pYear" type="number" value="${new Date().getFullYear()}"></label></div>
@@ -956,7 +834,7 @@ VIEWS.notice = async (c) => {
     </div>`).join('') || '<div class="empty">No notices yet.</div>'}`;
 };
 
-/* ============ POSTS (Blogger Style) ============ */
+/* ============ POSTS ============ */
 VIEWS.posts = async (c) => {
   const d = await api('apiPostList', 'madrasa');
   c.innerHTML = `
@@ -980,7 +858,7 @@ VIEWS.posts = async (c) => {
     </div>`).join('') || '<div class="empty">No posts yet.</div>'}`;
 };
 
-/* ============ SECTIONS (Blogger Style) ============ */
+/* ============ SECTIONS ============ */
 VIEWS.sec = async (c, arg) => {
   const sec = arg.sec || 'madrasa';
   const d = await api('apiSectionList', sec);
@@ -1256,19 +1134,6 @@ const ACTS = {
   close: () => closeM(),
   printNow: () => window.print(),
   copy: (id, el) => copyText(el.dataset.v),
-  downloadPdf: () => {
-    const element = document.getElementById('rc');
-    html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const a = document.createElement('a');
-      a.href = imgData;
-      a.download = 'Receipt_' + Date.now() + '.jpg';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      toast('Receipt downloaded as JPG');
-    }).catch(e => { toast('Download failed: ' + e.message); });
-  },
   closeAndOpen: (id) => { closeM(); openPersonPage($('#main'), id).catch(e => { if (e.message !== 'expired') toast(e.message); }); },
   toggleCreds: () => { SHOW_CREDS = !SHOW_CREDS; go(D.view, D.arg); },
   showPw: (id, el) => {
@@ -1293,7 +1158,7 @@ const ACTS = {
       DP_PENDING = null; toast('Photo saved'); closeM();
       if (target === 'person') openPersonPage($('#main'), CUR_PERSON.appNo);
       else if (D.view === 'profile') go('profile', {});
-    } catch (e) { toast('Upload failed: ' + e.message); $('#dpHint').textContent = 'Upload failed. Try a smaller photo.'; }
+    } catch (e) { toast('Upload failed: ' + e.message); $('#dpHint').textContent = 'Upload failed.'; }
   },
   dpDelete: async (id, el) => {
     if (!confirm('Remove this photo?')) return;
