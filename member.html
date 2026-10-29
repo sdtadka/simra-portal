@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Member · Community Portal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-/* Same CSS as super_admin.html */
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--blue:#1e6bff;--green:#12a150;--orange:#ff8a00;--purple:#7c3aed;--red:#e5484d;--gold:#c99a2e;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--bg:#f4f7fc;--navy:#0b2a5b;--blue-t:#eaf1ff;--green-t:#e8f8ef;--orange-t:#fff3e2;--purple-t:#f1eaff;--red-t:#fdecec;--gold-t:#fbf4df;--side:264px}
-html,body{overflow-x:hidden}
+html,body{overflow-x:hidden;user-select:none;-webkit-user-select:none}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;min-height:100vh}
+@media(min-width:960px){html,body{user-select:auto;-webkit-user-select:auto}}
 button,input,select,textarea{font:inherit;color:inherit}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 svg.i .s{fill:currentColor;fill-opacity:.18;stroke-opacity:.55}
@@ -132,7 +133,7 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .dp{width:132px;height:132px;border-radius:50%;background:linear-gradient(135deg,var(--blue-t),#dfe9ff);display:grid;place-items:center;font-size:44px;font-weight:800;color:var(--blue);overflow:hidden;border:4px solid #fff;box-shadow:0 12px 24px -12px var(--blue)}
 .dp[data-act]{cursor:pointer}
 .dp img{width:100%;height:100%;object-fit:cover}
-.appid{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--navy);font-family:Arial,sans-serif}
+.appid{font-size:24px;font-weight:800;letter-spacing:1px;color:var(--navy);font-family:Arial,sans-serif}
 .appid small{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase}
 .pname{font-size:20px;font-weight:800;color:var(--navy)}
 .info{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:12px;text-align:left}
@@ -147,9 +148,6 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .sec-card img,.sec-card .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
 .sec-card .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
 .sec-card p{color:var(--muted);margin-top:4px;line-height:1.6;white-space:pre-wrap}
-.post{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
-.post img,.post .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
-.post .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
 .pen-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed #e6eaf2;font-size:13px}
 .pen-box{border:2px solid #f6c6c8;background:#fff8f8}
 .rc-notice{background:#fffbe6;border:1px solid #f0dfb0;border-radius:14px;padding:12px;margin-bottom:10px}
@@ -162,47 +160,7 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 #ov .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
 @media(min-width:700px){#ov{align-items:center}#ov .box{border-radius:20px}}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;display:none;z-index:260;max-width:92vw;text-align:center}
-
-/* RECEIPT A4 PRINT FIX */
-.rc{background:#fff;border:2px solid #1b4332;border-radius:8px;padding:10px 12px;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:11px;color:#000}
-.rc-head{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;gap:8px;border-bottom:2px solid #1b4332;padding-bottom:5px;margin-bottom:5px}
-.rc-head .lg{width:56px;height:56px;border-radius:50%;border:2px solid #1b4332;display:grid;place-items:center;overflow:hidden}
-.rc-head .lg img{width:100%;height:100%;object-fit:cover}
-.rc-head .ttl{text-align:center}
-.rc-head h2{font-size:15px;font-weight:900;text-transform:uppercase}
-.rc-head p{font-size:9.5px;font-weight:700}
-.rc-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;border:1px solid #000;padding:3px 6px;margin-bottom:5px;font-size:10px}
-.rc-mid{display:grid;grid-template-columns:1.3fr 1fr;gap:5px;margin-bottom:5px}
-.rc-box{border:1px solid #000;padding:4px 6px}
-.rc-box div{display:flex;justify-content:space-between;gap:6px;padding:1px 0;border-bottom:1px dotted #777;font-size:9.5px}
-.rc-box div:last-child{border:0}
-.rc-box span{font-weight:700;text-transform:uppercase}
-.rc-box b{text-align:right;font-weight:900}
-.rc-box .rcid{font-size:12px}
-.rc-sum{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.rc-sum div{border:1px solid #000;padding:3px;text-align:center;font-size:8.5px}
-.rc-sum b{display:block;font-size:11px;font-weight:900}
-table.rt{width:100%;border-collapse:collapse;font-size:9px;border:1px solid #000}
-table.rt th{background:#1b4332;color:#fff;padding:2px 3px;text-align:left;font-size:8.5px;font-weight:900}
-table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-space:nowrap}
-.rc-sig{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:10px}
-.rc-sig>div{width:33%;text-align:center;font-size:9px}
-.rc-sig .si{height:34px;display:flex;align-items:flex-end;justify-content:center}
-.rc-sig .si img{max-height:34px;max-width:130px;object-fit:contain}
-.rc-sig .ln{border-bottom:1px solid #000;margin:2px 0}
-.rc-sig b{display:block;font-size:9px;font-weight:900}
-.rc-sig .seal-img img{max-height:52px;max-width:80px;object-fit:contain;opacity:.85}
-
-@media print {
-  @page { size: A4 portrait; margin: 5mm; }
-  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
-  body > *:not(#ov) { display: none !important; }
-  #ov { position: static !important; background: none !important; display: block !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; height: auto !important; width: 100% !important; }
-  #ov .box { box-shadow: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; position: static !important; transform: none !important; }
-  .noprint { display: none !important; }
-  #rc { width: 100% !important; max-width: 195mm !important; border: 1.5px solid #1b4332 !important; padding: 4mm !important; margin: 0 auto !important; box-sizing: border-box !important; page-break-inside: avoid !important; page-break-after: avoid !important; }
-  #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-}
+.hint{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:8px}
 @media(min-width:900px){.hd{padding:16px 22px 26px}.big3{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.main{max-width:1100px;margin:0 auto}}
 @media(min-width:960px){.side{transform:none}body.side-closed .side{transform:translateX(-100%)}.pagewrap{margin-left:var(--side)}body.side-closed .pagewrap{margin-left:0}#menuBtn{display:none}body.side-closed #menuBtn{display:grid}#scrim{display:none}}
 </style>
@@ -239,7 +197,9 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
 <input type="file" id="dpFile" accept="image/*" style="display:none">
 <div class="toast" id="toast"></div>
 
+<!-- Scripts -->
 <script src="api.js"></script>
+<script src="receipt.js"></script>
 <script>
 /* ============ ICONS ============ */
 const IC = {
@@ -253,29 +213,17 @@ const IC = {
   masjid:'<path d="M4.5 20.5v-6.8c0-4.2 3.4-7.3 7.5-7.3s7.5 3.1 7.5 7.3v6.8"/><path d="M2.5 20.5h19"/><path d="M12 2.8v2.2"/><path d="M9.6 20.5v-3.3a2.4 2.4 0 0 1 4.8 0v3.3" class="s"/><path d="M3.2 20.5v-4M20.8 20.5v-4" class="s"/>',
   eidgah:'<path d="M3.5 20.5v-7.2a8.5 8.5 0 0 1 17 0v7.2"/><path d="M2 20.5h20"/><path d="M9 20.5v-4.2a3 3 0 0 1 6 0v4.2" class="s"/>',
   kabristan:'<path d="M7.5 20.5V11a4.5 4.5 0 0 1 9 0v9.5"/><path d="M5 20.5h14"/><path d="M13.6 6.6a2.4 2.4 0 1 0 0 3.8 3 3 0 0 1 0-3.8z" class="s"/>',
-  search:'<circle cx="11" cy="11" r="6.8"/><path d="M20.5 20.5L16 16"/>',
-  import:'<path d="M12 3.5v10"/><path d="M8.2 10.2L12 14l3.8-3.8"/><path d="M4.5 16.5v2.2a2.3 2.3 0 0 0 2.3 2.3h10.4a2.3 2.3 0 0 0 2.3-2.3v-2.2"/>',
-  download:'<path d="M12 3.5v10"/><path d="M8.2 10.2L12 14l3.8-3.8"/><path d="M4.5 16.5v2.2a2.3 2.3 0 0 0 2.3 2.3h10.4a2.3 2.3 0 0 0 2.3-2.3v-2.2"/>',
   rates:'<path d="M3.5 12.4V4.8a1.3 1.3 0 0 1 1.3-1.3h7.6l8.1 8.1-8.9 8.9z"/><circle cx="8.2" cy="8.2" r="1.5" class="s"/>',
-  settings:'<path d="M4 7.5h9M17.5 7.5H20M4 16.5h2.5M11 16.5h9"/><circle cx="15" cy="7.5" r="2.4"/><circle cx="8.5" cy="16.5" r="2.4"/>',
-  profile:'<circle cx="12" cy="8.2" r="4"/><path d="M4.5 20.5c.9-4.2 3.9-6.4 7.5-6.4s6.6 2.2 7.5 6.4"/>',
-  logout:'<path d="M14.5 4.5h3.2a2.3 2.3 0 0 1 2.3 2.3v10.4a2.3 2.3 0 0 1-2.3 2.3h-3.2"/><path d="M10 16.2L5.8 12 10 7.8"/><path d="M5.8 12H15"/>',
-  phone:'<path d="M21 16.6v2.6a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.5 2 2 0 0 1 3.1 1.3h2.6a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L6.7 9.3a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
-  chat:'<path d="M20.5 11.7a8.2 8.2 0 0 1-11.9 7.3L3.5 20.5l1.6-4.9A8.2 8.2 0 1 1 20.5 11.7z"/>',
   money:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.8" class="s"/><path d="M6 10v4M18 10v4" class="s"/>',
-  hourglass:'<path d="M6.5 2.5h11M6.5 21.5h11"/><path d="M8 2.5c0 4.6 4 6.2 4 9.5s-4 4.9-4 9.5"/><path d="M16 2.5c0 4.6-4 6.2-4 9.5s4 4.9 4 9.5"/>',
   alert:'<path d="M12 3.5L21.5 20H2.5z"/><path d="M12 9.5v4.5M12 17.5v.2"/>',
   check:'<path d="M4.5 12.5l5 5 10-11"/>',
   eye:'<path d="M2 12s3.8-6.5 10-6.5S22 12 22 12s-3.8 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   print:'<path d="M6.5 9V3h11v6"/><path d="M6.5 18H4.6A2.1 2.1 0 0 1 2.5 15.9v-4.8A2.1 2.1 0 0 1 4.6 9h14.8a2.1 2.1 0 0 1 2.1 2.1v4.8a2.1 2.1 0 0 1-2.1 2.1h-1.9"/><rect x="6.5" y="14.5" width="11" height="7" rx="1"/>',
-  edit:'<path d="M12 20.5h9"/><path d="M16.7 3.3a2.3 2.3 0 0 1 3.3 3.3L7.4 19.2 3 20.5l1.3-4.4z"/>',
-  trash:'<path d="M3.5 6.5h17M9 6.5V3.8h6v2.7"/><path d="M6 6.5l1 14h10l1-14"/><path d="M10 10.5v6M14 10.5v6" class="s"/>',
-  lock:'<rect x="4.5" y="10.5" width="15" height="10" rx="2.4"/><path d="M7.8 10.5V7.2a4.2 4.2 0 0 1 8.4 0v3.3"/>',
-  refresh:'<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.5 3.5v6h-6"/>',
-  calendar:'<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/>',
-  plus:'<path d="M12 4.5v15M4.5 12h15"/>',
+  logout:'<path d="M14.5 4.5h3.2a2.3 2.3 0 0 1 2.3 2.3v10.4a2.3 2.3 0 0 1-2.3 2.3h-3.2"/><path d="M10 16.2L5.8 12 10 7.8"/><path d="M5.8 12H15"/>',
+  phone:'<path d="M21 16.6v2.6a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.5 2 2 0 0 1 3.1 1.3h2.6a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L6.7 9.3a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
+  chat:'<path d="M20.5 11.7a8.2 8.2 0 0 1-11.9 7.3L3.5 20.5l1.6-4.9A8.2 8.2 0 1 1 20.5 11.7z"/>',
+  profile:'<circle cx="12" cy="8.2" r="4"/><path d="M4.5 20.5c.9-4.2 3.9-6.4 7.5-6.4s6.6 2.2 7.5 6.4"/>',
   arrow:'<path d="M4.5 12h15M13.5 6l6 6-6 6"/>',
-  rupee:'<path d="M6.5 3.5h11M6.5 8h11M9 3.5c4 0 6 1.8 6 4.5s-2 4.5-6 4.5l7 8"/>',
   mosque:'<path d="M3.5 21V11.5C3.5 7 7.3 4 12 4s8.5 3 8.5 7.5V21"/><path d="M2 21h20"/><path d="M12 2v2"/><path d="M9.5 21v-3.5a2.5 2.5 0 0 1 5 0V21" class="s"/>'
 };
 const ic = (n, size) => `<svg class="i" viewBox="0 0 24 24"${size ? ` width="${size}" height="${size}"` : ''}>${IC[n] || IC.user}</svg>`;
@@ -286,14 +234,19 @@ function iconHtml(key, fallback) {
   const fb = ic(fallback || key).replace(/"/g, '&quot;');
   return `<img class="ic" src="${esc(url)}" alt="" onerror="this.outerHTML='${fb}'">`;
 }
+function linkify(text) {
+  if (!text) return '';
+  const urlRe = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+  return esc(text).replace(urlRe, '<a href="$1" target="_blank" style="color:#1e6bff;text-decoration:underline">$1</a>').replace(/\n/g, '<br>');
+}
 
 /* ============ HELPERS ============ */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
 const LS_S = 'pl_session';
-let TOKEN = null, ME = null, D = { view: 'dash', arg: {} };
-let PEOPLE_CACHE = [], CUR_PERSON = null, MY_PHOTO = '', DP_PENDING = null, BUSY = 0;
+let TOKEN = null, ME = null, MY = null, MY_PHOTO = '', D = { view: 'home', arg: {} };
+let DP_PENDING = null, BUSY = 0;
 const SECS = { madrasa: 'Madrasa', masjid: 'Masjid', eidgah: 'Eidgah', kabristan: 'Kabristan' };
 const LBL = { user: 'User', imam: 'Imam', member: 'Member', admin: 'Admin', super_admin: 'Super Admin' };
 
@@ -304,24 +257,13 @@ async function compressImage(file, maxDim = 900, quality = 0.82) {
     img.onload = () => {
       URL.revokeObjectURL(objectUrl);
       let w = img.naturalWidth, h = img.naturalHeight;
-      if (w > maxDim || h > maxDim) {
-        const r = Math.min(maxDim / w, maxDim / h);
-        w = Math.round(w * r); h = Math.round(h * r);
-      }
-      const cvs = document.createElement('canvas');
-      cvs.width = w; cvs.height = h;
-      const ctx = cvs.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
-      ctx.drawImage(img, 0, 0, w, h);
+      if (w > maxDim || h > maxDim) { const r = Math.min(maxDim / w, maxDim / h); w = Math.round(w * r); h = Math.round(h * r); }
+      const cvs = document.createElement('canvas'); cvs.width = w; cvs.height = h;
+      const ctx = cvs.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
       cvs.toBlob(blob => {
         if (!blob) return reject(new Error('Compression failed'));
         const reader = new FileReader();
-        reader.onload = () => resolve({
-          b64: String(reader.result).split(',')[1],
-          mime: blob.type || 'image/jpeg',
-          name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg',
-          size: blob.size
-        });
+        reader.onload = () => resolve({ b64: String(reader.result).split(',')[1], mime: blob.type || 'image/jpeg', name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg', size: blob.size });
         reader.readAsDataURL(blob);
       }, 'image/jpeg', quality);
     };
@@ -346,13 +288,12 @@ async function api(fn, ...a) {
     return r;
   } finally { busyEnd(); }
 }
-
 function toast(m) { const el = $('#toast'); el.textContent = m; el.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(() => el.style.display = 'none', 2600); }
 function digits(m) { const x = String(m || '').replace(/\D/g, ''); return x.length === 10 ? '91' + x : x; }
 function callLink(m) { const d = digits(m); return d ? `<a class="cl call" href="tel:+${d}">${ic('phone')}Call</a>` : ''; }
 function waLink(m) { const d = digits(m); return d ? `<a class="cl wa" href="https://wa.me/${d}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>` : ''; }
 function modal(title, body, foot, wide) { $('#ovT').textContent = title; $('#ovB').innerHTML = body; $('#ovF').innerHTML = foot || ''; $('#ovBox').classList.toggle('wide', !!wide); $('#ov').classList.add('open'); }
-function closeM() { $('#ov').classList.remove('open'); }
+function closeM() { $('#ov').classList.remove('open'); $('#ovB').innerHTML = ''; $('#ovF').innerHTML = ''; }
 function avatarHtml(name, url) { return url ? `<img src="${esc(url)}" alt="">` : esc((name || 'M').charAt(0).toUpperCase()); }
 async function leave(expired) {
   if (!expired && TOKEN) { try { await apiCall('apiLogout', [TOKEN]); } catch (e) {} }
@@ -361,36 +302,34 @@ async function leave(expired) {
 }
 
 /* ============ NAV ============ */
-const GROUPS = [
-  { title: 'Main', items: [
-    { k: 'dash', l: 'Dashboard', ic: 'dashboard', v: 'dash' },
-    { k: 'users', l: 'Users', ic: 'users', v: 'people', a: { role: 'user' } },
-    { k: 'imams', l: 'Imams', ic: 'imam', v: 'people', a: { role: 'imam' } },
-    { k: 'members', l: 'Members', ic: 'members', v: 'people', a: { role: 'member' } }
+const MENU = [
+  { group: 'Main', items: [
+    { l: 'Dashboard', ic: 'dashboard', v: 'home' }
   ]},
-  { title: 'Community', items: [
-    { k: 'madrasa', l: 'Madrasa', ic: 'madrasa', v: 'sec', a: { sec: 'madrasa' } },
-    { k: 'masjid', l: 'Masjid', ic: 'masjid', v: 'sec', a: { sec: 'masjid' } },
-    { k: 'eidgah', l: 'Eidgah', ic: 'eidgah', v: 'sec', a: { sec: 'eidgah' } },
-    { k: 'kabristan', l: 'Kabristan', ic: 'kabristan', v: 'sec', a: { sec: 'kabristan' } },
-    { k: 'posts', l: 'Madrasa posts', ic: 'madrasa', v: 'posts' },
-    { k: 'notice', l: 'Notices', ic: 'alert', v: 'notice' },
-    { k: 'kharch', l: 'Kharch (expenses)', ic: 'rates', v: 'kharch' }
+  { group: 'Community', items: [
+    { l: 'Members', ic: 'members', v: 'directory', a: { role: 'member' } },
+    { l: 'Users', ic: 'users', v: 'directory', a: { role: 'user' } },
+    { l: 'Imams', ic: 'imam', v: 'directory', a: { role: 'imam' } },
+    { l: 'Madrasa', ic: 'madrasa', v: 'sec', a: { sec: 'madrasa' } },
+    { l: 'Masjid', ic: 'masjid', v: 'sec', a: { sec: 'masjid' } },
+    { l: 'Eidgah', ic: 'eidgah', v: 'sec', a: { sec: 'eidgah' } },
+    { l: 'Kabristan', ic: 'kabristan', v: 'sec', a: { sec: 'kabristan' } },
+    { l: 'Notices', ic: 'alert', v: 'notice' },
+    { l: 'Kharch', ic: 'rates', v: 'kharch' }
   ]},
-  { title: 'Account', items: [
-    { k: 'profile', l: 'My profile', ic: 'profile', v: 'profile' }
+  { group: 'Account', items: [
+    { l: 'My profile', ic: 'profile', v: 'profile' }
   ]}
 ];
 function isOn(n) {
-  if (n.v === 'dash') return D.view === 'dash';
-  if (n.a && n.a.role) return D.view === 'people' && D.arg.role === n.a.role;
+  if (n.a && n.a.role) return D.view === 'directory' && D.arg.role === n.a.role;
   if (n.a && n.a.sec) return D.view === 'sec' && D.arg.sec === n.a.sec;
   return D.view === n.v;
 }
 function drawNav() {
   let h = '';
-  GROUPS.forEach(g => {
-    h += `<div class="sgroup">${g.title}</div>` + g.items.map(n =>
+  MENU.forEach(g => {
+    h += `<div class="sgroup">${g.group}</div>` + g.items.map(n =>
       `<button class="sitem ${isOn(n) ? 'on' : ''}" data-go="${n.v}" data-arg='${JSON.stringify(n.a || {})}' data-l="${esc(n.l.toLowerCase())}">
         <span class="si">${iconHtml(n.ic)}</span><span class="sl">${n.l}</span></button>`).join('');
   });
@@ -403,11 +342,9 @@ function filterNav(q) {
   let grp = null, shown = false;
   Array.prototype.forEach.call(nav.children, el => {
     if (el.classList.contains('sgroup')) { grp = el; shown = false; el.style.display = 'none'; return; }
-    if (el.classList.contains('sitem')) {
-      const ok = !q || (el.dataset.l || el.textContent.toLowerCase()).includes(q);
-      el.style.display = ok ? '' : 'none';
-      if (ok && grp && !shown) { grp.style.display = ''; shown = true; }
-    }
+    const ok = !q || (el.dataset.l || '').includes(q);
+    el.style.display = ok ? '' : 'none';
+    if (ok && grp && !shown) { grp.style.display = ''; shown = true; }
   });
 }
 const isDesk = () => window.innerWidth >= 960;
@@ -428,198 +365,175 @@ async function go(view, arg) {
   catch (e) { if (e.message !== 'expired') c.innerHTML = `<div class="errbox">${esc(e.message)}</div>`; }
 }
 
-/* ============ DASHBOARD ============ */
-VIEWS.dash = async (c) => {
-  const o = await api('apiMemberOverview');
-  const arrow = '<span class="go">' + ic('arrow') + '</span>';
-  const big = (cls, k, l, v, view, arg) =>
-    `<button class="big ${cls}" data-go="${view}" data-arg='${JSON.stringify(arg || {})}'>
-       <span class="ic">${iconHtml(k)}</span><span><span class="lb">${l}</span><b>${v}</b></span>${arrow}</button>`;
-  const tile = (cls, k, l, v, view, arg) =>
-    `<button class="tile ${cls}" data-go="${view}" data-arg='${JSON.stringify(arg || {})}'>
-       <span class="ti">${iconHtml(k)}</span><span class="tx"><span class="lb">${l}</span><b>${v}</b></span></button>`;
+/* ============ HOME ============ */
+VIEWS.home = async (c) => {
+  const [ov, notices] = await Promise.all([api('apiMemberOverview'), api('apiNoticeList').catch(() => ({ list: [] }))]);
+  const o = ov;
+  
   c.innerHTML = `
+    ${notices.list.length ? `<div class="sec-title"><h3>Notifications</h3></div>` + notices.list.slice(0, 3).map(x =>
+      `<div class="rc-notice"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.by)}</div><div style="margin-top:4px">${esc(x.body)}</div></div>`).join('') : ''}
+      
     <div class="pagehead"><h2>Dashboard</h2></div>
-    <p class="psub">Welcome, ${esc(ME.name)}. You can see everyone's data (Read Only).</p>
+    <p class="psub">Welcome, ${esc(ME.name)}</p>
+    
+    <div class="card profile">
+      <div class="dp" data-act="dpMenu">${avatarHtml(ME.name, MY_PHOTO)}</div>
+      <div class="appid"><small>Role</small>Member</div>
+      <div class="pname">${esc(ME.name)}</div>
+    </div>
+    
+    <div class="sec-title"><h3>Total count</h3></div>
     <div class="big3">
-      ${big('g-blue', 'users', 'Users', o.counts.user || 0, 'people', { role: 'user' })}
-      ${big('g-orange', 'imam', 'Imams', o.counts.imam || 0, 'people', { role: 'imam' })}
-      ${big('g-purple', 'members', 'Members', o.counts.member || 0, 'people', { role: 'member' })}
+      <button class="big g-purple" data-go="directory" data-arg='{"role":"member"}'><span class="ic">${iconHtml('members')}</span><span><span class="lb">Members</span><b>${o.counts.member}</b></span><span class="go">${ic('arrow')}</span></button>
+      <button class="big g-blue" data-go="directory" data-arg='{"role":"user"}'><span class="ic">${iconHtml('users')}</span><span><span class="lb">Users</span><b>${o.counts.user}</b></span><span class="go">${ic('arrow')}</span></button>
+      <button class="big g-orange" data-go="directory" data-arg='{"role":"imam"}'><span class="ic">${iconHtml('imam')}</span><span><span class="lb">Imams</span><b>${o.counts.imam}</b></span><span class="go">${ic('arrow')}</span></button>
     </div>
-    <div class="sec-title"><h3>Total count</h3><a data-go="people" data-arg='{}'>View All →</a></div>
+    
+    <div class="sec-title"><h3>Money</h3></div>
     <div class="tiles">
-      ${tile('t-blue', 'users', 'Users', o.counts.user || 0, 'people', { role: 'user' })}
-      ${tile('t-orange', 'imam', 'Imams', o.counts.imam || 0, 'people', { role: 'imam' })}
-      ${tile('t-purple', 'members', 'Members', o.counts.member || 0, 'people', { role: 'member' })}
-      ${tile('t-blue', 'madrasa', 'Madrasa', o.sections.madrasa || 0, 'sec', { sec: 'madrasa' })}
-      ${tile('t-green', 'masjid', 'Masjid', o.sections.masjid || 0, 'sec', { sec: 'masjid' })}
-      ${tile('t-orange', 'eidgah', 'Eidgah', o.sections.eidgah || 0, 'sec', { sec: 'eidgah' })}
-      ${tile('t-red wide', 'kabristan', 'Kabristan', o.sections.kabristan || 0, 'sec', { sec: 'kabristan' })}
-    </div>
-    <div class="sec-title"><h3>Fund overview</h3></div>
-    <div class="tiles">
-      ${tile('t-green', 'money', 'Collected', inr(o.collected), 'people', { role: 'user' })}
-      ${tile('t-red', 'alert', 'Balance Due', inr(o.baki), 'people', { role: 'user', status: 'due' })}
-      ${tile('t-green', 'check', 'Paid users', o.paidCnt, 'people', { role: 'user', status: 'paid' })}
-      ${tile('t-red', 'alert', 'Due users', o.dueCnt, 'people', { role: 'user', status: 'due' })}
-      ${tile('t-gold wide', 'rates', 'Rate ' + o.year, inr(o.rate), 'people', { role: 'user' })}
+      <div class="tile t-green"><span class="ti">${iconHtml('money')}</span><span class="tx"><span class="lb">Total collected</span><b>${inr(o.collected)}</b></span></div>
+      <div class="tile t-red"><span class="ti">${iconHtml('alert')}</span><span class="tx"><span class="lb">Balance Due</span><b>${inr(o.baki)}</b></span></div>
+      <div class="tile t-green"><span class="ti">${iconHtml('check')}</span><span class="tx"><span class="lb">Paid Users</span><b>${o.paidCnt}</b></span></div>
+      <div class="tile t-red"><span class="ti">${iconHtml('alert')}</span><span class="tx"><span class="lb">Due Users</span><b>${o.dueCnt}</b></span></div>
+      <div class="tile t-gold wide"><span class="ti">${iconHtml('rates')}</span><span class="tx"><span class="lb">Rate ${o.year}</span><b>${inr(o.rate)}</b></span></div>
     </div>`;
 };
 
-/* ============ PEOPLE LIST ============ */
-VIEWS.people = async (c, arg) => {
-  const role = arg.role || '', status = arg.status || 'all', adminId = arg.adminId || '';
-  const d = await api('apiSuperPeople', role, status, adminId);
-  PEOPLE_CACHE = d.list;
-  const title = role ? (role === 'user' ? 'Users' : role === 'imam' ? 'Imams' : 'Members') : 'All people';
-  const chip = (s, l) => `<button class="chipbtn ${status === s ? 'on' : ''}" data-go="people" data-arg='${JSON.stringify({ role, adminId, status: s })}'>${l}</button>`;
-  c.innerHTML = `
-    <div class="pagehead"><h2>${title}</h2></div>
-    <p class="psub">${d.list.length} records</p>
-    <div class="toolbar">
-      <input class="inp" id="q" placeholder="Search name, mobile or App no.">
-      ${role === 'user' ? `<div class="chips">${chip('all', 'All')}${chip('paid', 'Paid')}${chip('due', 'Due')}</div>` : ''}
-    </div>
-    <div class="card" style="padding:0"><div class="wrap" id="tbl"></div></div>`;
-  $('#q').addEventListener('input', drawRows);
-  drawRows();
+/* ============ DIRECTORY (Read Only) ============ */
+VIEWS.directory = async (c, arg) => {
+  const d = await api('apiPersonDirectory');
+  const role = arg.role || '';
+  const rows = d.list.filter(p => (!role || p.role === role));
+  
+  let head = `<tr><th>App ID</th><th>Name</th><th>Mobile</th><th>Role</th>`;
+  if (role === 'user') head += `<th>Due</th><th>Paid</th><th>Balance</th>`;
+  if (role === 'imam') head += `<th>Salary</th>`;
+  head += `</tr>`;
 
-  function drawRows() {
-    const q = ($('#q').value || '').trim().toLowerCase();
-    const rows = PEOPLE_CACHE.filter(p => !q || p.name.toLowerCase().includes(q) || String(p.mobile).includes(q) || p.appNo.includes(q));
-    const head = `<tr><th>#</th><th>App no.</th><th>Name</th><th>Mobile</th><th>Role</th>${role === 'user' || !role ? '<th>Due</th><th>Paid</th><th>Balance</th>' : ''}${role === 'member' || role === 'imam' || !role ? '<th>Salary</th>' : ''}<th>Status</th><th>Action</th></tr>`;
-    const body = rows.map((p, i) => {
-      const st = p.blocked ? '<span class="chip c-blk">Blocked</span>'
-        : p.role === 'user' ? (p.tag === 'paid' ? '<span class="chip c-paid">Paid</span>' : '<span class="chip c-due">Due</span>')
-        : p.role === 'imam' ? '<span class="chip c-imam">Imam</span>' : '<span class="chip c-role">Member</span>';
-      const cls = p.role === 'user' ? (p.tag === 'paid' ? 'row-paid' : 'row-due') : '';
-      const userCols = (role === 'user' || !role) ? `<td>${p.role === 'user' ? inr(p.due) : '—'}</td><td>${p.role === 'user' ? inr(p.paid) : '—'}</td><td><b>${p.role === 'user' ? inr(p.baki) : '—'}</b></td>` : '';
-      const staffCols = (role === 'member' || role === 'imam' || !role) ? `<td>${p.role !== 'user' ? inr(p.salary) + '/mo' : '—'}</td>` : '';
-      return `<tr class="${cls}">
-        <td>${i + 1}</td><td class="mono"><b>${esc(p.appNo)}</b></td>
-        <td><button class="nm" data-act="openPerson" data-id="${esc(p.appNo)}">${esc(p.name)}</button></td>
-        <td>${esc(p.mobile || '—')} <span style="display:inline-flex;margin-left:4px">${waLink(p.mobile, '')}</span></td>
-        <td><span class="chip c-role">${esc(LBL[p.role] || p.role)}</span></td>
-        ${userCols}${staffCols}
-        <td>${st}</td>
-        <td><button class="btn light sm" data-act="openPerson" data-id="${esc(p.appNo)}">${ic('eye')}View</button></td></tr>`;
-    }).join('');
-    $('#tbl').innerHTML = `<table class="t"><thead>${head}</thead><tbody>${body || '<tr><td colspan="14" class="muted">No records.</td></tr>'}</tbody></table>`;
-  }
+  const body = rows.map(p => {
+    let cols = `<td class="mono"><b>${esc(p.appNo)}</b></td>
+      <td><button class="nm" data-act="person" data-id="${esc(p.appNo)}">${esc(p.name)}</button></td>
+      <td>${esc(p.mobile || '—')}</td>
+      <td><span class="chip c-role">${LBL[p.role] || p.role}</span></td>`;
+    if (role === 'user') cols += `<td>${inr(p.due)}</td><td>${inr(p.paid)}</td><td><b>${inr(p.baki)}</b></td>`;
+    if (role === 'imam') cols += `<td>${inr(p.salary)}/mo</td>`;
+    return `<tr>${cols}</tr>`;
+  }).join('');
+
+  c.innerHTML = `
+    <div class="pagehead"><h2>${role ? role + 's' : 'All People'}</h2></div>
+    <p class="psub">Read-only directory.</p>
+    <div class="card" style="padding:0"><div class="wrap">
+      <table class="t"><thead>${head}</thead><tbody>${body || '<tr><td colspan="8" class="muted">No records.</td></tr>'}</tbody></table>
+    </div></div>`;
 };
 
-/* ============ PERSON PAGE (Read Only) ============ */
-async function openPersonPage(c, appNo) {
-  const d = await api('apiSuperGetPerson', appNo);
-  const p = d.person;
-  const isUser = p.role === 'user';
-  const isStaff = p.role === 'member' || p.role === 'imam';
-  CUR_PERSON = { appNo: p.appNo, role: p.role, name: p.name, father: p.father, mobile: p.mobile, email: p.email,
-    address: p.address, joinIso: p.joinIso, adminId: p.adminId, opening: (d.summary && d.summary.opening) || 0,
-    salary: (d.salary && d.salary.current) || 0, qualification: p.qualification, whatsapp: p.whatsapp, photoUrl: p.photoUrl };
-  const contact = p.role === 'imam' && p.whatsapp ? p.whatsapp : p.mobile;
+/* ============ PERSON VIEW ============ */
+VIEWS.person = async (c, arg) => {
+  const d = await api('apiPersonView', arg.id);
+  const p = d.person, s = d.summary, imam = p.role === 'imam';
   c.innerHTML = `
-    <div class="toolbar"><button class="btn light sm" data-go="people" data-arg='{}'>← Back</button></div>
+    <div class="toolbar"><button class="btn light sm" data-go="directory" data-arg='{}'>← Back</button></div>
     <div class="card profile">
-      <div class="dp" data-act="dpMenu" data-target="person">${avatarHtml(p.name, p.photoUrl)}</div>
+      <div class="dp">${avatarHtml(p.name, p.photoUrl)}</div>
       <div class="appid"><small>Application ID</small>${esc(p.appNo)}</div>
       <div class="pname">${esc(p.name)}</div>
-      <div class="acts" style="justify-content:center">
-        <span class="chip c-role">${esc(LBL[p.role] || p.role)}</span>
-        ${p.blocked ? '<span class="chip c-blk">Blocked</span>' : ''}
-      </div>
-      <div class="acts" style="justify-content:center">${callLink(p.mobile)}${waLink(contact)}</div>
+      <div class="acts" style="justify-content:center"><span class="chip c-role">${LBL[p.role] || p.role}</span></div>
+      <div class="acts" style="justify-content:center">${callLink(p.mobile)}${waLink(p.role === 'imam' && p.whatsapp ? p.whatsapp : p.mobile)}</div>
       <div class="info" style="width:100%">
         <div><span>Father's name</span><b>${esc(p.father || '—')}</b></div>
         <div><span>Mobile</span><b>${esc(p.mobile || '—')}</b></div>
-        <div><span>Email</span><b>${esc(p.email || '—')}</b></div>
         <div><span>Address</span><b>${esc(p.address || '—')}</b></div>
-        <div><span>Join date</span><b>${esc(p.joinDate || '—')}</b></div>
         <div><span>Admin</span><b>${esc(p.adminName || '—')}</b></div>
-        ${p.role === 'imam' ? `<div><span>Qualification</span><b>${esc(p.qualification || '—')}</b></div>
-                                <div><span>WhatsApp</span><b>${esc(p.whatsapp || '—')}</b></div>` : ''}
+        <div><span>Join date</span><b>${esc(p.joinDate || '—')}</b></div>
+        ${imam ? `<div><span>Qualification</span><b>${esc(p.qualification || '—')}</b></div>` : ''}
       </div>
     </div>
-    ${isStaff ? `
-      <div class="card"><h3 class="sec">Salary history</h3>
-        <div class="wrap"><table class="t"><thead><tr><th>Effective</th><th>Amount</th><th>Set by</th></tr></thead>
-        <tbody>${((d.salary && d.salary.history) || []).map(h => `<tr><td>${esc(h.effective)}</td><td>${inr(h.amount)}</td><td>${esc(h.setBy)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No salary set yet.</td></tr>'}</tbody></table></div></div>
-      <div class="card"><h3 class="sec">Salary payouts</h3>
-        <div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Paid by</th></tr></thead>
-        <tbody>${((d.salary && d.salary.payouts) || []).map(x => `<tr><td>${esc(x.date)}</td><td>${inr(x.amount)}</td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">No payouts yet.</td></tr>'}</tbody></table></div></div>`
-    : `
-      <div class="sum">
-        <div class="sumc" style="background:linear-gradient(135deg,#64748b,#334155)"><span>Total due</span><b>${inr(d.summary.due)}</b></div>
-        <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a)"><span>Paid this year</span><b>${inr(d.summary.paid)}</b></div>
-        <div class="sumc" style="background:linear-gradient(135deg,#e5484d,#ff7a7d)"><span>Balance</span><b>${inr(d.summary.baki)}</b></div>
-        <div class="sumc" style="background:linear-gradient(135deg,#c99a2e,#e8c15a)"><span>Back-year due</span><b>${inr(d.summary.opening)}</b></div>
+    ${imam ? '' : `<div class="sum">
+        <div class="sumc" style="background:linear-gradient(135deg,#64748b,#334155)"><span>Total due</span><b>${inr(s.due)}</b></div>
+        <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a)"><span>Paid</span><b>${inr(s.paid)}</b></div>
+        <div class="sumc" style="background:linear-gradient(135deg,#e5484d,#ff7a7d);grid-column:1/-1"><span>Balance</span><b>${inr(s.baki)}</b></div>
       </div>
-      ${(d.penalty && d.penalty.total > 0) ? `<div class="card pen-box">
-        <div class="pen-row" style="border:0"><b>Back year penalty</b><b style="color:#b42328;font-size:18px">${inr(d.penalty.total)}</b></div>
-        ${d.penalty.list.map(x => `<div class="pen-row"><span>${x.year} saal · ${esc(x.reason || '')} <span class="muted">${esc(x.date)}</span></span>
-          <b>${inr(x.amount)}</b></div>`).join('')}
-      </div>` : ''}
-      <div class="card"><h3 class="sec">Receipts</h3>
-        <div class="wrap"><table class="t"><thead><tr><th>Receipt ID</th><th>Issued</th><th>Total paid</th><th>Balance</th><th></th></tr></thead>
-        <tbody>${d.receipts.map(r => `<tr><td class="mono"><b>${esc(r.receiptId)}</b></td><td>${esc(r.issued)}</td><td>${inr(r.totalPaid)}</td><td>${inr(r.balance)}</td>
-          <td><button class="btn light sm" data-act="receipt" data-id="${esc(r.receiptId)}">${ic('eye')}Receipt</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">No receipts yet.</td></tr>'}</tbody></table></div></div>
-      <div class="card"><h3 class="sec">Khata book</h3>
-        <div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Collector</th><th></th></tr></thead>
-        <tbody>${d.payments.map(x => `<tr>
-          <td>${esc(x.date)}</td>
-          <td>${x.direction === 'REVERSAL' ? '<span class="chip c-due">Reversal</span>' : '<span class="chip c-paid">Payment</span>'}</td>
-          <td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td>
-          <td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">No transactions yet.</td></tr>'}</tbody></table></div></div>`}`;
+      <div class="sec-title"><h3>Receipts</h3></div>
+      <div class="card" style="padding:0">${receiptTable(d.receipts)}</div>
+      <div class="sec-title"><h3>Transactions</h3></div>
+      <div class="card" style="padding:0">${txTable(d.payments)}</div>`}`;
+};
+function txTable(list) {
+  if (!list || !list.length) return '<div class="empty">No transactions yet.</div>';
+  return `<div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Collected by</th><th></th></tr></thead><tbody>
+    ${list.map(x => `<tr><td>${esc(x.date)}</td>
+      <td>${x.direction === 'REVERSAL' ? '<span class="chip c-due">Reversal</span>' : '<span class="chip c-paid">Payment</span>'}</td>
+      <td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td>
+      <td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function receiptTable(list) {
+  if (!list || !list.length) return '<div class="empty">No receipts yet.</div>';
+  return `<div class="wrap"><table class="t"><thead><tr><th>Receipt ID</th><th>Issued</th><th>Total paid</th><th>Balance</th><th></th></tr></thead><tbody>
+    ${list.map(r => `<tr><td class="mono"><b>${esc(r.receiptId)}</b></td><td>${esc(r.issued)}</td><td>${inr(r.totalPaid)}</td><td>${inr(r.balance)}</td>
+      <td><button class="btn light sm" data-act="receipt" data-id="${esc(r.receiptId)}">${ic('eye')}View</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 
-/* ============ RECEIPT (A4 print) ============ */
-async function openReceipt(id) {
-  const r = await api('apiSuperReceipt', id);
-  const o = r.org, p = r.person;
-  const logo = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 26);
-  const seal = o.seal ? `<img src="${esc(o.seal)}" alt="" onerror="this.remove()">` : '';
-  const rowsHtml = r.rows.map(x => `<tr>
-    <td>${x.no}</td><td>${esc(x.date)}</td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td>
-    <td>${esc(x.collector)}</td>
-    <td style="text-align:right">${x.reversal ? '−' : ''}${inr(Math.abs(x.amount))}</td>
-    <td style="text-align:right">${inr(x.balanceAfter)}</td></tr>`).join('');
-  modal('Receipt', `<div class="rc" id="rc">
-    <div class="rc-head"><div class="lg">${logo}</div>
-      <div class="ttl"><h2>${esc(o.name)}</h2><p>${esc(o.address)}${o.reg ? ' · ' + esc(o.reg) : ''}</p></div>
-      <div class="lg">${logo}</div></div>
-    <div class="rc-meta"><span>Receipt: <b>${esc(r.receiptId)}</b></span><span>Date: <b>${esc(r.issued)}</b></span><span>Year: <b>${r.year}</b></span></div>
-    <div class="rc-mid">
-      <div class="rc-box">
-        <div><span>Application ID</span><b class="rcid">${esc(p.appNo)}</b></div>
-        <div><span>Name</span><b>${esc(p.name)}</b></div>
-        <div><span>Father's name</span><b>${esc(p.father || '—')}</b></div>
-        <div><span>Mobile</span><b>${esc(p.mobile || '—')}</b></div>
-        <div><span>Address</span><b>${esc(p.address || '—')}</b></div>
+/* ============ SECTIONS (Read Only) ============ */
+VIEWS.sec = async (c, arg) => {
+  const sec = arg.sec || 'madrasa';
+  const d = await api('apiPersonSections', sec);
+  
+  let postsHtml = '';
+  if (sec === 'madrasa') {
+    const pl = await api('apiPostList', sec).catch(() => ({ list: [] }));
+    postsHtml = `<div class="sec-title"><h3>Madrasa posts</h3></div>` +
+      (pl.list.map(x => `
+      <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
+        <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(x.title)}</h2>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
+          <span style="font-weight:600; color:var(--blue)">By ${esc(x.authorName)}</span>
+          <span>•</span>
+          <span>${esc(x.date)}</span>
+        </div>
+        ${x.photo ? `<img src="${esc(x.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
+        <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(x.body)}</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid var(--line);">
+          ${callLink(x.authorMobile)}
+          ${waLink(x.authorMobile)}
+        </div>
+      </div>`).join('') || '<div class="empty">No posts yet.</div>');
+  }
+  
+  c.innerHTML = `<div class="pagehead"><h2>${SECS[sec]}</h2></div>
+    <p class="psub">Latest updates from the committee.</p>
+    ${postsHtml}
+    ${sec === 'madrasa' ? '<div class="sec-title"><h3>Official Updates</h3></div>' : ''}
+    ${d.items.map(it => `
+    <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
+      <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(it.title)}</h2>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
+        <span>${esc(it.date)}</span>
       </div>
-      <div class="rc-sum">
-        <div><span>Total due</span><b>${inr(r.due)}</b></div>
-        <div><span>Total paid</span><b>${inr(r.paid)}</b></div>
-        <div><span>Balance</span><b>${inr(r.balance)}</b></div>
-        <div><span>Transactions</span><b>${r.rows.length}</b></div>
-      </div>
-    </div>
-    <table class="rt"><thead><tr><th>#</th><th>Date</th><th>Mode</th><th>Txn no.</th><th>Collector</th><th style="text-align:right">Amount</th><th style="text-align:right">Balance</th></tr></thead>
-    <tbody>${rowsHtml || '<tr><td colspan="7">No transactions.</td></tr>'}</tbody></table>
-    <div class="rc-sig">
-      <div><div class="si">${o.sigCollector ? `<img src="${esc(o.sigCollector)}" alt="" onerror="this.remove()">` : ''}</div><div class="ln"></div><b>${esc(r.issuedBy || '—')}</b>(Collector)</div>
-      <div class="seal-img"><div class="si">${seal}</div><b>MOHAR / SEAL</b></div>
-      <div><div class="si">${o.sigAuth ? `<img src="${esc(o.sigAuth)}" alt="" onerror="this.remove()">` : ''}</div><div class="ln"></div><b>${esc(o.name)}</b>Authorised</div>
-    </div></div>`,
-  `<button class="btn light noprint" data-act="close">Close</button><button class="btn noprint" data-act="printNow">${ic('print')}Print / PDF</button>`, true);
-}
+      ${it.photo ? `<img src="${esc(it.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
+      <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(it.body)}</p>
+    </div>`).join('') || (sec !== 'madrasa' ? `<div class="empty">No updates yet for ${SECS[sec]}.</div>` : '')}`;
+};
+
+/* ============ NOTICES ============ */
+VIEWS.notice = async (c) => {
+  const n = await api('apiNoticeList');
+  c.innerHTML = `<div class="pagehead"><h2>Notifications</h2></div>
+    <p class="psub">Announcements from the committee.</p>
+    ${n.list.map(x => `<div class="rc-notice">
+      <b>${esc(x.title)}</b>
+      <div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.by)}</div>
+      <div style="margin-top:4px;white-space:pre-wrap">${esc(x.body)}</div>
+    </div>`).join('') || '<div class="empty">No notices yet.</div>'}`;
+};
 
 /* ============ KHARCH (Read Only) ============ */
 VIEWS.kharch = async (c) => {
   const d = await api('apiExpenseList');
   const total = d.list.reduce((a, x) => a + x.total, 0);
-  c.innerHTML = `
-    <div class="pagehead"><h2>Kharch (expenses)</h2></div>
-    <p class="psub">Each expense is a box.</p>
+  c.innerHTML = `<div class="pagehead"><h2>Kharch (expenses)</h2></div>
+    <p class="psub">Admin expenses.</p>
     <div class="sum">
       <div class="sumc" style="background:linear-gradient(135deg,#e5484d,#ff7a7d)"><span>Total kharch</span><b>${inr(total)}</b></div>
       <div class="sumc" style="background:linear-gradient(135deg,#1e6bff,#4f8dff)"><span>Boxes</span><b>${d.list.length}</b></div>
@@ -632,11 +546,7 @@ VIEWS.kharch = async (c) => {
 };
 VIEWS.expOpen = async (c, arg) => {
   const r = await api('apiExpenseView', arg.id);
-  c.innerHTML = `
-    <div class="toolbar">
-      <button class="btn light sm" data-go="kharch" data-arg='{}'>← Back</button>
-      <button class="btn sm" data-act="printNow">${ic('print')}Print / PDF</button>
-    </div>
+  c.innerHTML = `<div class="toolbar"><button class="btn light sm" data-go="kharch" data-arg='{}'>← Back</button></div>
     <div class="rc" id="rc">
       <div class="rc-head"><div class="ttl" style="grid-column:1/-1"><h2>${esc(r.title)}</h2><p>Expense · ${esc(r.receiptId)} · ${esc(r.created)}</p></div></div>
       <table class="rt"><thead><tr><th>#</th><th>Item</th><th>Description</th><th>Date</th><th style="text-align:right">Amount</th></tr></thead>
@@ -646,113 +556,80 @@ VIEWS.expOpen = async (c, arg) => {
     </div>`;
 };
 
-/* ============ NOTICES (Read Only) ============ */
-VIEWS.notice = async (c) => {
-  const n = await api('apiNoticeList');
-  c.innerHTML = `
-    <div class="pagehead"><h2>Notices</h2></div>
-    <p class="psub">Notices appear on every dashboard.</p>
-    ${n.list.map(x => `<div class="rc-notice">
-      <b>${esc(x.title)}</b>
-      <div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.by)}</div>
-      <div style="margin-top:4px;white-space:pre-wrap">${esc(x.body)}</div>
-    </div>`).join('') || '<div class="empty">No notices yet.</div>'}`;
-};
-
-/* ============ POSTS (Read Only) ============ */
-VIEWS.posts = async (c) => {
-  const d = await api('apiPostList', 'madrasa');
-  c.innerHTML = `
-    <div class="pagehead"><h2>Madrasa posts</h2></div>
-    <p class="psub">Posts from Imam's Madrasa.</p>
-    ${d.list.map(x => `<div class="card post">
-      ${x.photo ? `<img src="${esc(x.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
-      <div><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.authorName)} (${esc(x.authorRole)})</div>
-        <p>${esc(x.body)}</p>
-        <div class="acts">${callLink(x.authorMobile)}${waLink(x.authorMobile)}</div></div>
-    </div>`).join('') || '<div class="empty">No posts yet.</div>'}`;
-};
-
-/* ============ SECTIONS (Read Only) ============ */
-VIEWS.sec = async (c, arg) => {
-  const sec = arg.sec || 'madrasa';
-  const d = await api('apiSectionList', sec);
-  c.innerHTML = `
-    <div class="pagehead"><h2>${SECS[sec]}</h2></div>
-    <p class="psub">Updates, photos and news.</p>
-    ${d.items.map(it => `<div class="card sec-card">
-      ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml(sec)}</div>`}
-      <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div>
-        <p>${esc(it.body)}</p>
-      </div>
-    </div>`).join('') || '<div class="empty">No updates yet.</div>'}`;
-};
-
-/* ============ MY PROFILE ============ */
+/* ============ PROFILE ============ */
 VIEWS.profile = async (c) => {
-  const [p, ph] = await Promise.all([api('apiMyProfile'), api('apiAdminGetPhoto')]);
-  MY_PHOTO = ph.url || '';
+  if (!MY) MY = await api('apiMyPerson');
+  const p = MY.person;
   c.innerHTML = `
     <div class="pagehead"><h2>My profile</h2></div>
+    <p class="psub">You can only change your photo. Other details are fixed by the committee.</p>
     <div class="card profile">
-      <div class="dp" data-act="dpMenu" data-target="me">${avatarHtml(p.profile.name, MY_PHOTO)}</div>
-      <div class="appid"><small>Username</small>${esc(p.profile.username)}</div>
-      <div class="pname">${esc(p.profile.name)}</div>
-      <div class="muted">${esc(LBL[p.profile.role] || p.profile.role)}</div>
+      <div class="dp" data-act="dpMenu">${avatarHtml(p.name, p.photoUrl)}</div>
+      <div class="appid"><small>Application ID</small>${esc(p.appNo)}</div>
+      <div class="pname">${esc(p.name)}</div>
+      <div class="acts" style="justify-content:center"><span class="chip c-role">${esc(LBL[p.role] || p.role)}</span></div>
+      <div class="info" style="width:100%">
+        <div><span>Father's name</span><b>${esc(p.father || '—')}</b></div>
+        <div><span>Mobile</span><b>${esc(p.mobile || '—')}</b></div>
+        <div><span>Address</span><b>${esc(p.address || '—')}</b></div>
+        <div><span>Admin</span><b>${esc(p.adminName || '—')}</b></div>
+        <div><span>Join date</span><b>${esc(p.joinDate || '—')}</b></div>
+      </div>
     </div>
-    <div class="card"><div class="fgrid">
-      <div><label class="fl">Name<input class="inp" id="mName" value="${esc(p.profile.name)}"></label></div>
-      <div><label class="fl">Father's name<input class="inp" id="mFather" value="${esc(p.profile.father)}"></label></div>
-      <div><label class="fl">Mobile<input class="inp" id="mMobile" maxlength="10" value="${esc(p.profile.mobile)}"></label></div>
-      <div><label class="fl">Email<input class="inp" id="mEmail" value="${esc(p.profile.email)}"></label></div>
-      <div><label class="fl">New password (optional)<input class="inp" type="password" id="mPw"></label></div>
-      <div><label class="fl">Confirm password<input class="inp" type="password" id="mPw2"></label></div>
-    </div></div>
-    <div class="acts"><button class="btn green" data-act="saveProfile">Save profile</button></div>`;
+    <div class="card"><button class="btn red" data-act="logout" style="width:100%">${ic('logout')}Logout</button></div>`;
 };
+
+/* ============ DP MODAL ============ */
+function openDpModal() {
+  DP_PENDING = null;
+  const cur = MY.person.photoUrl;
+  modal('My photo', `<div class="profile">
+      <div class="dp" id="dpPrev">${avatarHtml(MY.person.name, cur)}</div>
+      <p class="hint" id="dpHint">${cur ? 'Replace or Delete.' : 'Choose a photo.'}</p>
+    </div>`,
+    `<div class="acts" style="width:100%;justify-content:center" id="dpBtns">
+       ${cur ? `<button class="btn red sm" data-act="dpDelete">Delete</button>` : ''}
+       <button class="btn light sm" data-act="dpPick">${cur ? 'Replace' : 'Choose photo'}</button>
+       <button class="btn light sm" data-act="close">Cancel</button></div>`);
+}
+function showDpPending(url) {
+  $('#dpPrev').innerHTML = `<img src="${esc(url)}" alt="">`;
+  $('#dpHint').textContent = 'New photo ready. Press Save.';
+  $('#dpBtns').innerHTML = `<button class="btn green sm" data-act="dpSave">Save</button>
+    <button class="btn light sm" data-act="dpPick">Replace</button>
+    <button class="btn light sm" data-act="close">Cancel</button>`;
+}
 
 /* ============ ACTIONS ============ */
 const ACTS = {
   logout: () => leave(false),
   close: () => closeM(),
-  printNow: () => window.print(),
-  dpMenu: (id, el) => {
-    if (el.dataset.target === 'me') return openDpModal('me', MY_PHOTO);
-    return openDpModal('person', CUR_PERSON ? CUR_PERSON.photoUrl : '');
-  },
-  dpPick: (id, el) => { $('#ovF').dataset.target = el.dataset.target; $('#dpFile').click(); },
+  receipt: (id) => openReceipt(id), // Calls receipt.js
+  person: (id) => go('person', { id: id }),
+  dpMenu: () => openDpModal(),
+  dpPick: () => $('#dpFile').click(),
   dpSave: async () => {
     if (!DP_PENDING) return toast('Choose a photo first.');
-    const target = $('#ovF').dataset.target;
-    const f = DP_PENDING;
     $('#dpHint').textContent = 'Uploading…';
     try {
-      const r = await api('apiUploadPhoto', f.b64, f.mime, f.name);
-      await saveDpUrl(target, r.url);
-      DP_PENDING = null; toast('Photo saved'); closeM();
-      if (target === 'person') openPersonPage($('#main'), CUR_PERSON.appNo);
-      else if (D.view === 'profile') go('profile', {});
-    } catch (e) { toast('Upload failed: ' + e.message); $('#dpHint').textContent = 'Upload failed. Try a smaller photo.'; }
+      const r = await api('apiPersonUploadPhoto', DP_PENDING.b64, DP_PENDING.mime, DP_PENDING.name);
+      await api('apiPersonSetPhoto', r.url);
+      DP_PENDING = null;
+      $('#av').innerHTML = avatarHtml(MY.person.name, r.url);
+      MY.person.photoUrl = r.url;
+      toast('Photo saved'); closeM();
+      go(D.view, D.arg);
+    } catch (e) { toast('Upload failed: ' + e.message); $('#dpHint').textContent = 'Upload failed.'; }
   },
-  dpDelete: async (id, el) => {
-    if (!confirm('Remove this photo?')) return;
-    try {
-      await saveDpUrl(el.dataset.target, '');
-      DP_PENDING = null; toast('Photo removed'); closeM();
-      if (el.dataset.target === 'person') openPersonPage($('#main'), CUR_PERSON.appNo);
-      else if (D.view === 'profile') go('profile', {});
-    } catch (e) { toast('Failed: ' + e.message); }
+  dpDelete: async () => {
+    if (!confirm('Remove your photo?')) return;
+    await api('apiPersonSetPhoto', '');
+    MY.person.photoUrl = '';
+    $('#av').innerHTML = avatarHtml(MY.person.name, '');
+    toast('Photo removed'); closeM();
+    go(D.view, D.arg);
   },
-  openPerson: (id) => { D = { view: 'person', arg: { id } }; drawNav(); openPersonPage($('#main'), id).catch(e => { if (e.message !== 'expired') toast(e.message); }); },
-  receipt: (id) => openReceipt(id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
-  expOpen: (id) => go('expOpen', { id }),
-  saveProfile: async () => {
-    const r = await api('apiUpdateMyProfile', { name: val('mName'), father: val('mFather'), mobile: val('mMobile'),
-      email: val('mEmail'), password: val('mPw'), confirm: val('mPw2') });
-    ME.name = r.name;
-    $('#av').innerHTML = avatarHtml(r.name, MY_PHOTO);
-    toast('Profile saved'); go('profile', {});
-  }
+  expOpen: (id) => go('expOpen', { id: id })
 };
 
 /* ============ EVENTS ============ */
@@ -770,7 +647,7 @@ document.addEventListener('click', async e => {
 document.addEventListener('change', async e => {
   if (e.target.id === 'dpFile') {
     const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-    if (!/^image\//.test(f.type)) return toast('Please choose an image file.');
+    if (!/^image\//.test(f.type)) return toast('Choose an image file.');
     try {
       $('#dpHint').textContent = 'Processing…';
       const compressed = await compressImage(f);
@@ -778,39 +655,8 @@ document.addEventListener('change', async e => {
       showDpPending('data:' + compressed.mime + ';base64,' + compressed.b64);
       toast('Photo ready — press Save');
     } catch (err) { toast('Could not process image: ' + err.message); }
-    return;
   }
 });
-
-function openDpModal(target, currentUrl) {
-  DP_PENDING = null;
-  modal(target === 'me' ? 'My photo' : 'Profile photo', `
-    <div class="profile">
-      <div class="dp" id="dpPrev">${avatarHtml(target === 'me' ? ME.name : (CUR_PERSON && CUR_PERSON.name), currentUrl)}</div>
-      <p class="hint" id="dpHint">${currentUrl ? 'Current photo. Choose Replace or Delete.' : 'No photo yet.'}</p>
-    </div>`,
-    `<div class="acts" style="width:100%;justify-content:center" id="dpBtns">
-       ${currentUrl ? `<button class="btn red sm" data-act="dpDelete" data-target="${target}">Delete</button>` : ''}
-       <button class="btn light sm" data-act="dpPick" data-target="${target}">${currentUrl ? 'Replace' : 'Choose photo'}</button>
-       <button class="btn light sm" data-act="close">Cancel</button>
-     </div>`);
-  $('#ovF').dataset.target = target;
-}
-function showDpPending(url) {
-  $('#dpPrev').innerHTML = `<img src="${esc(url)}" alt="">`;
-  $('#dpHint').textContent = 'New photo ready. Press Save or Replace.';
-  $('#dpBtns').innerHTML = `
-    <button class="btn green sm" data-act="dpSave">Save</button>
-    <button class="btn light sm" data-act="dpPick" data-target="${$('#ovF').dataset.target}">Replace</button>
-    <button class="btn light sm" data-act="close">Cancel</button>`;
-}
-async function saveDpUrl(target, url) {
-  if (target === 'me') {
-    await api('apiAdminSetPhoto', url);
-    MY_PHOTO = url;
-    $('#av').innerHTML = avatarHtml(ME.name, MY_PHOTO);
-  }
-}
 
 function applyOrg(o) {
   if (o.name !== undefined) {
@@ -840,13 +686,12 @@ async function boot() {
     bootProgress(35, 'Loading icons…', '');
     const ic2 = await apiCall('apiGetIcons', [TOKEN]).catch(() => null);
     ICONS = (ic2 && ic2.icons) || {};
-    bootProgress(55, 'Loading your profile…', '');
-    const ph = await apiCall('apiAdminGetPhoto', [TOKEN]).catch(() => null);
-    MY_PHOTO = (ph && ph.url) || '';
-    $('#av').innerHTML = avatarHtml(ME.name, MY_PHOTO);
-    bootProgress(75, 'Loading dashboard…', '');
+    bootProgress(60, 'Loading your details…', '');
+    MY = await api('apiMyPerson');
+    $('#av').innerHTML = avatarHtml(MY.person.name, MY.person.photoUrl);
+    bootProgress(85, 'Loading page…', '');
     startIdle();
-    await go('dash', {});
+    await go('home', {});
     bootProgress(100, 'Ready', 'Welcome');
     setTimeout(bootDone, 250);
   } catch (e) { bootDone(); showError(e.message); }
@@ -856,7 +701,7 @@ function startIdle() {
   ['mousemove', 'keydown', 'click', 'touchstart'].forEach(ev => document.addEventListener(ev, () => { LAST = Date.now(); }, { passive: true }));
   setInterval(async () => {
     if (!TOKEN) return;
-    if (Date.now() - LAST > 15 * 60 * 1000) { toast('Logged out after 15 minutes of inactivity.'); return leave(false); }
+    if (Date.now() - LAST > 15 * 60 * 1000) return leave(false);
     const r = await apiCall('apiSession', [TOKEN]).catch(() => null);
     if (!r || !r.ok) leave(true);
   }, 60000);
