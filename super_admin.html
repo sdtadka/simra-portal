@@ -188,7 +188,8 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .cred-box div{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .cred-box b{font-family:"Courier New",monospace;font-size:17px;word-break:break-all}
 .cred-box small{color:#94a3b8;font-size:11px;text-transform:uppercase;display:block}
-/* RECEIPT */
+
+/* RECEIPT CSS */
 .rc{background:#fff;border:2px solid #1b4332;border-radius:8px;padding:10px 12px;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:11px;color:#000}
 .rc-head{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;gap:8px;border-bottom:2px solid #1b4332;padding-bottom:5px;margin-bottom:5px}
 .rc-head .lg{width:56px;height:56px;border-radius:50%;border:2px solid #1b4332;display:grid;place-items:center;overflow:hidden}
@@ -217,14 +218,35 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
 .rc-sig .ln{border-bottom:1px solid #000;margin:2px 0}
 .rc-sig b{display:block;font-size:9px;font-weight:900}
 .rc-sig .seal-img img{max-height:52px;max-width:80px;object-fit:contain;opacity:.85}
+
 @media print {
   @page { size: A4 portrait; margin: 5mm; }
   html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
-  body > *:not(#ov) { display: none !important; }
-  #ov { position: static !important; background: none !important; display: block !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; height: auto !important; width: 100% !important; }
-  #ov .box { box-shadow: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; position: static !important; transform: none !important; }
+  
+  /* Hide everything except print-area */
+  body * { visibility: hidden !important; }
+  #ov, #ov * { visibility: visible !important; }
+  #rc, #rc * { visibility: visible !important; }
+  
+  #ov { 
+    position: absolute !important; left: 0 !important; top: 0 !important;
+    background: none !important; display: block !important; overflow: visible !important; 
+    padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important;
+  }
+  #ov .box { 
+    box-shadow: none !important; max-height: none !important; overflow: visible !important; 
+    padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; 
+    border-radius: 0 !important; position: static !important; transform: none !important;
+  }
+  
   .noprint { display: none !important; }
-  #rc { width: 100% !important; max-width: 195mm !important; border: 1.5px solid #1b4332 !important; padding: 4mm !important; margin: 0 auto !important; box-sizing: border-box !important; page-break-inside: avoid !important; page-break-after: avoid !important; }
+  
+  #rc { 
+    width: 100% !important; max-width: 195mm !important; border: 1.5px solid #1b4332 !important; 
+    padding: 4mm !important; margin: 0 auto !important; box-sizing: border-box !important; 
+    page-break-inside: avoid !important; page-break-after: avoid !important;
+    background: #fff !important;
+  }
   #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 @media(min-width:900px){.hd{padding:16px 22px 26px}.big3{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.main{max-width:1100px;margin:0 auto}}
@@ -310,6 +332,11 @@ function iconHtml(key, fallback) {
   const fb = ic(fallback || key).replace(/"/g, '&quot;');
   return `<img class="ic" src="${esc(url)}" alt="" onerror="this.outerHTML='${fb}'">`;
 }
+function linkify(text) {
+  if (!text) return '';
+  const urlRe = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+  return esc(text).replace(urlRe, '<a href="$1" target="_blank" style="color:#1e6bff;text-decoration:underline">$1</a>').replace(/\n/g, '<br>');
+}
 
 /* ============ HELPERS ============ */
 const $ = s => document.querySelector(s);
@@ -323,19 +350,9 @@ let CSV_TEXT = null, CSV_NAME = '', CSV_ROWS = 0, DP_PENDING = null, BUSY = 0;
 const SECS = { madrasa: 'Madrasa', masjid: 'Masjid', eidgah: 'Eidgah', kabristan: 'Kabristan' };
 const LBL = { user: 'User', imam: 'Imam', member: 'Member', admin: 'Admin', super_admin: 'Super Admin' };
 const MODES = ['Cash', 'UPI', 'Bank Transfer', 'Cheque'];
-const ICON_FIELDS = [
-  ['dashboard','Dashboard'],['users','Users'],['imam','Imams'],['members','Members'],['admin','Admin'],
-  ['madrasa','Madrasa'],['masjid','Masjid'],['eidgah','Eidgah'],['kabristan','Kabristan'],
-  ['search','Search'],['import','Import'],['rates','Rates'],['settings','Settings'],['profile','Profile']
-];
+const ICON_FIELDS = [['dashboard','Dashboard'],['users','Users'],['imam','Imams'],['members','Members'],['admin','Admin'],['madrasa','Madrasa'],['masjid','Masjid'],['eidgah','Eidgah'],['kabristan','Kabristan'],['search','Search'],['import','Import'],['rates','Rates'],['settings','Settings'],['profile','Profile']];
 const val = id => { const e = document.getElementById(id); return e ? e.value : ''; };
 const todayIso = () => new Date().toISOString().slice(0, 10);
-
-function linkify(text) { 
-  if (!text) return ''; 
-  const urlRe = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig; 
-  return esc(text).replace(urlRe, '<a href="$1" target="_blank" style="color:#1e6bff;text-decoration:underline">$1</a>').replace(/\n/g, '<br>'); 
-}
 
 async function compressImage(file, maxDim = 900, quality = 0.82) {
   return new Promise((resolve, reject) => {
@@ -413,7 +430,7 @@ function digits(m) { const x = String(m || '').replace(/\D/g, ''); return x.leng
 function callLink(m) { const d = digits(m); return d ? `<a class="cl call" href="tel:+${d}">${ic('phone')}Call</a>` : ''; }
 function waLink(m) { const d = digits(m); return d ? `<a class="cl wa" href="https://wa.me/${d}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>` : ''; }
 function modal(title, body, foot, wide) { $('#ovT').textContent = title; $('#ovB').innerHTML = body; $('#ovF').innerHTML = foot || ''; $('#ovBox').classList.toggle('wide', !!wide); $('#ov').classList.add('open'); }
-function closeM() { $('#ov').classList.remove('open'); }
+function closeM() { $('#ov').classList.remove('open'); $('#ovB').innerHTML = ''; $('#ovF').innerHTML = ''; }
 function copyText(s) { try { navigator.clipboard.writeText(s); toast('Copied'); } catch (e) { toast('Copy manually'); } }
 function downloadCsv(name, text) {
   const b = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8' });
@@ -591,14 +608,14 @@ VIEWS.people = async (c, arg) => {
   function drawRows() {
     const q = ($('#q').value || '').trim().toLowerCase();
     const rows = PEOPLE_CACHE.filter(p => !q || p.name.toLowerCase().includes(q) || String(p.mobile).includes(q) || p.appNo.includes(q));
-    const head = `<tr><th>#</th><th>App no.</th><th>Name</th><th>Mobile</th><th>Role</th><th>Admin</th>${role === 'user' || !role ? '<th>Due</th><th>Paid</th><th>Balance</th>' : ''}${role === 'member' || role === 'imam' || !role ? '<th>Salary</th>' : ''}<th>Status</th>${SHOW_CREDS ? '<th>Password</th><th>Token</th>' : ''}<th>Actions</th></tr>`;
+    const head = `<tr><th>#</th><th>App no.</th><th>Name</th><th>Mobile</th><th>Role</th><th>Admin</th>${role === 'user' || !role ? '<th>Due</th><th>Paid</th><th>Balance</th>' : ''}${role === 'imam' || !role ? '<th>Salary</th>' : ''}<th>Status</th>${SHOW_CREDS ? '<th>Password</th><th>Token</th>' : ''}<th>Actions</th></tr>`;
     const body = rows.map((p, i) => {
       const st = p.blocked ? '<span class="chip c-blk">Blocked</span>'
         : p.role === 'user' ? (p.tag === 'paid' ? '<span class="chip c-paid">Paid</span>' : '<span class="chip c-due">Due</span>')
         : p.role === 'imam' ? '<span class="chip c-imam">Imam</span>' : '<span class="chip c-role">Member</span>';
       const cls = p.role === 'user' ? (p.tag === 'paid' ? 'row-paid' : 'row-due') : '';
       const userCols = (role === 'user' || !role) ? `<td>${p.role === 'user' ? inr(p.due) : '—'}</td><td>${p.role === 'user' ? inr(p.paid) : '—'}</td><td><b>${p.role === 'user' ? inr(p.baki) : '—'}</b></td>` : '';
-      const staffCols = (role === 'member' || role === 'imam' || !role) ? `<td>${p.role !== 'user' ? inr(p.salary) + '/mo' : '—'}</td>` : '';
+      const staffCols = (role === 'imam' || !role) ? `<td>${p.role === 'imam' ? inr(p.salary) + '/mo' : '—'}</td>` : '';
       return `<tr class="${cls}">
         <td>${i + 1}</td><td class="mono"><b>${esc(p.appNo)}</b></td>
         <td><button class="nm" data-act="openPerson" data-id="${esc(p.appNo)}">${esc(p.name)}</button></td>
@@ -624,10 +641,8 @@ async function openPersonPage(c, appNo) {
   const d = await api('apiSuperGetPerson', appNo);
   const p = d.person;
   const isUser = p.role === 'user';
-  const isStaff = p.role === 'member' || p.role === 'imam';
-  CUR_PERSON = { appNo: p.appNo, role: p.role, name: p.name, father: p.father, mobile: p.mobile, email: p.email,
-    address: p.address, joinIso: p.joinIso, adminId: p.adminId, opening: (d.summary && d.summary.opening) || 0,
-    salary: (d.salary && d.salary.current) || 0, qualification: p.qualification, whatsapp: p.whatsapp, photoUrl: p.photoUrl };
+  const isImam = p.role === 'imam';
+  CUR_PERSON = { appNo: p.appNo, role: p.role, name: p.name, father: p.father, mobile: p.mobile, email: p.email, address: p.address, joinIso: p.joinIso, adminId: p.adminId, opening: (d.summary && d.summary.opening) || 0, salary: (d.salary && d.salary.current) || 0, qualification: p.qualification, whatsapp: p.whatsapp, photoUrl: p.photoUrl };
   const contact = p.role === 'imam' && p.whatsapp ? p.whatsapp : p.mobile;
   c.innerHTML = `
     <div class="toolbar"><button class="btn light sm" data-go="people" data-arg='{}'>← Back</button></div>
@@ -653,7 +668,7 @@ async function openPersonPage(c, appNo) {
       <div class="acts" style="justify-content:center;margin-top:8px">
         <button class="btn light sm" data-act="editPerson" data-id="${esc(appNo)}">${ic('edit')}Edit</button>
         ${isUser ? `<button class="btn green sm" data-act="pay" data-id="${esc(appNo)}">${ic('rupee')}Receive payment</button>` : ''}
-        ${isStaff ? `<button class="btn purple sm" data-act="payout" data-id="${esc(appNo)}">${ic('money')}Salary payout</button>` : ''}
+        ${isImam ? `<button class="btn purple sm" data-act="payout" data-id="${esc(appNo)}">${ic('money')}Salary payout</button>` : ''}
         ${isUser ? `<button class="btn gold sm" data-act="addPenaltyForPerson" data-id="${esc(appNo)}">${ic('alert')}Add penalty</button>` : ''}
         <button class="btn gold sm" data-act="toggleBlock" data-id="${esc(appNo)}" data-st="${p.blocked ? 'ACTIVE' : 'BLOCKED'}">${p.blocked ? 'Unblock' : 'Block'}</button>
         <button class="btn red sm" data-act="delPerson" data-id="${esc(appNo)}">${ic('trash')}Delete</button>
@@ -673,14 +688,14 @@ async function openPersonPage(c, appNo) {
         <button class="btn light sm" data-act="resetOne" data-id="${esc(appNo)}" data-what="both">Reset both</button>
       </div>
     </div>
-    ${isStaff ? `
+    ${isImam ? `
       <div class="card"><h3 class="sec">Salary history</h3>
         <div class="wrap"><table class="t"><thead><tr><th>Effective</th><th>Amount</th><th>Set by</th></tr></thead>
         <tbody>${((d.salary && d.salary.history) || []).map(h => `<tr><td>${esc(h.effective)}</td><td>${inr(h.amount)}</td><td>${esc(h.setBy)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No salary set yet.</td></tr>'}</tbody></table></div></div>
       <div class="card"><h3 class="sec">Salary payouts</h3>
         <div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Paid by</th><th>Receipt</th></tr></thead>
         <tbody>${((d.salary && d.salary.payouts) || []).map(x => `<tr><td>${esc(x.date)}</td><td>${inr(x.amount)}</td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td><td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : '—'}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">No payouts yet.</td></tr>'}</tbody></table></div></div>`
-    : `
+    : isUser ? `
       <div class="sum">
         <div class="sumc" style="background:linear-gradient(135deg,#64748b,#334155)"><span>Total due</span><b>${inr(d.summary.due)}</b></div>
         <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a)"><span>Paid this year</span><b>${inr(d.summary.paid)}</b></div>
@@ -702,7 +717,7 @@ async function openPersonPage(c, appNo) {
           <td>${esc(x.date)}</td>
           <td>${x.direction === 'REVERSAL' ? '<span class="chip c-due">Reversal</span>' : '<span class="chip c-paid">Payment</span>'}</td>
           <td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td>
-          <td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">No transactions yet.</td></tr>'}</tbody></table></div></div>`}`;
+          <td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">No transactions yet.</td></tr>'}</tbody></table></div></div>` : `<div class="empty">No financial data for Members.</div>`}`;
 }
 
 /* ============ ADD / EDIT PERSON FORM ============ */
@@ -710,7 +725,6 @@ function personForm(role, p, admins) {
   const v = k => p ? esc(p[k] ?? '') : '';
   const isUser = role === 'user';
   const isImam = role === 'imam';
-  const isMember = role === 'member';
   const photoUrl = p && p.photoUrl ? esc(p.photoUrl) : '';
   const prevStyle = photoUrl ? 'width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px;border:2px solid #fff;box-shadow:0 4px 12px -4px rgba(0,0,0,.3)' : 'display:none;width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px';
   return `<div class="fgrid">
@@ -722,8 +736,6 @@ function personForm(role, p, admins) {
     ${isImam ? `
       <div><label class="fl">Qualification<input class="inp" id="fQual" value="${v('qualification')}"></label></div>
       <div><label class="fl">WhatsApp<input class="inp" id="fWa" value="${v('whatsapp')}"></label></div>
-      <div><label class="fl">Monthly salary (₹)<input class="inp" id="fSal" type="number" min="0" value="${p ? esc(p.salary ?? '') : ''}"></label></div>`
-    : isMember ? `
       <div><label class="fl">Monthly salary (₹)<input class="inp" id="fSal" type="number" min="0" value="${p ? esc(p.salary ?? '') : ''}"></label></div>`
     : isUser ? `
       <div><label class="fl">Back-year due (₹)<input class="inp" id="fOpen" type="number" min="0" value="${p ? esc(p.opening ?? 0) : 0}"></label></div>`
@@ -788,7 +800,7 @@ function showCreds(title, appNo, pw, tk) {
     `<button class="btn green" data-act="closeAndOpen" data-id="${esc(appNo)}">Done</button>`);
 }
 
-/* ============ PAYMENTS (with Penalty Option) ============ */
+/* ============ PAYMENTS ============ */
 async function openPay(appNo) {
   const d = await api('apiSuperGetPerson', appNo);
   const p = d.person, s = d.summary;
@@ -812,7 +824,6 @@ async function openPay(appNo) {
     try {
       const penAmt = Number(val('pPen'));
       if (penAmt > 0) await api('apiPenaltyAdd', appNo, new Date().getFullYear(), penAmt, val('pPenReason'));
-      
       const r = await api('apiAddPayment', { appNo, amount: val('pAmt'), date: val('pDate'), mode: val('pMode'), txnRef: val('pTxn'), note: val('pNote') });
       toast('Payment received'); await openReceipt(r.receiptId);
     } catch (e) { if (e.message !== 'expired') toast(e.message); b.disabled = false; }
@@ -864,6 +875,7 @@ async function openReceipt(id) {
         <div><span>Total paid</span><b>${inr(r.paid)}</b></div>
         <div><span>Balance</span><b>${inr(r.balance)}</b></div>
         <div><span>Transactions</span><b>${r.rows.length}</b></div>
+        ${r.penalty > 0 ? `<div style="grid-column:1/-1;border:1px solid #b42328;background:#fff5f5;color:#b42328"><span>Penalty Included</span><b>${inr(r.penalty)}</b></div>` : ''}
       </div>
     </div>
     <table class="rt"><thead><tr><th>#</th><th>Date</th><th>Mode</th><th>Txn no.</th><th>Collector</th><th style="text-align:right">Amount</th><th style="text-align:right">Balance</th></tr></thead>
