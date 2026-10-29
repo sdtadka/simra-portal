@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>User · Community Portal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-/* Same CSS as super_admin.html — copy from above */
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--blue:#1e6bff;--green:#12a150;--orange:#ff8a00;--purple:#7c3aed;--red:#e5484d;--gold:#c99a2e;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--bg:#f4f7fc;--navy:#0b2a5b;--blue-t:#eaf1ff;--green-t:#e8f8ef;--orange-t:#fff3e2;--purple-t:#f1eaff;--red-t:#fdecec;--gold-t:#fbf4df;--side:264px}
-html,body{overflow-x:hidden}
+html,body{overflow-x:hidden;user-select:none;-webkit-user-select:none}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;min-height:100vh}
+@media(min-width:960px){html,body{user-select:auto;-webkit-user-select:auto}}
 button,input,select,textarea{font:inherit;color:inherit}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 svg.i .s{fill:currentColor;fill-opacity:.18;stroke-opacity:.55}
@@ -121,7 +122,7 @@ h3.sec::before{content:'';width:4px;height:18px;border-radius:4px;background:var
 table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:600px}
 table.t th{text-align:left;padding:9px 8px;background:#f7f9fd;color:var(--muted);font-weight:700;font-size:12px;border-bottom:1px solid var(--line);white-space:nowrap}
 table.t td{padding:9px 8px;border-bottom:1px solid #eef1f6;vertical-align:middle;white-space:nowrap}
-.nm{color:var(--blue);font-weight:700;cursor:pointer;background:none;border:0;text-align:left}
+tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .mono{font-family:"Courier New",monospace;font-size:12.5px}
 .acts{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .cl{display:inline-flex;align-items:center;gap:5px;text-decoration:none;font-size:12.5px;padding:7px 11px;border-radius:10px;color:#fff;font-weight:700}
@@ -146,9 +147,6 @@ table.t td{padding:9px 8px;border-bottom:1px solid #eef1f6;vertical-align:middle
 .sec-card img,.sec-card .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
 .sec-card .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
 .sec-card p{color:var(--muted);margin-top:4px;line-height:1.6;white-space:pre-wrap}
-.post{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
-.post img,.post .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
-.post .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
 .pen-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed #e6eaf2;font-size:13px}
 .pen-box{border:2px solid #f6c6c8;background:#fff8f8}
 .rc-notice{background:#fffbe6;border:1px solid #f0dfb0;border-radius:14px;padding:12px;margin-bottom:10px}
@@ -161,57 +159,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid #eef1f6;vertical-align:middle
 #ov .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
 @media(min-width:700px){#ov{align-items:center}#ov .box{border-radius:20px}}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;display:none;z-index:260;max-width:92vw;text-align:center}
-.cred-box{background:#0f172a;color:#fff;border-radius:14px;padding:14px;display:grid;gap:10px}
-.cred-box div{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-.cred-box b{font-family:"Courier New",monospace;font-size:17px;word-break:break-all}
-.cred-box small{color:#94a3b8;font-size:11px;text-transform:uppercase;display:block}
 .hint{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:8px}
-/* RECEIPT — same as super_admin */
-.rc{background:#fff;border:2px solid #1b4332;border-radius:8px;padding:10px 12px;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:11px;color:#000}
-.rc-head{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;gap:8px;border-bottom:2px solid #1b4332;padding-bottom:5px;margin-bottom:5px}
-.rc-head .lg{width:56px;height:56px;border-radius:50%;border:2px solid #1b4332;display:grid;place-items:center;overflow:hidden}
-.rc-head .lg img{width:100%;height:100%;object-fit:cover}
-.rc-head .ttl{text-align:center}
-.rc-head h2{font-size:15px;font-weight:900;text-transform:uppercase}
-.rc-head p{font-size:9.5px;font-weight:700}
-.rc-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;border:1px solid #000;padding:3px 6px;margin-bottom:5px;font-size:10px}
-.rc-mid{display:grid;grid-template-columns:1.3fr 1fr;gap:5px;margin-bottom:5px}
-.rc-box{border:1px solid #000;padding:4px 6px}
-.rc-box div{display:flex;justify-content:space-between;gap:6px;padding:1px 0;border-bottom:1px dotted #777;font-size:9.5px}
-.rc-box div:last-child{border:0}
-.rc-box span{font-weight:700;text-transform:uppercase}
-.rc-box b{text-align:right;font-weight:900}
-.rc-box .rcid{font-size:12px}
-.rc-sum{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.rc-sum div{border:1px solid #000;padding:3px;text-align:center;font-size:8.5px}
-.rc-sum b{display:block;font-size:11px;font-weight:900}
-table.rt{width:100%;border-collapse:collapse;font-size:9px;border:1px solid #000}
-table.rt th{background:#1b4332;color:#fff;padding:2px 3px;text-align:left;font-size:8.5px;font-weight:900}
-table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-space:nowrap}
-.rc-sig{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:10px}
-.rc-sig>div{width:33%;text-align:center;font-size:9px}
-.rc-sig .si{height:34px;display:flex;align-items:flex-end;justify-content:center}
-.rc-sig .si img{max-height:34px;max-width:130px;object-fit:contain}
-.rc-sig .ln{border-bottom:1px solid #000;margin:2px 0}
-.rc-sig b{display:block;font-size:9px;font-weight:900}
-.rc-sig .seal-img img{max-height:52px;max-width:80px;object-fit:contain;opacity:.85}
-@media print{
-  @page{size:A4 portrait;margin:6mm}
-  body *{visibility:hidden!important}
-  #rc,#rc *{visibility:visible!important}
-  #rc{position:absolute;left:0;top:0;width:198mm;padding:4mm;border:1.5px solid #1b4332;border-radius:0;font-size:9px;max-height:285mm;overflow:hidden;background:#fff!important}
-  .noprint{display:none!important}
-  #ov{position:static!important;background:none!important;display:block!important;padding:0!important}
-  #ov .box{box-shadow:none;max-height:none;overflow:visible;padding:0;width:100%;max-width:100%;border-radius:0}
-  .side,#scrim,.hd,#topbar,#boot,.toast{display:none!important}
-  .pagewrap{margin-left:0!important}
-  #rc table.rt td,#rc table.rt th{padding:0 2px!important;font-size:7.5px!important}
-  #rc .rc-box div,#rc .rc-sum div{font-size:7.5px!important;padding:0!important}
-  #rc .rc-sum b{font-size:9px!important}
-  #rc .rc-sig{margin-top:6px!important}
-  #rc .rc-sig .si{height:24px!important}
-  #rc .rc-sig div{font-size:7.5px!important}
-}
 @media(min-width:900px){.hd{padding:16px 22px 26px}.big3{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.main{max-width:1100px;margin:0 auto}}
 @media(min-width:960px){.side{transform:none}body.side-closed .side{transform:translateX(-100%)}.pagewrap{margin-left:var(--side)}body.side-closed .pagewrap{margin-left:0}#menuBtn{display:none}body.side-closed #menuBtn{display:grid}#scrim{display:none}}
 </style>
@@ -229,6 +177,7 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
 <div id="scrim"></div>
 <div class="pagewrap">
   <header class="hd">
+    <div class="hd-pattern"></div>
     <div class="row">
       <button class="menubtn" id="menuBtn"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <div style="display:flex;gap:8px;align-items:center">
@@ -247,7 +196,9 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
 <input type="file" id="dpFile" accept="image/*" style="display:none">
 <div class="toast" id="toast"></div>
 
+<!-- Scripts -->
 <script src="api.js"></script>
+<script src="receipt.js"></script>
 <script>
 /* ============ ICONS ============ */
 const IC = {
@@ -261,7 +212,6 @@ const IC = {
   masjid:'<path d="M4.5 20.5v-6.8c0-4.2 3.4-7.3 7.5-7.3s7.5 3.1 7.5 7.3v6.8"/><path d="M2.5 20.5h19"/><path d="M12 2.8v2.2"/><path d="M9.6 20.5v-3.3a2.4 2.4 0 0 1 4.8 0v3.3" class="s"/><path d="M3.2 20.5v-4M20.8 20.5v-4" class="s"/>',
   eidgah:'<path d="M3.5 20.5v-7.2a8.5 8.5 0 0 1 17 0v7.2"/><path d="M2 20.5h20"/><path d="M9 20.5v-4.2a3 3 0 0 1 6 0v4.2" class="s"/>',
   kabristan:'<path d="M7.5 20.5V11a4.5 4.5 0 0 1 9 0v9.5"/><path d="M5 20.5h14"/><path d="M13.6 6.6a2.4 2.4 0 1 0 0 3.8 3 3 0 0 1 0-3.8z" class="s"/>',
-  search:'<circle cx="11" cy="11" r="6.8"/><path d="M20.5 20.5L16 16"/>',
   rates:'<path d="M3.5 12.4V4.8a1.3 1.3 0 0 1 1.3-1.3h7.6l8.1 8.1-8.9 8.9z"/><circle cx="8.2" cy="8.2" r="1.5" class="s"/>',
   money:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.8" class="s"/><path d="M6 10v4M18 10v4" class="s"/>',
   alert:'<path d="M12 3.5L21.5 20H2.5z"/><path d="M12 9.5v4.5M12 17.5v.2"/>',
@@ -283,6 +233,11 @@ function iconHtml(key, fallback) {
   const fb = ic(fallback || key).replace(/"/g, '&quot;');
   return `<img class="ic" src="${esc(url)}" alt="" onerror="this.outerHTML='${fb}'">`;
 }
+function linkify(text) {
+  if (!text) return '';
+  const urlRe = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+  return esc(text).replace(urlRe, '<a href="$1" target="_blank" style="color:#1e6bff;text-decoration:underline">$1</a>').replace(/\n/g, '<br>');
+}
 
 /* ============ HELPERS ============ */
 const $ = s => document.querySelector(s);
@@ -302,23 +257,13 @@ async function compressImage(file, maxDim = 900, quality = 0.82) {
     img.onload = () => {
       URL.revokeObjectURL(objectUrl);
       let w = img.naturalWidth, h = img.naturalHeight;
-      if (w > maxDim || h > maxDim) {
-        const r = Math.min(maxDim / w, maxDim / h);
-        w = Math.round(w * r); h = Math.round(h * r);
-      }
-      const cvs = document.createElement('canvas');
-      cvs.width = w; cvs.height = h;
-      const ctx = cvs.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
-      ctx.drawImage(img, 0, 0, w, h);
+      if (w > maxDim || h > maxDim) { const r = Math.min(maxDim / w, maxDim / h); w = Math.round(w * r); h = Math.round(h * r); }
+      const cvs = document.createElement('canvas'); cvs.width = w; cvs.height = h;
+      const ctx = cvs.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
       cvs.toBlob(blob => {
         if (!blob) return reject(new Error('Compression failed'));
         const reader = new FileReader();
-        reader.onload = () => resolve({
-          b64: String(reader.result).split(',')[1],
-          mime: blob.type || 'image/jpeg',
-          name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg'
-        });
+        reader.onload = () => resolve({ b64: String(reader.result).split(',')[1], mime: blob.type || 'image/jpeg', name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg', size: blob.size });
         reader.readAsDataURL(blob);
       }, 'image/jpeg', quality);
     };
@@ -348,7 +293,7 @@ function digits(m) { const x = String(m || '').replace(/\D/g, ''); return x.leng
 function callLink(m) { const d = digits(m); return d ? `<a class="cl call" href="tel:+${d}">${ic('phone')}Call</a>` : ''; }
 function waLink(m) { const d = digits(m); return d ? `<a class="cl wa" href="https://wa.me/${d}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>` : ''; }
 function modal(title, body, foot, wide) { $('#ovT').textContent = title; $('#ovB').innerHTML = body; $('#ovF').innerHTML = foot || ''; $('#ovBox').classList.toggle('wide', !!wide); $('#ov').classList.add('open'); }
-function closeM() { $('#ov').classList.remove('open'); }
+function closeM() { $('#ov').classList.remove('open'); $('#ovB').innerHTML = ''; $('#ovF').innerHTML = ''; }
 function avatarHtml(name, url) { return url ? `<img src="${esc(url)}" alt="">` : esc((name || 'U').charAt(0).toUpperCase()); }
 async function leave(expired) {
   if (!expired && TOKEN) { try { await apiCall('apiLogout', [TOKEN]); } catch (e) {} }
@@ -356,7 +301,7 @@ async function leave(expired) {
   goPage('index.html');
 }
 
-/* ============ MENU ============ */
+/* ============ NAV ============ */
 const MENU = [
   { group: 'Main', items: [
     { l: 'Dashboard', ic: 'dashboard', v: 'home' },
@@ -390,7 +335,7 @@ function drawNav() {
       `<button class="sitem ${isOn(n) ? 'on' : ''}" data-go="${n.v}" data-arg='${JSON.stringify(n.a || {})}' data-l="${esc(n.l.toLowerCase())}">
         <span class="si">${iconHtml(n.ic)}</span><span class="sl">${n.l}</span></button>`).join('');
   });
-  h += `<button class="sitem logout" data-act="logout" data-l="logout"><span class="si">${ic('logout')}</span><span class="sl">Logout</span></button>`;
+  h += `<div class="sgroup">Account</div><button class="sitem logout" data-act="logout" data-l="logout"><span class="si">${ic('logout')}</span><span class="sl">Logout</span></button>`;
   $('#sideNav').innerHTML = h;
 }
 function filterNav(q) {
@@ -432,11 +377,14 @@ VIEWS.home = async (c) => {
   const p = MY.person, s = MY.summary || { due: 0, paid: 0, baki: 0, opening: 0, penalty: 0, year: '' };
   const pct = s.due ? Math.min(100, Math.round(s.paid / s.due * 100)) : 0;
   const pen = MY.penalty || { total: 0, list: [] };
+  
   c.innerHTML = `
     ${notices.list.length ? `<div class="sec-title"><h3>Notifications</h3></div>` + notices.list.slice(0, 3).map(x =>
       `<div class="rc-notice"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.by)}</div><div style="margin-top:4px">${esc(x.body)}</div></div>`).join('') : ''}
+    
     <div class="pagehead"><h2>Assalamu Alaikum, ${esc(p.name)}</h2></div>
     <p class="psub">Your membership and payments for ${s.year || ''}</p>
+    
     <div class="card profile">
       <div class="dp" data-act="dpMenu">${avatarHtml(p.name, p.photoUrl)}</div>
       <div class="appid"><small>Application ID</small>${esc(p.appNo)}</div>
@@ -451,19 +399,23 @@ VIEWS.home = async (c) => {
         <div><span>Join date</span><b>${esc(p.joinDate || '—')}</b></div>
       </div>
     </div>
+    
     <div class="sec-title"><h3>Payments</h3></div>
     <div class="big3">
       <button class="big g-purple" data-go="khata"><span class="ic">${iconHtml('rates')}</span><span><span class="lb">Total due</span><b style="font-size:22px">${inr(s.due)}</b></span></button>
       <button class="big g-green" data-go="khata"><span class="ic">${iconHtml('check')}</span><span><span class="lb">Paid</span><b style="font-size:22px">${inr(s.paid)}</b></span></button>
       <button class="big g-orange" data-go="khata"><span class="ic">${iconHtml('money')}</span><span><span class="lb">Balance</span><b style="font-size:22px">${inr(s.baki)}</b></span></button>
     </div>
+    
     <div class="card" style="margin-top:12px"><b>Payment progress: ${pct}%</b><div class="pbar"><i style="width:${pct}%"></i></div>
       ${s.opening > 0 ? `<p class="muted">Back-year due included: ${inr(s.opening)}</p>` : ''}</div>
+    
     ${pen.total > 0 ? `<div class="sec-title"><h3>Back year penalty</h3></div>
       <div class="card pen-box">
         <div class="pen-row" style="border:0"><b>Back year penalty</b><b style="color:#b42328;font-size:18px">${inr(pen.total)}</b></div>
         ${pen.list.map(x => `<div class="pen-row"><span>${x.year} saal · ${esc(x.reason || '')} <span class="muted">${esc(x.date)}</span></span><b>${inr(x.amount)}</b></div>`).join('')}
       </div>` : ''}
+      
     <div class="sec-title"><h3>Community</h3></div>
     <div class="tiles">
       <button class="tile t-blue" data-go="public" data-arg='{"kind":"admin"}'><span class="ti">${iconHtml('admin')}</span><span class="tx"><span class="lb">Admins</span><b>${ov.admins.length}</b></span></button>
@@ -474,6 +426,7 @@ VIEWS.home = async (c) => {
       <button class="tile t-orange" data-go="sec" data-arg='{"sec":"eidgah"}'><span class="ti">${iconHtml('eidgah')}</span><span class="tx"><span class="lb">Eidgah</span><b>${ov.sections.eidgah || 0}</b></span></button>
       <button class="tile t-red wide" data-go="sec" data-arg='{"sec":"kabristan"}'><span class="ti">${iconHtml('kabristan')}</span><span class="tx"><span class="lb">Kabristan</span><b>${ov.sections.kabristan || 0}</b></span></button>
     </div>
+    
     <div class="sec-title"><h3>Recent transactions</h3><a data-go="khata">View all →</a></div>
     <div class="card" style="padding:0">${txTable((MY.payments || []).slice(0, 5))}</div>`;
 };
@@ -484,25 +437,32 @@ VIEWS.khata = async (c) => {
   MY = d;
   const s = d.summary || { due: 0, paid: 0, baki: 0 };
   const pen = d.penalty || { total: 0, list: [] };
+  
   c.innerHTML = `
     <div class="pagehead"><h2>Khata book</h2></div>
     <p class="psub">Every payment you have made. Eye icon to view receipt.</p>
+    
     <div class="sum">
       <div class="sumc" style="background:linear-gradient(135deg,#64748b,#334155)"><span>Total due</span><b>${inr(s.due)}</b></div>
       <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a)"><span>Paid</span><b>${inr(s.paid)}</b></div>
       <div class="sumc" style="background:linear-gradient(135deg,#e5484d,#ff7a7d);grid-column:1/-1"><span>Balance</span><b>${inr(s.baki)}</b></div>
     </div>
+    
     ${pen.total > 0 ? `<div class="card pen-box"><div class="pen-row" style="border:0"><b>Penalty</b><b style="color:#b42328">${inr(pen.total)}</b></div>
       ${pen.list.map(x => `<div class="pen-row"><span>${x.year} · ${esc(x.reason || '')}</span><b>${inr(x.amount)}</b></div>`).join('')}</div>` : ''}
+      
     <div class="sec-title"><h3>Receipts</h3></div>
     <div class="card" style="padding:0">${receiptTable(d.receipts || [])}</div>
+    
     <div class="sec-title"><h3>All transactions</h3></div>
     <div class="card" style="padding:0">${txTable(d.payments || [])}</div>`;
 };
+
 function txTable(list) {
   if (!list || !list.length) return '<div class="empty">No transactions yet.</div>';
   return `<div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Collected by</th><th></th></tr></thead><tbody>
-    ${list.map(x => `<tr><td>${esc(x.date)}</td>
+    ${list.map(x => `<tr>
+      <td>${esc(x.date)}</td>
       <td>${x.direction === 'REVERSAL' ? '<span class="chip c-due">Reversal</span>' : '<span class="chip c-paid">Payment</span>'}</td>
       <td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td>
       <td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
@@ -520,6 +480,7 @@ VIEWS.public = async (c, arg) => {
   const kind = arg.kind || 'admin';
   const rows = kind === 'admin' ? ov.admins : kind === 'member' ? ov.members : ov.imams;
   const title = kind === 'admin' ? 'Admins' : kind === 'member' ? 'Members' : 'Imams';
+  
   const card = x => {
     const isAdmin = kind === 'admin';
     return `<div class="card" style="display:flex;gap:14px;align-items:flex-start">
@@ -534,6 +495,7 @@ VIEWS.public = async (c, arg) => {
         <div class="acts" style="margin-top:6px">${callLink(x.mobile)}${kind === 'imam' && x.whatsapp ? waLink(x.whatsapp) : waLink(x.mobile)}</div>
       </div></div>`;
   };
+  
   c.innerHTML = `<div class="pagehead"><h2>${title}</h2></div>
     <p class="psub">Basic contact information.</p>
     ${rows.map(card).join('') || '<div class="empty">No records.</div>'}`;
@@ -551,40 +513,55 @@ VIEWS.notice = async (c) => {
     </div>`).join('') || '<div class="empty">No notices yet.</div>'}`;
 };
 
-/* ============ SECTIONS ============ */
+/* ============ SECTIONS (Blogger Style) ============ */
 VIEWS.sec = async (c, arg) => {
   const sec = arg.sec || 'madrasa';
   const d = await api('apiPersonSections', sec);
+  
   let postsHtml = '';
   if (sec === 'madrasa') {
     const pl = await api('apiPostList', sec).catch(() => ({ list: [] }));
     postsHtml = `<div class="sec-title"><h3>Madrasa posts</h3></div>` +
-      (pl.list.map(x => `<div class="card post">
-        ${x.photo ? `<img src="${esc(x.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
-        <div><b>${esc(x.title)}</b>
-        <div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.authorName)} (${esc(x.authorRole)})</div>
-        <p>${esc(x.body)}</p>
-        <div class="acts">${callLink(x.authorMobile)}${waLink(x.authorMobile)}</div></div>
+      (pl.list.map(x => `
+      <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
+        <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(x.title)}</h2>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
+          <span style="font-weight:600; color:var(--blue)">By ${esc(x.authorName)}</span>
+          <span>•</span>
+          <span>${esc(x.date)}</span>
+        </div>
+        ${x.photo ? `<img src="${esc(x.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
+        <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(x.body)}</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid var(--line);">
+          ${callLink(x.authorMobile)}
+          ${waLink(x.authorMobile)}
+        </div>
       </div>`).join('') || '<div class="empty">No posts yet.</div>');
   }
+  
   c.innerHTML = `<div class="pagehead"><h2>${SECS[sec]}</h2></div>
     <p class="psub">Latest updates from the committee.</p>
     ${postsHtml}
-    ${sec === 'madrasa' ? '<div class="sec-title"><h3>Updates</h3></div>' : ''}
-    ${d.items.map(it => `<div class="card sec-card">
-      ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml(SEC_ICON[sec])}</div>`}
-      <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div>
-        <p>${esc(it.body)}</p></div>
+    ${sec === 'madrasa' ? '<div class="sec-title"><h3>Official Updates</h3></div>' : ''}
+    ${d.items.map(it => `
+    <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
+      <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(it.title)}</h2>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
+        <span>${esc(it.date)}</span>
+      </div>
+      ${it.photo ? `<img src="${esc(it.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
+      <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(it.body)}</p>
     </div>`).join('') || (sec !== 'madrasa' ? `<div class="empty">No updates yet for ${SECS[sec]}.</div>` : '')}`;
 };
 
-/* ============ PROFILE (photo only) ============ */
+/* ============ PROFILE ============ */
 VIEWS.profile = async (c) => {
   if (!MY) MY = await api('apiMyPerson');
   const p = MY.person;
   c.innerHTML = `
     <div class="pagehead"><h2>My profile</h2></div>
     <p class="psub">You can only change your photo. Other details are fixed by the committee.</p>
+    
     <div class="card profile">
       <div class="dp" data-act="dpMenu">${avatarHtml(p.name, p.photoUrl)}</div>
       <div class="appid"><small>Application ID</small>${esc(p.appNo)}</div>
@@ -598,56 +575,36 @@ VIEWS.profile = async (c) => {
         <div><span>Join date</span><b>${esc(p.joinDate || '—')}</b></div>
       </div>
     </div>
+    
     <div class="card"><button class="btn red" data-act="logout" style="width:100%">${ic('logout')}Logout</button></div>`;
 };
 
-/* ============ RECEIPT (A4 print) ============ */
-async function openReceipt(id) {
-  const r = await api('apiReceiptView', id);
-  const o = r.org, p = r.person;
-  const logo = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 26);
-  const seal = o.seal ? `<img src="${esc(o.seal)}" alt="" onerror="this.remove()">` : '';
-  const rowsHtml = r.rows.map(x => `<tr>
-    <td>${x.no}</td><td>${esc(x.date)}</td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td>
-    <td>${esc(x.collector)}</td>
-    <td style="text-align:right">${x.reversal ? '−' : ''}${inr(Math.abs(x.amount))}</td>
-    <td style="text-align:right">${inr(x.balanceAfter)}</td></tr>`).join('');
-  modal('Receipt', `<div class="rc" id="rc">
-    <div class="rc-head"><div class="lg">${logo}</div>
-      <div class="ttl"><h2>${esc(o.name)}</h2><p>${esc(o.address)}${o.reg ? ' · ' + esc(o.reg) : ''}</p></div>
-      <div class="lg">${logo}</div></div>
-    <div class="rc-meta"><span>Receipt: <b>${esc(r.receiptId)}</b></span><span>Date: <b>${esc(r.issued)}</b></span><span>Year: <b>${r.year}</b></span></div>
-    <div class="rc-mid">
-      <div class="rc-box">
-        <div><span>Application ID</span><b class="rcid">${esc(p.appNo)}</b></div>
-        <div><span>Name</span><b>${esc(p.name)}</b></div>
-        <div><span>Father's name</span><b>${esc(p.father || '—')}</b></div>
-        <div><span>Mobile</span><b>${esc(p.mobile || '—')}</b></div>
-        <div><span>Address</span><b>${esc(p.address || '—')}</b></div>
-      </div>
-      <div class="rc-sum">
-        <div><span>Total due</span><b>${inr(r.due)}</b></div>
-        <div><span>Total paid</span><b>${inr(r.paid)}</b></div>
-        <div><span>Balance</span><b>${inr(r.balance)}</b></div>
-        <div><span>Transactions</span><b>${r.rows.length}</b></div>
-      </div>
-    </div>
-    <table class="rt"><thead><tr><th>#</th><th>Date</th><th>Mode</th><th>Txn no.</th><th>Collector</th><th style="text-align:right">Amount</th><th style="text-align:right">Balance</th></tr></thead>
-    <tbody>${rowsHtml || '<tr><td colspan="7">No transactions.</td></tr>'}</tbody></table>
-    <div class="rc-sig">
-      <div><div class="si">${o.sigCollector ? `<img src="${esc(o.sigCollector)}" alt="" onerror="this.remove()">` : ''}</div><div class="ln"></div><b>${esc(r.issuedBy || '—')}</b>(Collector)</div>
-      <div class="seal-img"><div class="si">${seal}</div><b>MOHAR / SEAL</b></div>
-      <div><div class="si">${o.sigAuth ? `<img src="${esc(o.sigAuth)}" alt="" onerror="this.remove()">` : ''}</div><div class="ln"></div><b>${esc(o.name)}</b>Authorised</div>
-    </div></div>`,
-  `<button class="btn light noprint" data-act="close">Close</button><button class="btn noprint" data-act="printNow">${ic('print')}Print / PDF</button>`, true);
+/* ============ DP MODAL ============ */
+function openDpModal() {
+  DP_PENDING = null;
+  const cur = MY.person.photoUrl;
+  modal('My photo', `<div class="profile">
+      <div class="dp" id="dpPrev">${avatarHtml(MY.person.name, cur)}</div>
+      <p class="hint" id="dpHint">${cur ? 'Replace or Delete.' : 'Choose a photo.'}</p>
+    </div>`,
+    `<div class="acts" style="width:100%;justify-content:center" id="dpBtns">
+       ${cur ? `<button class="btn red sm" data-act="dpDelete">Delete</button>` : ''}
+       <button class="btn light sm" data-act="dpPick">${cur ? 'Replace' : 'Choose photo'}</button>
+       <button class="btn light sm" data-act="close">Cancel</button></div>`);
+}
+function showDpPending(url) {
+  $('#dpPrev').innerHTML = `<img src="${esc(url)}" alt="">`;
+  $('#dpHint').textContent = 'New photo ready. Press Save.';
+  $('#dpBtns').innerHTML = `<button class="btn green sm" data-act="dpSave">Save</button>
+    <button class="btn light sm" data-act="dpPick">Replace</button>
+    <button class="btn light sm" data-act="close">Cancel</button>`;
 }
 
 /* ============ ACTIONS ============ */
 const ACTS = {
   logout: () => leave(false),
   close: () => closeM(),
-  printNow: () => window.print(),
-  receipt: (id) => openReceipt(id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
+  receipt: (id) => openReceipt(id), // Calls function from receipt.js
   dpMenu: () => openDpModal(),
   dpPick: () => $('#dpFile').click(),
   dpSave: async () => {
@@ -672,25 +629,6 @@ const ACTS = {
     go(D.view, D.arg);
   }
 };
-function openDpModal() {
-  DP_PENDING = null;
-  const cur = MY.person.photoUrl;
-  modal('My photo', `<div class="profile">
-      <div class="dp" id="dpPrev">${avatarHtml(MY.person.name, cur)}</div>
-      <p class="hint" id="dpHint">${cur ? 'Replace or Delete.' : 'Choose a photo.'}</p>
-    </div>`,
-    `<div class="acts" style="width:100%;justify-content:center" id="dpBtns">
-       ${cur ? `<button class="btn red sm" data-act="dpDelete">Delete</button>` : ''}
-       <button class="btn light sm" data-act="dpPick">${cur ? 'Replace' : 'Choose photo'}</button>
-       <button class="btn light sm" data-act="close">Cancel</button></div>`);
-}
-function showDpPending(url) {
-  $('#dpPrev').innerHTML = `<img src="${esc(url)}" alt="">`;
-  $('#dpHint').textContent = 'New photo ready. Press Save.';
-  $('#dpBtns').innerHTML = `<button class="btn green sm" data-act="dpSave">Save</button>
-    <button class="btn light sm" data-act="dpPick">Replace</button>
-    <button class="btn light sm" data-act="close">Cancel</button>`;
-}
 
 /* ============ EVENTS ============ */
 document.addEventListener('click', async e => {
@@ -730,7 +668,6 @@ function applyOrg(o) {
   if (sl) sl.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="">` : ic('mosque');
 }
 
-/* ============ BOOT ============ */
 async function boot() {
   TOKEN = localStorage.getItem(LS_S);
   if (!TOKEN) return goPage('index.html');
