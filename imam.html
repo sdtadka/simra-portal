@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Imam · Community Portal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+/* Same CSS as Member/Super Admin */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--blue:#1e6bff;--green:#12a150;--orange:#ff8a00;--purple:#7c3aed;--red:#e5484d;--gold:#c99a2e;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--bg:#f4f7fc;--navy:#0b2a5b;--blue-t:#eaf1ff;--green-t:#e8f8ef;--orange-t:#fff3e2;--purple-t:#f1eaff;--red-t:#fdecec;--gold-t:#fbf4df;--side:264px}
-html,body{overflow-x:hidden}
+html,body{overflow-x:hidden;user-select:none;-webkit-user-select:none}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;min-height:100vh}
+@media(min-width:960px){html,body{user-select:auto;-webkit-user-select:auto}}
 button,input,select,textarea{font:inherit;color:inherit}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 svg.i .s{fill:currentColor;fill-opacity:.18;stroke-opacity:.55}
@@ -117,10 +120,9 @@ h3.sec::before{content:'';width:4px;height:18px;border-radius:4px;background:var
 .chip{display:inline-block;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700}
 .c-paid{background:#d9f5e4;color:#127a45}.c-due{background:#fde0e1;color:#b42328}.c-imam{background:var(--orange-t);color:#b35f00}.c-blk{background:#e5e7eb;color:#374151}.c-role{background:var(--blue-t);color:var(--blue)}
 .wrap{overflow-x:auto}
-table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:640px}
+table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:600px}
 table.t th{text-align:left;padding:9px 8px;background:#f7f9fd;color:var(--muted);font-weight:700;font-size:12px;border-bottom:1px solid var(--line);white-space:nowrap}
 table.t td{padding:9px 8px;border-bottom:1px solid #eef1f6;vertical-align:middle;white-space:nowrap}
-tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .nm{color:var(--blue);font-weight:700;cursor:pointer;background:none;border:0;text-align:left}
 .mono{font-family:"Courier New",monospace;font-size:12.5px}
 .acts{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
@@ -131,26 +133,17 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .dp{width:132px;height:132px;border-radius:50%;background:linear-gradient(135deg,var(--blue-t),#dfe9ff);display:grid;place-items:center;font-size:44px;font-weight:800;color:var(--blue);overflow:hidden;border:4px solid #fff;box-shadow:0 12px 24px -12px var(--blue)}
 .dp[data-act]{cursor:pointer}
 .dp img{width:100%;height:100%;object-fit:cover}
-.appid{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--navy);font-family:Arial,sans-serif}
+.appid{font-size:24px;font-weight:800;letter-spacing:1px;color:var(--navy);font-family:Arial,sans-serif}
 .appid small{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase}
 .pname{font-size:20px;font-weight:800;color:var(--navy)}
 .info{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:12px;text-align:left}
 .info div span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 .info div b{font-weight:600;word-break:break-word}
-.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.sumc{border-radius:16px;padding:14px;color:#fff}
-.sumc span{font-size:12px;opacity:.95}.sumc b{display:block;font-size:20px;margin-top:4px}
-.pbar{height:14px;border-radius:99px;background:#eef1f6;overflow:hidden;margin:8px 0}
-.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .35s ease}
+.rc-notice{background:#fffbe6;border:1px solid #f0dfb0;border-radius:14px;padding:12px;margin-bottom:10px}
 .sec-card{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
 .sec-card img,.sec-card .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
 .sec-card .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
 .sec-card p{color:var(--muted);margin-top:4px;line-height:1.6;white-space:pre-wrap}
-.post{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
-.post img,.post .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
-.post .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
-.pen-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed #e6eaf2;font-size:13px}
-.rc-notice{background:#fffbe6;border:1px solid #f0dfb0;border-radius:14px;padding:12px;margin-bottom:10px}
 #ov{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center;z-index:200}
 #ov.open{display:flex}
 #ov .box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:640px;max-height:94vh;overflow:auto;padding:18px 16px 22px;position:relative}
@@ -160,45 +153,7 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 #ov .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
 @media(min-width:700px){#ov{align-items:center}#ov .box{border-radius:20px}}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;display:none;z-index:260;max-width:92vw;text-align:center}
-.rc{background:#fff;border:2px solid #1b4332;border-radius:8px;padding:10px 12px;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:11px;color:#000}
-.rc-head{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;gap:8px;border-bottom:2px solid #1b4332;padding-bottom:5px;margin-bottom:5px}
-.rc-head .lg{width:56px;height:56px;border-radius:50%;border:2px solid #1b4332;display:grid;place-items:center;overflow:hidden}
-.rc-head .lg img{width:100%;height:100%;object-fit:cover}
-.rc-head .ttl{text-align:center}
-.rc-head h2{font-size:15px;font-weight:900;text-transform:uppercase}
-.rc-head p{font-size:9.5px;font-weight:700}
-.rc-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;border:1px solid #000;padding:3px 6px;margin-bottom:5px;font-size:10px}
-.rc-mid{display:grid;grid-template-columns:1.3fr 1fr;gap:5px;margin-bottom:5px}
-.rc-box{border:1px solid #000;padding:4px 6px}
-.rc-box div{display:flex;justify-content:space-between;gap:6px;padding:1px 0;border-bottom:1px dotted #777;font-size:9.5px}
-.rc-box div:last-child{border:0}
-.rc-box span{font-weight:700;text-transform:uppercase}
-.rc-box b{text-align:right;font-weight:900}
-.rc-box .rcid{font-size:12px}
-.rc-sum{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.rc-sum div{border:1px solid #000;padding:3px;text-align:center;font-size:8.5px}
-.rc-sum b{display:block;font-size:11px;font-weight:900}
-table.rt{width:100%;border-collapse:collapse;font-size:9px;border:1px solid #000}
-table.rt th{background:#1b4332;color:#fff;padding:2px 3px;text-align:left;font-size:8.5px;font-weight:900}
-table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-space:nowrap}
-.rc-sig{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:10px}
-.rc-sig>div{width:33%;text-align:center;font-size:9px}
-.rc-sig .si{height:34px;display:flex;align-items:flex-end;justify-content:center}
-.rc-sig .si img{max-height:34px;max-width:130px;object-fit:contain}
-.rc-sig .ln{border-bottom:1px solid #000;margin:2px 0}
-.rc-sig b{display:block;font-size:9px;font-weight:900}
-.rc-sig .seal-img img{max-height:52px;max-width:80px;object-fit:contain;opacity:.85}
-
-@media print {
-  @page { size: A4 portrait; margin: 5mm; }
-  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
-  body > *:not(#ov) { display: none !important; }
-  #ov { position: static !important; background: none !important; display: block !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; height: auto !important; width: 100% !important; }
-  #ov .box { box-shadow: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; position: static !important; transform: none !important; }
-  .noprint { display: none !important; }
-  #rc { width: 100% !important; max-width: 195mm !important; border: 1.5px solid #1b4332 !important; padding: 4mm !important; margin: 0 auto !important; box-sizing: border-box !important; page-break-inside: avoid !important; page-break-after: avoid !important; }
-  #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-}
+.hint{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:8px}
 @media(min-width:900px){.hd{padding:16px 22px 26px}.big3{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.main{max-width:1100px;margin:0 auto}}
 @media(min-width:960px){.side{transform:none}body.side-closed .side{transform:translateX(-100%)}.pagewrap{margin-left:var(--side)}body.side-closed .pagewrap{margin-left:0}#menuBtn{display:none}body.side-closed #menuBtn{display:grid}#scrim{display:none}}
 </style>
@@ -235,7 +190,9 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
 <input type="file" id="dpFile" accept="image/*" style="display:none">
 <div class="toast" id="toast"></div>
 
+<!-- Scripts -->
 <script src="api.js"></script>
+<script src="receipt.js"></script>
 <script>
 /* ============ ICONS ============ */
 const IC = {
@@ -249,17 +206,14 @@ const IC = {
   masjid:'<path d="M4.5 20.5v-6.8c0-4.2 3.4-7.3 7.5-7.3s7.5 3.1 7.5 7.3v6.8"/><path d="M2.5 20.5h19"/><path d="M12 2.8v2.2"/><path d="M9.6 20.5v-3.3a2.4 2.4 0 0 1 4.8 0v3.3" class="s"/><path d="M3.2 20.5v-4M20.8 20.5v-4" class="s"/>',
   eidgah:'<path d="M3.5 20.5v-7.2a8.5 8.5 0 0 1 17 0v7.2"/><path d="M2 20.5h20"/><path d="M9 20.5v-4.2a3 3 0 0 1 6 0v4.2" class="s"/>',
   kabristan:'<path d="M7.5 20.5V11a4.5 4.5 0 0 1 9 0v9.5"/><path d="M5 20.5h14"/><path d="M13.6 6.6a2.4 2.4 0 1 0 0 3.8 3 3 0 0 1 0-3.8z" class="s"/>',
-  search:'<circle cx="11" cy="11" r="6.8"/><path d="M20.5 20.5L16 16"/>',
-  rates:'<path d="M3.5 12.4V4.8a1.3 1.3 0 0 1 1.3-1.3h7.6l8.1 8.1-8.9 8.9z"/><circle cx="8.2" cy="8.2" r="1.5" class="s"/>',
   money:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.8" class="s"/><path d="M6 10v4M18 10v4" class="s"/>',
   alert:'<path d="M12 3.5L21.5 20H2.5z"/><path d="M12 9.5v4.5M12 17.5v.2"/>',
-  check:'<path d="M4.5 12.5l5 5 10-11"/>',
   eye:'<path d="M2 12s3.8-6.5 10-6.5S22 12 22 12s-3.8 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
-  print:'<path d="M6.5 9V3h11v6"/><path d="M6.5 18H4.6A2.1 2.1 0 0 1 2.5 15.9v-4.8A2.1 2.1 0 0 1 4.6 9h14.8a2.1 2.1 0 0 1 2.1 2.1v4.8a2.1 2.1 0 0 1-2.1 2.1h-1.9"/><rect x="6.5" y="14.5" width="11" height="7" rx="1"/>',
   logout:'<path d="M14.5 4.5h3.2a2.3 2.3 0 0 1 2.3 2.3v10.4a2.3 2.3 0 0 1-2.3 2.3h-3.2"/><path d="M10 16.2L5.8 12 10 7.8"/><path d="M5.8 12H15"/>',
   phone:'<path d="M21 16.6v2.6a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.5 2 2 0 0 1 3.1 1.3h2.6a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L6.7 9.3a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
   chat:'<path d="M20.5 11.7a8.2 8.2 0 0 1-11.9 7.3L3.5 20.5l1.6-4.9A8.2 8.2 0 1 1 20.5 11.7z"/>',
   profile:'<circle cx="12" cy="8.2" r="4"/><path d="M4.5 20.5c.9-4.2 3.9-6.4 7.5-6.4s6.6 2.2 7.5 6.4"/>',
+  plus:'<path d="M12 4.5v15M4.5 12h15"/>',
   arrow:'<path d="M4.5 12h15M13.5 6l6 6-6 6"/>',
   mosque:'<path d="M3.5 21V11.5C3.5 7 7.3 4 12 4s8.5 3 8.5 7.5V21"/><path d="M2 21h20"/><path d="M12 2v2"/><path d="M9.5 21v-3.5a2.5 2.5 0 0 1 5 0V21" class="s"/>'
 };
@@ -271,6 +225,11 @@ function iconHtml(key, fallback) {
   const fb = ic(fallback || key).replace(/"/g, '&quot;');
   return `<img class="ic" src="${esc(url)}" alt="" onerror="this.outerHTML='${fb}'">`;
 }
+function linkify(text) {
+  if (!text) return '';
+  const urlRe = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+  return esc(text).replace(urlRe, '<a href="$1" target="_blank" style="color:#1e6bff;text-decoration:underline">$1</a>').replace(/\n/g, '<br>');
+}
 
 /* ============ HELPERS ============ */
 const $ = s => document.querySelector(s);
@@ -278,11 +237,9 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
 const LS_S = 'pl_session';
 let TOKEN = null, ME = null, MY = null, MY_PHOTO = '', D = { view: 'home', arg: {} };
-let CUR_PERSON = null, DP_PENDING = null, BUSY = 0;
+let DP_PENDING = null, BUSY = 0;
 const SECS = { madrasa: 'Madrasa', masjid: 'Masjid', eidgah: 'Eidgah', kabristan: 'Kabristan' };
-const SEC_ICON = { madrasa: 'madrasa', masjid: 'masjid', eidgah: 'eidgah', kabristan: 'kabristan' };
 const LBL = { user: 'User', imam: 'Imam', member: 'Member', admin: 'Admin', super_admin: 'Super Admin' };
-const val = id => { const e = document.getElementById(id); return e ? e.value : ''; };
 
 async function compressImage(file, maxDim = 900, quality = 0.82) {
   return new Promise((resolve, reject) => {
@@ -291,23 +248,13 @@ async function compressImage(file, maxDim = 900, quality = 0.82) {
     img.onload = () => {
       URL.revokeObjectURL(objectUrl);
       let w = img.naturalWidth, h = img.naturalHeight;
-      if (w > maxDim || h > maxDim) {
-        const r = Math.min(maxDim / w, maxDim / h);
-        w = Math.round(w * r); h = Math.round(h * r);
-      }
-      const cvs = document.createElement('canvas');
-      cvs.width = w; cvs.height = h;
-      const ctx = cvs.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
-      ctx.drawImage(img, 0, 0, w, h);
+      if (w > maxDim || h > maxDim) { const r = Math.min(maxDim / w, maxDim / h); w = Math.round(w * r); h = Math.round(h * r); }
+      const cvs = document.createElement('canvas'); cvs.width = w; cvs.height = h;
+      const ctx = cvs.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
       cvs.toBlob(blob => {
         if (!blob) return reject(new Error('Compression failed'));
         const reader = new FileReader();
-        reader.onload = () => resolve({
-          b64: String(reader.result).split(',')[1],
-          mime: blob.type || 'image/jpeg',
-          name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg'
-        });
+        reader.onload = () => resolve({ b64: String(reader.result).split(',')[1], mime: blob.type || 'image/jpeg', name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg', size: blob.size });
         reader.readAsDataURL(blob);
       }, 'image/jpeg', quality);
     };
@@ -337,7 +284,7 @@ function digits(m) { const x = String(m || '').replace(/\D/g, ''); return x.leng
 function callLink(m) { const d = digits(m); return d ? `<a class="cl call" href="tel:+${d}">${ic('phone')}Call</a>` : ''; }
 function waLink(m) { const d = digits(m); return d ? `<a class="cl wa" href="https://wa.me/${d}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>` : ''; }
 function modal(title, body, foot, wide) { $('#ovT').textContent = title; $('#ovB').innerHTML = body; $('#ovF').innerHTML = foot || ''; $('#ovBox').classList.toggle('wide', !!wide); $('#ov').classList.add('open'); }
-function closeM() { $('#ov').classList.remove('open'); }
+function closeM() { $('#ov').classList.remove('open'); $('#ovB').innerHTML = ''; $('#ovF').innerHTML = ''; }
 function avatarHtml(name, url) { return url ? `<img src="${esc(url)}" alt="">` : esc((name || 'I').charAt(0).toUpperCase()); }
 async function leave(expired) {
   if (!expired && TOKEN) { try { await apiCall('apiLogout', [TOKEN]); } catch (e) {} }
@@ -350,22 +297,23 @@ const MENU = [
   { group: 'Main', items: [
     { l: 'Dashboard', ic: 'dashboard', v: 'home' }
   ]},
+  { group: 'Directory', items: [
+    { l: 'Admins', ic: 'admin', v: 'public', a: { kind: 'admin' } },
+    { l: 'Members', ic: 'members', v: 'public', a: { kind: 'member' } }
+  ]},
   { group: 'Community', items: [
-    { l: 'Madrasa', ic: 'madrasa', v: 'madrasa' },
+    { l: 'Madrasa', ic: 'madrasa', v: 'sec', a: { sec: 'madrasa' } },
     { l: 'Masjid', ic: 'masjid', v: 'sec', a: { sec: 'masjid' } },
     { l: 'Eidgah', ic: 'eidgah', v: 'sec', a: { sec: 'eidgah' } },
     { l: 'Kabristan', ic: 'kabristan', v: 'sec', a: { sec: 'kabristan' } },
     { l: 'Notices', ic: 'alert', v: 'notice' }
-  ]},
-  { group: 'Directory', items: [
-    { l: 'Admins', ic: 'admin', v: 'admins' },
-    { l: 'Members', ic: 'members', v: 'members' }
   ]},
   { group: 'Account', items: [
     { l: 'My profile', ic: 'profile', v: 'profile' }
   ]}
 ];
 function isOn(n) {
+  if (n.a && n.a.kind) return D.view === 'public' && D.arg.kind === n.a.kind;
   if (n.a && n.a.sec) return D.view === 'sec' && D.arg.sec === n.a.sec;
   return D.view === n.v;
 }
@@ -385,11 +333,9 @@ function filterNav(q) {
   let grp = null, shown = false;
   Array.prototype.forEach.call(nav.children, el => {
     if (el.classList.contains('sgroup')) { grp = el; shown = false; el.style.display = 'none'; return; }
-    if (el.classList.contains('sitem')) {
-      const ok = !q || (el.dataset.l || el.textContent.toLowerCase()).includes(q);
-      el.style.display = ok ? '' : 'none';
-      if (ok && grp && !shown) { grp.style.display = ''; shown = true; }
-    }
+    const ok = !q || (el.dataset.l || '').includes(q);
+    el.style.display = ok ? '' : 'none';
+    if (ok && grp && !shown) { grp.style.display = ''; shown = true; }
   });
 }
 const isDesk = () => window.innerWidth >= 960;
@@ -410,17 +356,19 @@ async function go(view, arg) {
   catch (e) { if (e.message !== 'expired') c.innerHTML = `<div class="errbox">${esc(e.message)}</div>`; }
 }
 
-/* ============ HOME (Dashboard) ============ */
+/* ============ HOME ============ */
 VIEWS.home = async (c) => {
-  const ov = await api('apiImamOverview');
+  const [ov, notices] = await Promise.all([api('apiImamOverview'), api('apiNoticeList').catch(() => ({ list: [] }))]);
   MY = ov.me;
-  const p = MY.person, s = MY.salary || { current: 0 };
-  const notes = await api('apiNoticeList').catch(() => ({ list: [] }));
+  const p = MY.person, s = MY.salary || { current: 0, pending: 0, history: [], payouts: [] };
+  
   c.innerHTML = `
-    ${notes.list.length ? `<div class="sec-title"><h3>Recent Notifications</h3><a data-go="notice">All →</a></div>` + notes.list.slice(0, 3).map(x =>
-      `<div class="rc-notice"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)}</div><div style="margin-top:4px">${esc(x.body)}</div></div>`).join('') : ''}
+    ${notices.list.length ? `<div class="sec-title"><h3>Notifications</h3></div>` + notices.list.slice(0, 3).map(x =>
+      `<div class="rc-notice"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.by)}</div><div style="margin-top:4px">${esc(x.body)}</div></div>`).join('') : ''}
+      
     <div class="pagehead"><h2>Assalamu Alaikum, ${esc(p.name)}</h2></div>
     <p class="psub">Your dashboard overview.</p>
+    
     <div class="card profile">
       <div class="dp" data-act="dpMenu">${avatarHtml(p.name, p.photoUrl)}</div>
       <div class="appid"><small>Application ID</small>${esc(p.appNo)}</div>
@@ -434,72 +382,115 @@ VIEWS.home = async (c) => {
         <div><span>Join date</span><b>${esc(p.joinDate || '—')}</b></div>
         <div><span>Qualification</span><b>${esc(p.qualification || '—')}</b></div>
         <div><span>WhatsApp</span><b>${esc(p.whatsapp || '—')}</b></div>
-        <div style="grid-column:1/-1"><span>Current Salary</span><b style="font-size:18px;color:var(--green)">${inr(s.current)} / month</b></div>
       </div>
     </div>
+
+    <div class="sec-title"><h3>Salary Overview</h3></div>
+    <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a);margin-bottom:10px">
+      <span>Current Salary</span><b>${inr(s.current)} / month</b>
+    </div>
+    ${s.pending > 0 ? `
+    <div class="card pen-box">
+      <div class="pen-row" style="border:0"><b>Pending Salary Reminder</b><b style="color:#b42328;font-size:18px">${inr(s.pending)}</b></div>
+      <p class="muted" style="font-size:12px;margin-top:5px">Salary for this month has not been marked as paid yet by the admin.</p>
+    </div>` : ''}
+    
+    <div class="sec-title"><h3>Salary History</h3></div>
+    <div class="card" style="padding:0"><div class="wrap"><table class="t"><thead><tr><th>Effective</th><th>Amount</th><th>Set by</th></tr></thead>
+      <tbody>${s.history.map(h => `<tr><td>${esc(h.effective)}</td><td>${inr(h.amount)}</td><td>${esc(h.setBy)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No history yet.</td></tr>'}</tbody></table></div></div>
+
+    <div class="sec-title"><h3>Salary Payouts</h3></div>
+    <div class="card" style="padding:0"><div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn</th><th>Receipt</th></tr></thead>
+      <tbody>${s.payouts.map(x => `<tr><td>${esc(x.date)}</td><td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${x.receiptId ? `<button class="btn light sm" data-act="receipt" data-id="${esc(x.receiptId)}">${ic('eye')}</button>` : '—'}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">No payouts yet.</td></tr>'}</tbody></table></div></div>
+    
     <div class="sec-title"><h3>Community Overview</h3></div>
     <div class="tiles">
-      <button class="tile t-blue" data-go="admins"><span class="ti">${iconHtml('admin')}</span><span class="tx"><span class="lb">Admins</span><b>${ov.admins.length}</b></span></button>
-      <button class="tile t-purple" data-go="members"><span class="ti">${iconHtml('members')}</span><span class="tx"><span class="lb">Members</span><b>${ov.members.length}</b></span></button>
-      <button class="tile t-green" data-go="madrasa"><span class="ti">${iconHtml('madrasa')}</span><span class="tx"><span class="lb">Madrasa Updates</span><b>${ov.sections.madrasa || 0}</b></span></button>
+      <button class="tile t-blue" data-go="public" data-arg='{"kind":"admin"}'><span class="ti">${iconHtml('admin')}</span><span class="tx"><span class="lb">Admins</span><b>${ov.admins.length}</b></span></button>
+      <button class="tile t-purple" data-go="public" data-arg='{"kind":"member"}'><span class="ti">${iconHtml('members')}</span><span class="tx"><span class="lb">Members</span><b>${ov.members.length}</b></span></button>
+      <button class="tile t-green" data-go="sec" data-arg='{"sec":"madrasa"}'><span class="ti">${iconHtml('madrasa')}</span><span class="tx"><span class="lb">Madrasa Updates</span><b>${ov.sections.madrasa || 0}</b></span></button>
       <button class="tile t-blue" data-go="sec" data-arg='{"sec":"masjid"}'><span class="ti">${iconHtml('masjid')}</span><span class="tx"><span class="lb">Masjid Updates</span><b>${ov.sections.masjid || 0}</b></span></button>
       <button class="tile t-orange" data-go="sec" data-arg='{"sec":"eidgah"}'><span class="ti">${iconHtml('eidgah')}</span><span class="tx"><span class="lb">Eidgah Updates</span><b>${ov.sections.eidgah || 0}</b></span></button>
       <button class="tile t-red wide" data-go="sec" data-arg='{"sec":"kabristan"}'><span class="ti">${iconHtml('kabristan')}</span><span class="tx"><span class="lb">Kabristan Updates</span><b>${ov.sections.kabristan || 0}</b></span></button>
     </div>`;
 };
 
-/* ============ MADRASA (Posts + Sections) ============ */
-VIEWS.madrasa = async (c) => {
-  const [secData, postData] = await Promise.all([
-    api('apiPersonSections', 'madrasa'),
-    api('apiPostList', 'madrasa')
-  ]);
-  c.innerHTML = `
-    <div class="pagehead"><h2>Madrasa</h2></div>
-    <p class="psub">You can post updates here for everyone.</p>
-    <div class="card">
-      <h3 class="sec">Post new update</h3>
-      <div class="fgrid">
-        <div><label class="fl">Title *<input class="inp" id="postTitle"></label></div>
-        <div><label class="fl">Description<textarea class="inp" id="postBody" rows="3"></textarea></label></div>
-        <div><label class="fl">Photo (optional)<input class="inp" type="file" id="postPhoto" accept="image/*"><input type="hidden" id="postPhotoUrl"></label></div>
-        <button class="btn green" data-act="postSubmit">Publish Post</button>
-      </div>
-    </div>
-    <div class="sec-title"><h3>Madrasa Posts</h3></div>
-    ${postData.list.map(x => `<div class="card post">
-      ${x.photo ? `<img src="${esc(x.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
-      <div><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.authorName)} (${esc(x.authorRole)})</div>
-        <p>${esc(x.body)}</p>
-        <div class="acts">${callLink(x.authorMobile)}${waLink(x.authorMobile)}
-          ${(x.authorApp === MY.person.appNo) ? `<button class="btn red sm" data-act="postDel" data-id="${esc(x.id)}">Delete</button>` : ''}</div></div>
-    </div>`).join('') || '<div class="empty">No posts yet.</div>'}
-    <div class="sec-title"><h3>Official Announcements</h3></div>
-    ${secData.items.map(it => `<div class="card sec-card">
-      ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
-      <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div><p>${esc(it.body)}</p></div>
-    </div>`).join('') || '<div class="empty">No announcements yet.</div>'}`;
+/* ============ PUBLIC DIRECTORY (Admins & Members only) ============ */
+VIEWS.public = async (c, arg) => {
+  const ov = await api('apiImamOverview');
+  const kind = arg.kind || 'admin';
+  const rows = kind === 'admin' ? ov.admins : ov.members;
+  const title = kind === 'admin' ? 'Admins' : 'Members';
+  
+  const card = x => {
+    const isAdmin = kind === 'admin';
+    return `<div class="card" style="display:flex;gap:14px;align-items:flex-start">
+      <div class="dp" style="width:84px;height:84px;font-size:30px;flex:0 0 84px">${avatarHtml(x.name, x.photo)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="pname" style="font-size:17px">${esc(x.name)}</div>
+        ${isAdmin ? '' : `<div class="appid" style="font-size:14px"><small>Application ID</small>${esc(x.appNo)}</div>`}
+        <div class="muted" style="font-size:13px">Mobile: ${esc(x.mobile || '—')}</div>
+        <div class="acts" style="margin-top:6px">${callLink(x.mobile)}${waLink(x.mobile)}</div>
+      </div></div>`;
+  };
+  
+  c.innerHTML = `<div class="pagehead"><h2>${title}</h2></div>
+    <p class="psub">Committee directory.</p>
+    ${rows.map(card).join('') || '<div class="empty">No records found.</div>'}`;
 };
 
-/* ============ SECTIONS (Masjid, Eidgah, Kabristan) ============ */
+/* ============ SECTIONS (Blogger Style + Madrasa Post) ============ */
 VIEWS.sec = async (c, arg) => {
-  const sec = arg.sec || 'masjid';
+  const sec = arg.sec || 'madrasa';
   const d = await api('apiPersonSections', sec);
-  c.innerHTML = `
-    <div class="pagehead"><h2>${SECS[sec]}</h2></div>
-    <p class="psub">Updates from the committee.</p>
-    ${d.items.map(it => `<div class="card sec-card">
-      ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml(SEC_ICON[sec])}</div>`}
-      <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div><p>${esc(it.body)}</p></div>
-    </div>`).join('') || `<div class="empty">No updates yet for ${SECS[sec]}.</div>`}`;
+  
+  let postsHtml = '', postForm = '';
+  if (sec === 'madrasa') {
+    const pl = await api('apiPostList', sec);
+    const canPost = true; // Imam can post in Madrasa
+    postForm = canPost ? `<div class="card"><h3 class="sec">Post karein</h3><div class="fgrid">
+        <div><label class="fl">Title *</label><input class="inp" id="postTitle"></div>
+        <div><label class="fl">Description</label><textarea class="inp" id="postBody" rows="3"></textarea></div>
+        <div><label class="fl">Photo (optional)</label><input class="inp" type="file" id="postPhoto" accept="image/*"><input type="hidden" id="postPhotoUrl"></div>
+        <button class="btn green" data-act="postSubmit">Post karein</button></div></div>` : '';
+        
+    postsHtml = `<div class="sec-title"><h3>Madrasa posts</h3></div>` + (pl.list.map(x => `
+      <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
+        <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(x.title)}</h2>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
+          <span style="font-weight:600; color:var(--blue)">By ${esc(x.authorName)}</span>
+          <span>•</span>
+          <span>${esc(x.date)}</span>
+        </div>
+        ${x.photo ? `<img src="${esc(x.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
+        <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(x.body)}</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid var(--line);">
+          ${callLink(x.authorMobile)}
+          ${waLink(x.authorMobile)}
+          ${(ROLE === 'imam' && x.authorApp === MY.person.appNo) ? `<button class="btn red sm" style="margin-left:auto;" data-act="postDel" data-id="${esc(x.id)}">Delete</button>` : ''}
+        </div>
+      </div>`).join('') || '<div class="empty">No posts yet.</div>');
+  }
+  
+  c.innerHTML = `<div class="pagehead"><h2>${SECS[sec]}</h2></div>
+    <p class="psub">Latest updates from the committee.</p>
+    ${postForm}${postsHtml}
+    ${sec === 'madrasa' ? '<div class="sec-title"><h3>Official Updates</h3></div>' : ''}
+    ${d.items.map(it => `
+    <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
+      <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(it.title)}</h2>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
+        <span>${esc(it.date)}</span>
+      </div>
+      ${it.photo ? `<img src="${esc(it.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
+      <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(it.body)}</p>
+    </div>`).join('') || (sec !== 'madrasa' ? `<div class="empty">No updates yet for ${SECS[sec]}.</div>` : '')}`;
 };
 
 /* ============ NOTICES ============ */
 VIEWS.notice = async (c) => {
   const n = await api('apiNoticeList');
-  c.innerHTML = `
-    <div class="pagehead"><h2>Notices</h2></div>
-    <p class="psub">Add a notice for everyone. (You can delete your own notices).</p>
+  c.innerHTML = `<div class="pagehead"><h2>Notifications</h2></div>
+    <p class="psub">Announcements from the committee.</p>
     <div class="card"><div class="fgrid">
       <div><label class="fl">Title *<input class="inp" id="nTitle"></label></div>
       <div><label class="fl">Message<textarea id="nBody" rows="3"></textarea></label></div>
@@ -515,45 +506,13 @@ VIEWS.notice = async (c) => {
     </div>`).join('') || '<div class="empty">No notices yet.</div>'}`;
 };
 
-/* ============ DIRECTORY: ADMINS ============ */
-VIEWS.admins = async (c) => {
-  const ov = await api('apiImamOverview');
-  c.innerHTML = `<div class="pagehead"><h2>Admins</h2></div>
-    <p class="psub">Committee administrators.</p>
-    ${ov.admins.map(x => `
-      <div class="card" style="display:flex;gap:14px;align-items:flex-start">
-        <div class="dp" style="width:84px;height:84px;font-size:30px;flex:0 0 84px">${avatarHtml(x.name, x.photo)}</div>
-        <div style="flex:1;min-width:0">
-          <div class="pname" style="font-size:17px">${esc(x.name)}</div>
-          <div class="muted" style="font-size:13px">Role: <b>${esc(LBL[x.role] || x.role)}</b></div>
-          <div class="muted" style="font-size:13px">Mobile: ${esc(x.mobile || '—')}</div>
-          <div class="acts" style="margin-top:6px">${callLink(x.mobile)}${waLink(x.mobile)}</div>
-        </div></div>`).join('') || '<div class="empty">No admins found.</div>'}`;
-};
-
-/* ============ DIRECTORY: MEMBERS ============ */
-VIEWS.members = async (c) => {
-  const ov = await api('apiImamOverview');
-  c.innerHTML = `<div class="pagehead"><h2>Members</h2></div>
-    <p class="psub">Committee members.</p>
-    ${ov.members.map(x => `
-      <div class="card" style="display:flex;gap:14px;align-items:flex-start">
-        <div class="dp" style="width:84px;height:84px;font-size:30px;flex:0 0 84px">${avatarHtml(x.name, x.photo)}</div>
-        <div style="flex:1;min-width:0">
-          <div class="pname" style="font-size:17px">${esc(x.name)}</div>
-          <div class="appid" style="font-size:14px"><small>Application ID</small>${esc(x.appNo)}</div>
-          <div class="muted" style="font-size:13px">Mobile: ${esc(x.mobile || '—')}</div>
-          <div class="acts" style="margin-top:6px">${callLink(x.mobile)}${waLink(x.mobile)}</div>
-        </div></div>`).join('') || '<div class="empty">No members found.</div>'}`;
-};
-
-/* ============ MY PROFILE ============ */
+/* ============ PROFILE ============ */
 VIEWS.profile = async (c) => {
-  const d = await api('apiMyPerson');
-  MY = d;
-  const p = d.person, s = d.salary || { current: 0, history: [], payouts: [] };
+  if (!MY) MY = await api('apiMyPerson');
+  const p = MY.person;
   c.innerHTML = `
     <div class="pagehead"><h2>My profile</h2></div>
+    <p class="psub">You can only change your photo. Other details are fixed by the committee.</p>
     <div class="card profile">
       <div class="dp" data-act="dpMenu">${avatarHtml(p.name, p.photoUrl)}</div>
       <div class="appid"><small>Application ID</small>${esc(p.appNo)}</div>
@@ -568,24 +527,35 @@ VIEWS.profile = async (c) => {
         <div><span>WhatsApp</span><b>${esc(p.whatsapp || '—')}</b></div>
       </div>
     </div>
-    <div class="card">
-      <h3 class="sec">Salary History</h3>
-      <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a);margin-bottom:10px"><span>Current Salary</span><b>${inr(s.current)} / month</b></div>
-      <div class="wrap"><table class="t"><thead><tr><th>Effective</th><th>Amount</th><th>Set by</th></tr></thead>
-        <tbody>${s.history.map(h => `<tr><td>${esc(h.effective)}</td><td>${inr(h.amount)}</td><td>${esc(h.setBy)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No history yet.</td></tr>'}</tbody></table></div>
-    </div>
-    <div class="card">
-      <h3 class="sec">Salary Received</h3>
-      <div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn</th><th>By</th></tr></thead>
-        <tbody>${s.payouts.map(x => `<tr><td>${esc(x.date)}</td><td><b>${inr(x.amount)}</b></td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td><td>${esc(x.collector)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">No payouts yet.</td></tr>'}</tbody></table></div>
-    </div>
     <div class="card"><button class="btn red" data-act="logout" style="width:100%">${ic('logout')}Logout</button></div>`;
 };
+
+/* ============ DP MODAL ============ */
+function openDpModal() {
+  DP_PENDING = null;
+  const cur = MY.person.photoUrl;
+  modal('My photo', `<div class="profile">
+      <div class="dp" id="dpPrev">${avatarHtml(MY.person.name, cur)}</div>
+      <p class="hint" id="dpHint">${cur ? 'Replace or Delete.' : 'Choose a photo.'}</p>
+    </div>`,
+    `<div class="acts" style="width:100%;justify-content:center" id="dpBtns">
+       ${cur ? `<button class="btn red sm" data-act="dpDelete">Delete</button>` : ''}
+       <button class="btn light sm" data-act="dpPick">${cur ? 'Replace' : 'Choose photo'}</button>
+       <button class="btn light sm" data-act="close">Cancel</button></div>`);
+}
+function showDpPending(url) {
+  $('#dpPrev').innerHTML = `<img src="${esc(url)}" alt="">`;
+  $('#dpHint').textContent = 'New photo ready. Press Save.';
+  $('#dpBtns').innerHTML = `<button class="btn green sm" data-act="dpSave">Save</button>
+    <button class="btn light sm" data-act="dpPick">Replace</button>
+    <button class="btn light sm" data-act="close">Cancel</button>`;
+}
 
 /* ============ ACTIONS ============ */
 const ACTS = {
   logout: () => leave(false),
   close: () => closeM(),
+  receipt: (id) => openReceipt(id), // Calls receipt.js
   dpMenu: () => openDpModal(),
   dpPick: () => $('#dpFile').click(),
   dpSave: async () => {
@@ -616,11 +586,11 @@ const ACTS = {
     const f = document.getElementById('postPhoto') && document.getElementById('postPhoto').files[0];
     if (f) { const b64 = await compressImage(f); url = (await api('apiPersonUploadPhoto', b64.b64, b64.mime, b64.name)).url; }
     await api('apiPostCreate', 'madrasa', t, val('postBody'), url);
-    toast('Post ho gayi'); go('madrasa', {});
+    toast('Post ho gayi'); go('sec', { sec: 'madrasa' });
   },
   postDel: async (id) => {
     if (!confirm('Ye post hata dein?')) return;
-    await api('apiPostDelete', id); toast('Deleted'); go('madrasa', {});
+    await api('apiPostDelete', id); go('sec', { sec: 'madrasa' });
   },
   postNotice: async () => {
     await api('apiNoticePost', val('nTitle'), val('nBody'));
@@ -628,29 +598,9 @@ const ACTS = {
   },
   delNotice: async (id) => {
     if (!confirm('Remove this notice?')) return;
-    await api('apiNoticeDelete', id); toast('Deleted'); go('notice', {});
+    await api('apiNoticeDelete', id); go('notice', {});
   }
 };
-
-function openDpModal() {
-  DP_PENDING = null;
-  const cur = MY.person.photoUrl;
-  modal('My photo', `<div class="profile">
-      <div class="dp" id="dpPrev">${avatarHtml(MY.person.name, cur)}</div>
-      <p class="hint" id="dpHint">${cur ? 'Replace or Delete.' : 'Choose a photo.'}</p>
-    </div>`,
-    `<div class="acts" style="width:100%;justify-content:center" id="dpBtns">
-       ${cur ? `<button class="btn red sm" data-act="dpDelete">Delete</button>` : ''}
-       <button class="btn light sm" data-act="dpPick">${cur ? 'Replace' : 'Choose photo'}</button>
-       <button class="btn light sm" data-act="close">Cancel</button></div>`);
-}
-function showDpPending(url) {
-  $('#dpPrev').innerHTML = `<img src="${esc(url)}" alt="">`;
-  $('#dpHint').textContent = 'New photo ready. Press Save.';
-  $('#dpBtns').innerHTML = `<button class="btn green sm" data-act="dpSave">Save</button>
-    <button class="btn light sm" data-act="dpPick">Replace</button>
-    <button class="btn light sm" data-act="close">Cancel</button>`;
-}
 
 /* ============ EVENTS ============ */
 document.addEventListener('click', async e => {
