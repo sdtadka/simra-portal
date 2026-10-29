@@ -152,13 +152,6 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .hint{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:8px}
 .pbar{height:14px;border-radius:99px;background:#eef1f6;overflow:hidden;margin:8px 0}
 .pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .35s ease}
-.sec-card{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
-.sec-card img,.sec-card .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
-.sec-card .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
-.sec-card p{color:var(--muted);margin-top:4px;line-height:1.6;white-space:pre-wrap}
-.post{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
-.post img,.post .thumb{width:96px;height:78px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
-.post .thumb{background:#eef3ff;display:grid;place-items:center;color:var(--blue)}
 .pen-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed #e6eaf2;font-size:13px}
 .pen-box{border:2px solid #f6c6c8;background:#fff8f8}
 .rc-notice{background:#fffbe6;border:1px solid #f0dfb0;border-radius:14px;padding:12px;margin-bottom:10px}
@@ -223,30 +216,14 @@ table.rt td{padding:1px 3px;border-bottom:1px solid #999;font-weight:700;white-s
   @page { size: A4 portrait; margin: 5mm; }
   html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
   
-  /* Hide everything except print-area */
   body * { visibility: hidden !important; }
   #ov, #ov * { visibility: visible !important; }
   #rc, #rc * { visibility: visible !important; }
   
-  #ov { 
-    position: absolute !important; left: 0 !important; top: 0 !important;
-    background: none !important; display: block !important; overflow: visible !important; 
-    padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important;
-  }
-  #ov .box { 
-    box-shadow: none !important; max-height: none !important; overflow: visible !important; 
-    padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; 
-    border-radius: 0 !important; position: static !important; transform: none !important;
-  }
-  
+  #ov { position: absolute !important; left: 0 !important; top: 0 !important; background: none !important; display: block !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; }
+  #ov .box { box-shadow: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; position: static !important; transform: none !important; }
   .noprint { display: none !important; }
-  
-  #rc { 
-    width: 100% !important; max-width: 195mm !important; border: 1.5px solid #1b4332 !important; 
-    padding: 4mm !important; margin: 0 auto !important; box-sizing: border-box !important; 
-    page-break-inside: avoid !important; page-break-after: avoid !important;
-    background: #fff !important;
-  }
+  #rc { width: 100% !important; max-width: 195mm !important; border: 1.5px solid #1b4332 !important; padding: 4mm !important; margin: 0 auto !important; box-sizing: border-box !important; page-break-inside: avoid !important; page-break-after: avoid !important; background: #fff !important; }
   #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 @media(min-width:900px){.hd{padding:16px 22px 26px}.big3{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.main{max-width:1100px;margin:0 auto}}
@@ -669,7 +646,7 @@ async function openPersonPage(c, appNo) {
         <button class="btn light sm" data-act="editPerson" data-id="${esc(appNo)}">${ic('edit')}Edit</button>
         ${isUser ? `<button class="btn green sm" data-act="pay" data-id="${esc(appNo)}">${ic('rupee')}Receive payment</button>` : ''}
         ${isImam ? `<button class="btn purple sm" data-act="payout" data-id="${esc(appNo)}">${ic('money')}Salary payout</button>` : ''}
-        ${isUser ? `<button class="btn gold sm" data-act="addPenaltyForPerson" data-id="${esc(appNo)}">${ic('alert')}Add penalty</button>` : ''}
+        ${isUser && d.summary.opening > 0 ? `<button class="btn gold sm" data-act="addPenaltyForPerson" data-id="${esc(appNo)}">${ic('alert')}Add penalty</button>` : ''}
         <button class="btn gold sm" data-act="toggleBlock" data-id="${esc(appNo)}" data-st="${p.blocked ? 'ACTIVE' : 'BLOCKED'}">${p.blocked ? 'Unblock' : 'Block'}</button>
         <button class="btn red sm" data-act="delPerson" data-id="${esc(appNo)}">${ic('trash')}Delete</button>
       </div>
@@ -728,6 +705,7 @@ function personForm(role, p, admins) {
   const photoUrl = p && p.photoUrl ? esc(p.photoUrl) : '';
   const prevStyle = photoUrl ? 'width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px;border:2px solid #fff;box-shadow:0 4px 12px -4px rgba(0,0,0,.3)' : 'display:none;width:64px;height:64px;border-radius:50%;object-fit:cover;margin-top:6px';
   return `<div class="fgrid">
+    ${p ? '' : `<div><label class="fl">User ID / App No. (optional, leave blank for auto)<input class="inp" id="fAppNo" placeholder="e.g. 1078692002"></label></div>`}
     <div><label class="fl">Name *<input class="inp" id="fName" value="${v('name')}"></label></div>
     <div><label class="fl">Father's name<input class="inp" id="fFather" value="${v('father')}"></label></div>
     <div><label class="fl">Mobile<input class="inp" id="fMobile" maxlength="10" inputmode="numeric" value="${v('mobile')}"></label></div>
@@ -774,7 +752,8 @@ async function openPersonForm(role, appNo) {
     const btn = $('#btnSave'); if (btn.disabled) return; btn.disabled = true;
     try {
       const body = {
-        appNo: p ? p.appNo : '', role: role,
+        appNo: p ? p.appNo : val('fAppNo'),
+        role: role,
         name: val('fName'), father: val('fFather'), mobile: val('fMobile'),
         email: val('fEmail'), address: val('fAddr'), joinDate: val('fJoin'),
         adminId: admins ? val('fAdmin') : '',
@@ -812,10 +791,11 @@ async function openPay(appNo) {
       <div><label class="fl">Date<input class="inp" id="pDate" type="date" value="${todayIso()}"></label></div>
       <div><label class="fl">Mode<select class="inp" id="pMode">${MODES.map(m => `<option>${m}</option>`).join('')}</select></label></div>
       <div><label class="fl">Transaction no. (online)<input class="inp" id="pTxn"></label></div>
+      ${s.opening > 0 ? `
       <div style="grid-column:1/-1;background:#fff5f5;padding:10px;border-radius:10px;border:1px dashed #f6c6c8;margin-top:5px">
         <div><label class="fl" style="color:#b42328">Add Penalty (₹) [Optional]<input class="inp" id="pPen" type="number" min="0" value="0"></label></div>
         <div><label class="fl" style="color:#b42328">Penalty Reason<input class="inp" id="pPenReason" placeholder="e.g. Late payment"></label></div>
-      </div>
+      </div>` : ''}
       <div><label class="fl">Note<input class="inp" id="pNote"></label></div>
     </div>`,
     `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPay">Receive</button>`);
@@ -885,7 +865,7 @@ async function openReceipt(id) {
       <div class="seal-img"><div class="si">${seal}</div></div>
       <div><div class="si">${o.sigAuth ? `<img src="${esc(o.sigAuth)}" alt="" onerror="this.remove()">` : ''}</div><div class="ln"></div><b>${esc(o.name)}</b>Authorised</div>
     </div></div>`,
-  `<button class="btn light noprint" data-act="close">Close</button><button class="btn noprint" data-act="downloadPdf" style="background:var(--blue)">Download PDF</button><button class="btn noprint" data-act="printNow">${ic('print')}Print / PDF</button>`, true);
+  `<button class="btn light noprint" data-act="close">Close</button><button class="btn noprint" data-act="downloadPdf" style="background:var(--blue)">Download JPG</button><button class="btn noprint" data-act="printNow">${ic('print')}Print / PDF</button>`, true);
 }
 
 /* ============ PENALTY ============ */
@@ -976,22 +956,31 @@ VIEWS.notice = async (c) => {
     </div>`).join('') || '<div class="empty">No notices yet.</div>'}`;
 };
 
-/* ============ POSTS ============ */
+/* ============ POSTS (Blogger Style) ============ */
 VIEWS.posts = async (c) => {
   const d = await api('apiPostList', 'madrasa');
   c.innerHTML = `
     <div class="pagehead"><h2>Madrasa posts</h2></div>
     <p class="psub">Posts from Imam's Madrasa. Visible to everyone.</p>
-    ${d.list.map(x => `<div class="card post">
-      ${x.photo ? `<img src="${esc(x.photo)}" alt="">` : `<div class="thumb">${iconHtml('madrasa')}</div>`}
-      <div><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.authorName)} (${esc(x.authorRole)})</div>
-        <p>${linkify(x.body)}</p>
-        <div class="acts">${callLink(x.authorMobile)}${waLink(x.authorMobile)}
-          <button class="btn red sm" data-act="delPost" data-id="${esc(x.id)}">Delete</button></div></div>
+    ${d.list.map(x => `
+    <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
+      <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(x.title)}</h2>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
+        <span style="font-weight:600; color:var(--blue)">By ${esc(x.authorName)}</span>
+        <span>•</span>
+        <span>${esc(x.date)}</span>
+      </div>
+      ${x.photo ? `<img src="${esc(x.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
+      <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(x.body)}</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid var(--line);">
+        ${callLink(x.authorMobile)}
+        ${waLink(x.authorMobile)}
+        ${(ME.role === 'super_admin' || ME.role === 'admin') ? `<button class="btn red sm" style="margin-left:auto;" data-act="delPost" data-id="${esc(x.id)}">Delete</button>` : ''}
+      </div>
     </div>`).join('') || '<div class="empty">No posts yet.</div>'}`;
 };
 
-/* ============ SECTIONS ============ */
+/* ============ SECTIONS (Blogger Style) ============ */
 VIEWS.sec = async (c, arg) => {
   const sec = arg.sec || 'madrasa';
   const d = await api('apiSectionList', sec);
@@ -999,14 +988,18 @@ VIEWS.sec = async (c, arg) => {
     <div class="pagehead"><h2>${SECS[sec]}</h2></div>
     <p class="psub">Updates, photos and news. Shown to everyone.</p>
     <div class="toolbar"><button class="btn green" data-act="addSection" data-id="${sec}">${ic('plus')}Add update</button></div>
-    ${d.items.map(it => `<div class="card sec-card">
-      ${it.photo ? `<img src="${esc(it.photo)}" alt="">` : `<div class="thumb">${iconHtml(sec)}</div>`}
-      <div><b>${esc(it.title)}</b><div class="muted" style="font-size:12px">${esc(it.date)}</div>
-        <p>${linkify(it.body)}</p>
-        <div class="acts" style="margin-top:6px">
-          <button class="btn light sm" data-act="editSection" data-id="${esc(it.id)}" data-sec="${sec}">Edit</button>
-          <button class="btn red sm" data-act="delSection" data-id="${esc(it.id)}" data-sec="${sec}">Delete</button>
-        </div></div>
+    ${d.items.map(it => `
+    <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
+      <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(it.title)}</h2>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
+        <span>${esc(it.date)}</span>
+      </div>
+      ${it.photo ? `<img src="${esc(it.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
+      <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(it.body)}</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; border-top:1px solid var(--line); padding-top:15px;">
+        <button class="btn light sm" data-act="editSection" data-id="${esc(it.id)}" data-sec="${sec}">Edit</button>
+        <button class="btn red sm" data-act="delSection" data-id="${esc(it.id)}" data-sec="${sec}">Delete</button>
+      </div>
     </div>`).join('') || '<div class="empty">No updates yet.</div>'}`;
 };
 function openSectionForm(sec, it) {
@@ -1265,14 +1258,16 @@ const ACTS = {
   copy: (id, el) => copyText(el.dataset.v),
   downloadPdf: () => {
     const element = document.getElementById('rc');
-    const opt = {
-      margin: 5,
-      filename: 'Receipt_' + Date.now() + '.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(element).save();
+    html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const a = document.createElement('a');
+      a.href = imgData;
+      a.download = 'Receipt_' + Date.now() + '.jpg';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast('Receipt downloaded as JPG');
+    }).catch(e => { toast('Download failed: ' + e.message); });
   },
   closeAndOpen: (id) => { closeM(); openPersonPage($('#main'), id).catch(e => { if (e.message !== 'expired') toast(e.message); }); },
   toggleCreds: () => { SHOW_CREDS = !SHOW_CREDS; go(D.view, D.arg); },
