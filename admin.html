@@ -1240,12 +1240,26 @@ function applyOrg(o) {
     const sn = document.getElementById('sideName');
     if (sn) sn.textContent = o.name || 'Community';
   }
+  
+  // BACKGROUND IMAGE LOGIC
+  if (o.headerBg !== undefined) {
+    const hd = document.querySelector('.hd');
+    if (hd) {
+      if (o.headerBg) {
+        // Image ke upar dark overlay lagaya hai taaki text clear padhne layak rahe
+        hd.style.background = `linear-gradient(135deg, rgba(7,28,64,0.8) 0%, rgba(15,61,127,0.8) 48%, rgba(10,42,92,0.8) 100%), url('${o.headerBg}') center/cover no-repeat`;
+      } else {
+        // Agar URL nahi hai to purana blue gradient hi rahega
+        hd.style.background = 'linear-gradient(135deg, #071c40 0%, #0f3d7f 48%, #0a2a5c 100%)';
+      }
+    }
+  }
+
   const seal = $('#seal');
   if (seal) seal.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 46);
   const sl = document.getElementById('sideLogo');
   if (sl) sl.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="">` : ic('mosque');
 }
-
 async function boot() {
   TOKEN = localStorage.getItem(LS_S);
   if (!TOKEN) return goPage('index.html');
@@ -1258,7 +1272,11 @@ async function boot() {
     if (r.mustChange) return goPage('index.html');
     ME = r.user;
     $('#roleName').textContent = 'Admin';
-    applyOrg({ name: (r.org && r.org.name) || 'Community', logo: (r.org && r.org.logo) || '' });
+    applyOrg({ 
+  name: (r.org && r.org.name) || 'Community', 
+  logo: (r.org && r.org.logo) || '',
+  headerBg: (r.org && r.org.headerBg) || '' // <--- YEH NAYA
+});
     bootProgress(35, 'Loading icons…', '');
     const ic2 = await apiCall('apiGetIcons', [TOKEN]).catch(() => null);
     ICONS = (ic2 && ic2.icons) || {};
