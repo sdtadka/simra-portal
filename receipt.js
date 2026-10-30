@@ -1,8 +1,9 @@
 /*******************************************************************
  * receipt.js : Centralized Receipt Print & Download Logic for all Roles.
+ * v2 — Logo fix (Blogger + Google Drive + CORS proxy) + Button feedback
  *******************************************************************/
 
-// HTML2Canvas aur HTML2PDF ko automatically load karne ke liye
+// HTML2Canvas load
 if (!document.getElementById('html2canvas-script')) {
   const s1 = document.createElement('script');
   s1.id = 'html2canvas-script';
@@ -10,7 +11,7 @@ if (!document.getElementById('html2canvas-script')) {
   document.head.appendChild(s1);
 }
 
-// Receipt ka CSS (Taki har HTML me alag se CSS na daalni pade)
+// Receipt CSS
 if (!document.getElementById('receipt-css')) {
   const style = document.createElement('style');
   style.id = 'receipt-css';
@@ -44,6 +45,10 @@ if (!document.getElementById('receipt-css')) {
     .rc-sig b { display:block; font-size:9px; font-weight:900; }
     .rc-sig .seal-img img { max-height:52px; max-width:80px; object-fit:contain; opacity:.85; }
 
+    /* Button feedback transitions */
+    .noprint { transition: background .25s ease, opacity .2s ease, transform .1s ease; }
+    .noprint:active:not(:disabled) { transform: scale(0.97); }
+
     @media print {
       @page { size: A4 portrait; margin: 5mm; }
       html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
@@ -60,13 +65,150 @@ if (!document.getElementById('receipt-css')) {
   document.head.appendChild(style);
 }
 
-// Centralized Receipt Function (Sabhi HTML files isko call karengi)
+/* =================================================================
+ * IMAGE HELPERS — Blogger, Google Drive, koi bhi URL → Base64
+ * ================================================================= */
+
+// Blob → Data URL
+function _blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Fetch with timeout
+function _fetchWithTimeout(url, opts, ms) {
+  return Promise.race([
+    fetch(url, opts),
+    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
+  ]);
+}
+
+// Google Drive URL → CORS-friendly URL
+function _normalizeDriveUrl(url) {
+  const patterns = [
+    /drive\.google\.com\/file\/d\/([^/?#]+)/,
+    /drive\.google\.com\/uc\?(?:[^#]*&)?id=([^&#]+)/,
+    /drive\.google\.com\/open\?(?:[^#]*&)?id=([^&#]+)/,
+    /drive\.google\.com\/thumbnail\?(?:[^#]*&)?id=([^&#]+)/,
+    /docs\.google\.com\/uc\?(?:[^#]*&)?id=([^&#]+)/,
+    /lh3\.googleusercontent\.com\/d\/([^/=?#]+)/
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m && m[1]) {
+      return 'https://lh3.googleusercontent.com/d/' + m[1] + '=w1000';
+    }
+  }
+  return null;
+}
+
+// MAIN: Koi bhi image URL → base64 (5-level fallback)
+async function _imageToDataUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('data:')) return url;
+
+  const originalUrl = url;
+
+  // 1) Google Drive ko normalize karo
+  const driveUrl = _normalizeDriveUrl(url);
+  if (driveUrl) url = driveUrl;
+
+  // 2) Direct fetch
+  try {
+    const r = await _fetchWithTimeout(url, { mode: 'cors', credentials: 'omit' }, 5000);
+    if (r.ok) {
+      const blob = await r.blob();
+      if (blob.size > 50) return await _blobToDataUrl(blob);
+    }
+  } catch (e) { /* continue */ }
+
+  // 3) Canvas with crossOrigin
+  try {
+    return await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      const t = setTimeout(() => reject(new Error('timeout')), 5000);
+      img.onload = () => {
+        clearTimeout(t);
+        try {
+          const c = document.createElement('canvas');
+          c.width = img.naturalWidth;
+          c.height = img.naturalHeight;
+          c.getContext('2d').drawImage(img, 0, 0);
+          resolve(c.toDataURL('image/png'));
+        } catch (err) { reject(err); }
+      };
+      img.onerror = () => { clearTimeout(t); reject(new Error('load fail')); };
+      img.src = url;
+    });
+  } catch (e) { /* continue */ }
+
+  // 4) weserv.nl proxy (sabse reliable)
+  try {
+    const clean = url.replace(/^https?:\/\//, '');
+    const proxy = 'https://images.weserv.nl/?url=' + encodeURIComponent(clean) + '&w=1000&output=png';
+    const r = await _fetchWithTimeout(proxy, { mode: 'cors' }, 6000);
+    if (r.ok) {
+      const blob = await r.blob();
+      if (blob.size > 50) return await _blobToDataUrl(blob);
+    }
+  } catch (e) { /* continue */ }
+
+  // 5) allorigins proxy
+  try {
+    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+    const r = await _fetchWithTimeout(proxy, { mode: 'cors' }, 6000);
+    if (r.ok) {
+      const blob = await r.blob();
+      if (blob.size > 50) return await _blobToDataUrl(blob);
+    }
+  } catch (e) { /* continue */ }
+
+  // 6) corsproxy.io (last resort)
+  try {
+    const proxy = 'https://corsproxy.io/?' + encodeURIComponent(url);
+    const r = await _fetchWithTimeout(proxy, { mode: 'cors' }, 6000);
+    if (r.ok) {
+      const blob = await r.blob();
+      if (blob.size > 50) return await _blobToDataUrl(blob);
+    }
+  } catch (e) { /* continue */ }
+
+  console.warn('Image fetch failed (all methods):', originalUrl);
+  return url; // fallback: original URL (may skip in JPG but won't crash)
+}
+
+/* =================================================================
+ * TOAST HELPER — agar page pe toast() function na ho
+ * ================================================================= */
+function _dlToast(msg, color) {
+  if (typeof toast === 'function') { toast(msg); return; }
+  let t = document.getElementById('_dl_toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_dl_toast';
+    t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:90vw;text-align:center;font-family:system-ui,sans-serif;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.background = color || '#0f172a';
+  t.style.display = 'block';
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => { t.style.display = 'none'; }, 3500);
+}
+
+/* =================================================================
+ * MAIN RECEIPT FUNCTION
+ * ================================================================= */
 async function openReceipt(id) {
   if (typeof api !== 'function' || typeof modal !== 'function') {
     return alert('System error: API or Modal function missing.');
   }
 
-  // Check role to decide API call
   const role = (typeof ME !== 'undefined' && ME && ME.role) ? ME.role : 'user';
   const apiAction = (role === 'super_admin' || role === 'admin') ? 'apiSuperReceipt' : 'apiReceiptView';
 
@@ -75,7 +217,7 @@ async function openReceipt(id) {
     const o = r.org, p = r.person;
     const logo = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3.5 21V11.5C3.5 7 7.3 4 12 4s8.5 3 8.5 7.5V21"/><path d="M2 21h20"/><path d="M12 2v2"/></svg>';
     const seal = o.seal ? `<img src="${esc(o.seal)}" alt="" onerror="this.remove()">` : '';
-    
+
     const rowsHtml = r.rows.map(x => `<tr>
       <td>${x.no}</td><td>${esc(x.date)}</td><td>${esc(x.mode)}</td><td>${esc(x.txnRef || '—')}</td>
       <td>${esc(x.collector)}</td>
@@ -124,7 +266,7 @@ async function openReceipt(id) {
 
     modal('Receipt', html, `
       <button class="btn light noprint" onclick="closeM()">Close</button>
-      <button class="btn noprint" style="background:var(--blue)" onclick="downloadReceiptJpg()">Download JPG</button>
+      <button class="btn noprint" style="background:var(--blue)" onclick="downloadReceiptJpg(this)">Download JPG</button>
       <button class="btn noprint" onclick="window.print()">Print / PDF</button>
     `, true);
 
@@ -133,20 +275,117 @@ async function openReceipt(id) {
   }
 }
 
-// JPG Download Function
-function downloadReceiptJpg() {
+/* =================================================================
+ * JPG DOWNLOAD — Full feedback + logo fix
+ * ================================================================= */
+async function downloadReceiptJpg(btn) {
+  if (btn && btn.disabled) return;
+
   const element = document.getElementById('rc');
   if (!element) return alert('Receipt not found.');
-  
-  if (typeof html2canvas === 'undefined') return alert('Download library loading... Please wait 2 seconds and try again.');
-  
-  html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+  if (typeof html2canvas === 'undefined') {
+    return alert('Download library load ho rahi hai... 2 second baad try karein.');
+  }
+
+  // --- LOCK BUTTON + VISUAL FEEDBACK ---
+  const originalHtml = btn ? btn.innerHTML : '';
+  const originalBg   = btn ? (btn.style.background || 'var(--blue)') : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.75';
+    btn.style.cursor = 'wait';
+    btn.style.background = 'var(--gold)';
+    btn.innerHTML = '⏳ Downloading...';
+  }
+  _dlToast('⏳ Receipt download ho raha hai...', '#b45309');
+
+  // --- CLONE RECEIPT OFFSREEN ---
+  const clone = element.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.style.position = 'fixed';
+  clone.style.left = '-10000px';
+  clone.style.top = '0';
+  clone.style.width = element.offsetWidth + 'px';
+  clone.style.background = '#fff';
+  document.body.appendChild(clone);
+
+  try {
+    // --- CONVERT ALL IMAGES TO BASE64 (logo fix) ---
+    const imgs = [...clone.querySelectorAll('img')];
+    if (imgs.length) {
+      await Promise.all(imgs.map(async (img) => {
+        const src = img.getAttribute('src');
+        if (src && !src.startsWith('data:')) {
+          const b64 = await _imageToDataUrl(src);
+          if (b64) img.src = b64;
+        }
+      }));
+    }
+
+    // --- WAIT FOR ALL IMAGES TO LOAD (max 5 sec each) ---
+    await Promise.all(imgs.map(img => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise(resolve => {
+        const t = setTimeout(resolve, 5000);
+        img.onload = () => { clearTimeout(t); resolve(); };
+        img.onerror = () => { clearTimeout(t); resolve(); };
+      });
+    }));
+
+    // --- CAPTURE ---
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff',
+      logging: false,
+      imageTimeout: 8000
+    });
+
+    // --- DOWNLOAD ---
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
     const a = document.createElement('a');
     a.href = imgData;
-    a.download = 'Receipt_' + Date.now() + '.jpg';
+    a.download = 'Receipt_' + (Date.now()) + '.jpg';
     document.body.appendChild(a);
     a.click();
     a.remove();
-  }).catch(e => alert('Download failed: ' + e.message));
+
+    // --- SUCCESS FEEDBACK ---
+    if (btn) {
+      btn.innerHTML = '✅ Downloaded!';
+      btn.style.background = 'var(--green)';
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        btn.style.pointerEvents = 'auto';
+        btn.style.background = originalBg;
+      }, 2000);
+    }
+    _dlToast('✅ Receipt download ho gaya! Check Downloads folder.', '#12a150');
+
+  } catch (e) {
+    // --- FAIL FEEDBACK ---
+    if (btn) {
+      btn.innerHTML = '❌ Failed — Retry';
+      btn.style.background = 'var(--red)';
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        btn.style.pointerEvents = 'auto';
+        btn.style.background = originalBg;
+      }, 2500);
+    }
+    _dlToast('❌ Download fail: ' + (e.message || 'Unknown error'), '#e5484d');
+    console.error('[Receipt JPG] fail:', e);
+
+  } finally {
+    clone.remove();
+  }
 }
