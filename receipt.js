@@ -263,24 +263,41 @@ if (!document.getElementById('receipt-css')) {
     table.rc-table tr:last-child td { border-bottom: none; }
     table.rc-table tr:nth-child(even) td { background: #f8fafc; }
 
-    /* --- FOOTER --- */
+    /* --- FOOTER & SIGNATURES --- */
     .rc-footer {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      padding-top: 15px;
+      padding-top: 10px;
       margin-top: 10px;
+      border-top: 2px solid #d4af37;
     }
     .rc-sig {
-      width: 40%;
+      width: 33%;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .rc-sig-line { border-top: 2px solid #000; margin-bottom: 5px; }
+    .rc-sig-img {
+      height: 40px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+    .rc-sig-img img {
+      max-height: 40px;
+      max-width: 130px;
+      object-fit: contain;
+    }
+    .rc-sig-line { border-top: 2px solid #000; width: 90%; margin-bottom: 5px; }
     .rc-sig b { font-size: 13px; font-weight: 800; color: #0f4a9e; display: block; }
     .rc-sig span { font-size: 11px; font-weight: 600; color: #555; }
     
-    .rc-seal { width: 20%; display: flex; justify-content: center; }
-    .rc-seal img { max-height: 60px; max-width: 80px; object-fit: contain; opacity: 0.9; }
+    .rc-seal { width: 33%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+    .rc-seal img { max-height: 60px; max-width: 80px; object-fit: contain; opacity: 0.9; margin-bottom: 5px; }
+    .rc-seal span { font-size: 10px; font-weight: 800; color: #006633; letter-spacing: 1px; }
 
     /* --- BUTTON FEEDBACK --- */
     .noprint { transition: all 0.2s; }
@@ -411,9 +428,11 @@ async function openReceipt(id) {
     const r = await api(apiAction, id);
     const o = r.org, p = r.person;
     
-    // Logo & Seal
+    // Logo, Seal, and Signatures
     const logo = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : '<span style="font-size:10px;color:#0f4a9e;font-weight:bold;">LOGO</span>';
     const seal = o.seal ? `<img src="${esc(o.seal)}" alt="" onerror="this.remove()">` : '';
+    const sigCollector = o.sigCollector ? `<img src="${esc(o.sigCollector)}" alt="" onerror="this.remove()">` : '';
+    const sigAuth = o.sigAuth ? `<img src="${esc(o.sigAuth)}" alt="" onerror="this.remove()">` : '';
 
     // Urdu Name (Hardcoded for now, aap apne hisaab se change kar sakte hain)
     const urduName = "مدرسہ فیضان مصطفیٰ"; 
@@ -524,15 +543,20 @@ async function openReceipt(id) {
           </tbody>
         </table>
 
-        <!-- FOOTER -->
+        <!-- FOOTER & SIGNATURES -->
         <div class="rc-footer">
           <div class="rc-sig">
+            <div class="rc-sig-img">${sigCollector}</div>
             <div class="rc-sig-line"></div>
             <b>${esc(r.issuedBy || 'Collector')}</b>
             <span>(Collector)</span>
           </div>
-          <div class="rc-seal">${seal}</div>
+          <div class="rc-seal">
+            ${seal}
+            <span>MOHAR / SEAL</span>
+          </div>
           <div class="rc-sig">
+            <div class="rc-sig-img">${sigAuth}</div>
             <div class="rc-sig-line"></div>
             <b>${esc(o.name || 'Madrasa')}</b>
             <span>Authorised</span>
@@ -554,7 +578,7 @@ async function openReceipt(id) {
 }
 
 /* =================================================================
- * JPG DOWNLOAD — Full feedback + logo fix
+ * JPG DOWNLOAD — Full feedback + signature fix
  * ================================================================= */
 async function downloadReceiptJpg(btn) {
   if (btn && btn.disabled) return;
@@ -577,7 +601,7 @@ async function downloadReceiptJpg(btn) {
   }
   _dlToast('⏳ Receipt download ho raha hai...', '#b45309');
 
-  // Clone with fixed width so it doesn't collapse in offscreen rendering
+  // Clone with fixed width
   const clone = element.cloneNode(true);
   clone.removeAttribute('id');
   clone.style.position = 'fixed';
@@ -588,6 +612,7 @@ async function downloadReceiptJpg(btn) {
   document.body.appendChild(clone);
 
   try {
+    // Wait for all images (Logo, Seal, Signatures) to fetch as base64
     const imgs = [...clone.querySelectorAll('img')];
     if (imgs.length) {
       await Promise.all(imgs.map(async (img) => {
