@@ -1,6 +1,6 @@
 /*******************************************************************
  * receipt.js : Centralized Receipt Print & Download Logic for all Roles.
- * v4 — Exact Layout Match (Urdu, Logo Right, Signatures, Mobile Responsive)
+ * v5 — Fixed JPG layout, 9:16 aspect ratio, optimized PDF size.
  *******************************************************************/
 
 // HTML2Canvas load
@@ -11,7 +11,7 @@ if (!document.getElementById('html2canvas-script')) {
   document.head.appendChild(s1);
 }
 
-// Urdu Font load (Noto Nastaliq Urdu)
+// Urdu Font load
 if (!document.getElementById('urdu-font-link')) {
   const l1 = document.createElement('link');
   l1.id = 'urdu-font-link';
@@ -26,76 +26,82 @@ if (!document.getElementById('urdu-font-link')) {
   document.head.appendChild(l2);
 }
 
-// Receipt CSS (Aapke diye hue HTML ke hisaab se)
+// Receipt CSS
 if (!document.getElementById('receipt-css')) {
   const style = document.createElement('style');
   style.id = 'receipt-css';
   style.innerHTML = `
-    /* Scoped to #rc to prevent affecting app layout */
-    #rc.receipt-container {
+    /* Scoped to .receipt-container to prevent affecting app layout */
+    .receipt-container {
       box-sizing: border-box;
       width: 100%;
       max-width: 800px;
-      min-height: 1120px;
       margin: auto;
       padding: 18px 20px;
       background: #fff;
-      border: 5px solid #174d38;
-      border-radius: 25px;
+      border: 4px solid #174d38;
+      border-radius: 15px;
       font-family: Arial, Helvetica, sans-serif;
       color: #111;
       position: relative;
       overflow: hidden;
     }
-    #rc * { box-sizing: border-box; }
+    .receipt-container * { box-sizing: border-box; }
     
-    #rc .header-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
-    #rc .header-top .reg { text-align: right; }
-    #rc .bismillah { font-size: 22px; white-space: nowrap; }
-    #rc .header-main { display: grid; grid-template-columns: 1fr 96px; align-items: center; gap: 12px; margin-bottom: 16px; }
-    #rc .title-area { text-align: center; min-width: 0; }
+    .receipt-container .header-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+    .receipt-container .header-top .reg { text-align: right; }
+    .receipt-container .bismillah { font-size: 22px; white-space: nowrap; }
+    .receipt-container .header-main { display: grid; grid-template-columns: 1fr 96px; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .receipt-container .title-area { text-align: center; min-width: 0; }
     
-    #rc .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; font-size: clamp(36px, 6.5vw, 62px); font-weight: 400; color: #00851f; text-align: center; direction: rtl; line-height: 1.65; margin: 0 auto 7px; white-space: nowrap; letter-spacing: 0; }
-    #rc .main-title { font-size: clamp(18px, 3.5vw, 29px); font-weight: 900; line-height: 1.2; letter-spacing: .3px; margin: 3px 0 8px; color: #111; }
-    #rc .address { font-size: 13px; font-weight: 700; line-height: 1.5; }
+    .receipt-container .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; font-size: clamp(36px, 6.5vw, 62px); font-weight: 400; color: #00851f; text-align: center; direction: rtl; line-height: 1.65; margin: 0 auto 7px; white-space: nowrap; letter-spacing: 0; }
+    .receipt-container .main-title { font-size: clamp(18px, 3.5vw, 29px); font-weight: 900; line-height: 1.2; letter-spacing: .3px; margin: 3px 0 8px; color: #111; }
+    .receipt-container .address { font-size: 13px; font-weight: 700; line-height: 1.5; }
     
-    #rc .logo { width: 92px; height: 92px; border: 3px solid #c39b24; outline: 2px solid #174d38; outline-offset: 3px; border-radius: 50%; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 11px; font-weight: bold; color: #174d38; background: #f7fff6; padding: 8px; overflow: hidden; }
-    #rc .logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+    /* Logo border removed */
+    .receipt-container .logo { width: 96px; height: 96px; border: none; outline: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 11px; font-weight: bold; color: #174d38; background: transparent; padding: 0; overflow: hidden; }
+    .receipt-container .logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
     
-    #rc .separator { border: 0; border-top: 4px solid #174d38; margin: 12px 0; }
+    .receipt-container .separator { border: 0; border-top: 4px solid #174d38; margin: 12px 0; }
     
-    #rc .receipt-info { display: grid; grid-template-columns: 1.5fr 1fr auto; gap: 8px; align-items: center; border: 2px solid #444; padding: 9px 10px; font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+    .receipt-container .receipt-info { display: grid; grid-template-columns: 1.5fr 1fr auto; gap: 8px; align-items: center; border: 2px solid #444; padding: 9px 10px; font-size: 15px; font-weight: 800; margin-bottom: 12px; }
     
-    #rc .body-split { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .receipt-container .body-split { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; margin-bottom: 12px; }
     
-    #rc .details-box { border: 2px solid #555; padding: 10px 12px; min-width: 0; }
-    #rc .detail-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 7px 0; border-bottom: 1px dotted #aaa; font-size: 14px; }
-    #rc .detail-row:last-child { border-bottom: none; }
-    #rc .detail-label { font-weight: 800; flex-shrink: 0; }
-    #rc .detail-value { font-weight: 800; text-align: right; overflow-wrap: anywhere; }
+    .receipt-container .details-box { border: 2px solid #555; padding: 10px 12px; min-width: 0; }
+    .receipt-container .detail-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 7px 0; border-bottom: 1px dotted #aaa; font-size: 14px; }
+    .receipt-container .detail-row:last-child { border-bottom: none; }
+    .receipt-container .detail-label { font-weight: 800; flex-shrink: 0; }
+    .receipt-container .detail-value { font-weight: 800; text-align: right; overflow-wrap: anywhere; }
     
-    #rc .financial-box { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
-    #rc .financial-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    #rc .fin-item { border: 2px solid #555; text-align: center; padding: 9px 4px; font-weight: 700; font-size: 13px; }
-    #rc .fin-item span { display: block; font-size: 20px; font-weight: 900; margin-top: 3px; }
+    .receipt-container .financial-box { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+    .receipt-container .financial-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .receipt-container .fin-item { border: 2px solid #555; text-align: center; padding: 9px 4px; font-weight: 700; font-size: 13px; }
+    .receipt-container .fin-item span { display: block; font-size: 20px; font-weight: 900; margin-top: 3px; }
     
-    #rc .penalty-box { border: 2px solid #c77c7c; background: #fff5f5; color: #a52c32; text-align: center; padding: 9px 4px; font-weight: 800; font-size: 15px; }
-    #rc .penalty-box span { display: block; font-size: 22px; margin-top: 3px; }
+    .receipt-container .penalty-box { border: 2px solid #c77c7c; background: #fff5f5; color: #a52c32; text-align: center; padding: 9px 4px; font-weight: 800; font-size: 15px; }
+    .receipt-container .penalty-box span { display: block; font-size: 22px; margin-top: 3px; }
     
-    #rc .table-wrap { width: 100%; overflow-x: auto; margin-top: 10px; }
-    #rc table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    #rc thead { background: #174d38; color: #fff; }
-    #rc th { padding: 9px 6px; text-align: left; border: 1px solid #9aa69e; white-space: nowrap; }
-    #rc td { border: 1px solid #555; padding: 8px 6px; font-weight: 700; white-space: nowrap; }
-    #rc tbody tr:nth-child(even) { background: #f4f7f5; }
-    #rc .text-center { text-align: center; }
-    #rc .text-right { text-align: right; }
+    .receipt-container .table-wrap { width: 100%; overflow-x: auto; margin-top: 10px; }
+    .receipt-container table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .receipt-container thead { background: #174d38; color: #fff; }
+    .receipt-container th { padding: 9px 6px; text-align: left; border: 1px solid #9aa69e; white-space: nowrap; }
+    .receipt-container td { border: 1px solid #555; padding: 8px 6px; font-weight: 700; white-space: nowrap; }
+    .receipt-container tbody tr:nth-child(even) { background: #f4f7f5; }
+    .receipt-container .text-center { text-align: center; }
+    .receipt-container .text-right { text-align: right; }
     
-    #rc .footer { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-top: 95px; padding: 0 5px 25px; }
-    #rc .signature { width: 38%; text-align: center; font-weight: 700; font-size: 15px; line-height: 1.4; }
-    #rc .sig-img { height: 45px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 5px; }
-    #rc .sig-img img { max-height: 45px; max-width: 150px; object-fit: contain; }
-    #rc .sign-line { width: 100%; border-top: 2px solid #444; margin-bottom: 8px; }
+    .receipt-container .footer { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-top: 50px; padding: 0 5px 10px; }
+    .receipt-container .signature { width: 42%; text-align: center; font-weight: 700; font-size: 14px; line-height: 1.4; }
+    
+    /* Signature sizes customized */
+    .receipt-container .sig-img { display: flex; align-items: flex-end; justify-content: center; margin-bottom: 4px; }
+    .receipt-container .sig-img.collector { height: 35px; }
+    .receipt-container .sig-img.collector img { max-height: 35px; max-width: 110px; object-fit: contain; }
+    .receipt-container .sig-img.authorised { height: 60px; }
+    .receipt-container .sig-img.authorised img { max-height: 60px; max-width: 160px; object-fit: contain; }
+    
+    .receipt-container .sign-line { width: 100%; border-top: 2px solid #444; margin-bottom: 6px; }
 
     /* BUTTON FEEDBACK */
     .noprint { transition: all 0.2s; }
@@ -103,36 +109,47 @@ if (!document.getElementById('receipt-css')) {
 
     /* SCREEN MOBILE RESPONSIVE */
     @media screen and (max-width: 560px) {
-      #rc.receipt-container { padding: 10px; border-width: 3px; border-radius: 12px; min-height: auto; }
-      #rc .header-top { font-size: 9px; gap: 3px; }
-      #rc .bismillah { font-size: 14px; }
-      #rc .header-main { grid-template-columns: 1fr 52px; gap: 7px; }
-      #rc .logo { width: 48px; height: 48px; font-size: 7px; padding: 3px; }
-      #rc .urdu-text { font-size: clamp(28px, 7vw, 40px); line-height: 1.8; }
-      #rc .main-title { font-size: clamp(12px, 3.5vw, 18px); }
-      #rc .address { font-size: 9px; }
-      #rc .receipt-info { grid-template-columns: 1fr; gap: 5px; font-size: 12px; }
-      #rc .body-split { grid-template-columns: 1fr; }
-      #rc .detail-row { font-size: 12px; }
-      #rc .fin-item { font-size: 12px; }
-      #rc .fin-item span { font-size: 17px; }
-      #rc table { min-width: 620px; font-size: 12px; }
-      #rc .footer { margin-top: 65px; padding: 0 0 15px; }
-      #rc .signature { font-size: 11px; }
+      .receipt-container { padding: 10px; border-width: 3px; border-radius: 12px; }
+      .receipt-container .header-top { font-size: 9px; gap: 3px; }
+      .receipt-container .bismillah { font-size: 14px; }
+      .receipt-container .header-main { grid-template-columns: 1fr 52px; gap: 7px; }
+      .receipt-container .logo { width: 52px; height: 52px; font-size: 7px; }
+      .receipt-container .urdu-text { font-size: clamp(28px, 7vw, 40px); line-height: 1.8; }
+      .receipt-container .main-title { font-size: clamp(12px, 3.5vw, 18px); }
+      .receipt-container .address { font-size: 9px; }
+      .receipt-container .receipt-info { grid-template-columns: 1fr; gap: 5px; font-size: 12px; }
+      .receipt-container .body-split { grid-template-columns: 1fr; }
+      .receipt-container .detail-row { font-size: 12px; }
+      .receipt-container .fin-item { font-size: 12px; }
+      .receipt-container .fin-item span { font-size: 17px; }
+      .receipt-container table { min-width: 620px; font-size: 12px; }
+      .receipt-container .footer { margin-top: 30px; padding: 0 0 10px; }
+      .receipt-container .signature { font-size: 11px; }
     }
 
-    /* PRINT (PDF) SETTINGS */
+    /* PRINT (PDF) SETTINGS - SINGLE PAGE A4 */
     @media print {
-      @page { size: A4 portrait; margin: 0; }
+      @page { size: A4 portrait; margin: 5mm; }
+      body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
       body * { visibility: hidden !important; }
       #ov, #ov * { visibility: visible !important; }
-      #rc, #rc * { visibility: visible !important; }
+      .receipt-container, .receipt-container * { visibility: visible !important; }
+      
       #ov { position: absolute !important; left: 0 !important; top: 0 !important; background: none !important; display: block !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; }
       #ov .box { box-shadow: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; position: static !important; transform: none !important; }
       .noprint { display: none !important; }
       
-      #rc.receipt-container { max-width: none !important; width: 210mm !important; min-height: 297mm !important; margin: 0 !important; border-radius: 0 !important; border: 3px solid #174d38 !important; padding: 8mm !important; page-break-inside: avoid !important; background: #fff !important; }
-      #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .receipt-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        border: 3px solid #174d38 !important;
+        padding: 15px !important;
+        page-break-inside: avoid !important;
+        box-shadow: none !important;
+        min-height: auto !important;
+      }
+      .receipt-container * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
   `;
   document.head.appendChild(style);
@@ -140,7 +157,7 @@ if (!document.getElementById('receipt-css')) {
 
 
 /* =================================================================
- * IMAGE HELPERS — Blogger, Google Drive, koi bhi URL → Base64
+ * IMAGE HELPERS
  * ================================================================= */
 function _blobToDataUrl(blob) {
   return new Promise((resolve, reject) => {
@@ -231,7 +248,7 @@ function _dlToast(msg, color) {
 
 
 /* =================================================================
- * MAIN RECEIPT FUNCTION (Aapke diye layout ke hisaab se)
+ * MAIN RECEIPT FUNCTION
  * ================================================================= */
 async function openReceipt(id) {
   if (typeof api !== 'function' || typeof modal !== 'function') {
@@ -245,10 +262,8 @@ async function openReceipt(id) {
     const r = await api(apiAction, id);
     const o = r.org, p = r.person;
     
-    // Logo Placeholder setup
     const logoHtml = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : 'LOGO';
     
-    // Table Rows
     const rowsHtml = r.rows.map(x => `<tr>
       <td>${x.no}</td><td>${esc(x.date)}</td><td>${esc(x.mode)}</td><td class="text-center">${esc(x.txnRef || '—')}</td>
       <td>${esc(x.collector)}</td>
@@ -258,14 +273,12 @@ async function openReceipt(id) {
     const html = `
       <div class="receipt-container" id="rc">
         
-        <!-- HEADER TOP -->
         <div class="header-top">
           <div>Estd : 1990</div>
           <div class="bismillah" dir="rtl">786/92</div>
           <div class="reg">Reg. No. ${esc(o.reg || 'STM/2019/0786')}</div>
         </div>
 
-        <!-- HEADER MAIN -->
         <div class="header-main">
           <div class="title-area">
             <div class="urdu-text" lang="ur">مدرسہ فیضان مصطفی</div>
@@ -279,14 +292,12 @@ async function openReceipt(id) {
 
         <hr class="separator">
 
-        <!-- RECEIPT INFO -->
         <div class="receipt-info">
           <div>Receipt: ${esc(r.receiptId)}</div>
           <div>Date: ${esc(r.issued)}</div>
           <div>Year: ${r.year}</div>
         </div>
 
-        <!-- BODY SPLIT -->
         <div class="body-split">
           <div class="details-box">
             <div class="detail-row"><div class="detail-label">APPLICATION ID</div><div class="detail-value">${esc(p.appNo)}</div></div>
@@ -307,7 +318,6 @@ async function openReceipt(id) {
           </div>
         </div>
 
-        <!-- TABLE -->
         <div class="table-wrap">
           <table>
             <thead><tr><th>#</th><th>Date</th><th>Mode</th><th>Txn no.</th><th>Collector</th><th class="text-right">Amount</th><th class="text-right">Balance</th></tr></thead>
@@ -317,16 +327,15 @@ async function openReceipt(id) {
           </table>
         </div>
 
-        <!-- FOOTER / SIGNATURES -->
         <div class="footer">
           <div class="signature">
-            ${o.sigCollector ? `<div class="sig-img"><img src="${esc(o.sigCollector)}" alt="" onerror="this.remove()"></div>` : '<div class="sig-img"></div>'}
+            <div class="sig-img collector">${o.sigCollector ? `<img src="${esc(o.sigCollector)}" alt="" onerror="this.remove()">` : ''}</div>
             <div class="sign-line"></div>
             <div>${esc(r.issuedBy || 'Collector')}</div>
             <div>(Collector)</div>
           </div>
           <div class="signature">
-            ${o.sigAuth ? `<div class="sig-img"><img src="${esc(o.sigAuth)}" alt="" onerror="this.remove()"></div>` : '<div class="sig-img"></div>'}
+            <div class="sig-img authorised">${o.sigAuth ? `<img src="${esc(o.sigAuth)}" alt="" onerror="this.remove()">` : ''}</div>
             <div class="sign-line"></div>
             <div>${esc(o.name || 'Madarsa Faizan-E-Mustafa')}</div>
             <div>Authorised</div>
@@ -348,7 +357,7 @@ async function openReceipt(id) {
 }
 
 /* =================================================================
- * JPG DOWNLOAD FUNCTION (With Logo + Signature Fix)
+ * JPG DOWNLOAD FUNCTION (9:16 Ratio Fixed)
  * ================================================================= */
 async function downloadReceiptJpg(btn) {
   if (btn && btn.disabled) return;
@@ -359,7 +368,6 @@ async function downloadReceiptJpg(btn) {
     return alert('Download library load ho rahi hai... 2 second baad try karein.');
   }
 
-  // --- LOCK BUTTON ---
   const originalHtml = btn ? btn.innerHTML : '';
   const originalBg   = btn ? (btn.style.background || 'var(--blue)') : '';
   if (btn) {
@@ -372,19 +380,25 @@ async function downloadReceiptJpg(btn) {
   }
   _dlToast('⏳ Receipt download ho raha hai...', '#b45309');
 
-  // --- CLONE RECEIPT (Force Desktop Width for high-quality JPG) ---
+  // --- CLONE RECEIPT (Force 9:16 ratio, 800x1422) ---
   const clone = element.cloneNode(true);
-  clone.removeAttribute('id');
+  clone.id = 'rc-clone';
   clone.style.position = 'fixed';
   clone.style.left = '-10000px';
   clone.style.top = '0';
-  clone.style.width = '800px'; // Force width for 2-column layout in image
-  clone.style.minHeight = '1120px';
+  clone.style.width = '800px';
+  clone.style.minHeight = '1422px'; // 9:16 ratio for 800px width
   clone.style.background = '#fff';
+  clone.style.display = 'flex';
+  clone.style.flexDirection = 'column';
+  
+  // Push footer to the bottom to fill 9:16 space perfectly
+  const footer = clone.querySelector('.footer');
+  if (footer) footer.style.marginTop = 'auto';
+
   document.body.appendChild(clone);
 
   try {
-    // --- CONVERT ALL IMAGES (Logo + Signatures) ---
     const imgs = [...clone.querySelectorAll('img')];
     if (imgs.length) {
       await Promise.all(imgs.map(async (img) => {
@@ -396,7 +410,6 @@ async function downloadReceiptJpg(btn) {
       }));
     }
 
-    // --- WAIT FOR IMAGES ---
     await Promise.all(imgs.map(img => {
       if (img.complete && img.naturalWidth > 0) return Promise.resolve();
       return new Promise(resolve => {
@@ -406,17 +419,17 @@ async function downloadReceiptJpg(btn) {
       });
     }));
 
-    // --- CAPTURE ---
     const canvas = await html2canvas(clone, {
-      scale: 2, // High quality
+      scale: 2,
       useCORS: true,
       allowTaint: false,
       backgroundColor: '#ffffff',
       logging: false,
-      imageTimeout: 8000
+      imageTimeout: 8000,
+      windowWidth: 800,
+      windowHeight: 1422
     });
 
-    // --- DOWNLOAD ---
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
     const a = document.createElement('a');
     a.href = imgData;
@@ -425,7 +438,6 @@ async function downloadReceiptJpg(btn) {
     a.click();
     a.remove();
 
-    // --- SUCCESS FEEDBACK ---
     if (btn) {
       btn.innerHTML = '✅ Downloaded!';
       btn.style.background = 'var(--green)';
@@ -441,7 +453,6 @@ async function downloadReceiptJpg(btn) {
     _dlToast('✅ Receipt download ho gaya!', '#12a150');
 
   } catch (e) {
-    // --- FAIL FEEDBACK ---
     if (btn) {
       btn.innerHTML = '❌ Failed — Retry';
       btn.style.background = 'var(--red)';
