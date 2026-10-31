@@ -329,7 +329,7 @@ window.onerror = m => showError('Script error: ' + m);
 async function api(fn, ...a) {
   busyStart();
   try {
-    const r = await apiCall(fn, [TOKEN, ...a]);
+    const r = await cachedCall_(fn, [TOKEN, ...a]);
     if (r && r.expired) { await leave(true); throw new Error('expired'); }
     if (r && r.ok === false) throw new Error(r.msg || 'Something went wrong.');
     return r;
@@ -344,7 +344,7 @@ function closeM() { $('#ov').classList.remove('open'); $('#ovB').innerHTML = '';
 function copyText(s) { try { navigator.clipboard.writeText(s); toast('Copied'); } catch (e) { toast('Copy manually'); } }
 function downloadCsv(name, text) { const b = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
 function avatarHtml(name, url) { return url ? `<img src="${esc(url)}" alt="">` : esc((name || 'S').charAt(0).toUpperCase()); }
-async function leave(expired) { if (!expired && TOKEN) { try { await apiCall('apiLogout', [TOKEN]); } catch (e) {} } localStorage.removeItem(LS_S); goPage('index.html'); }
+async function leave(expired) { if (!expired && TOKEN) { try { await apiCall('apiLogout', [TOKEN]); } catch (e) {} } localStorage.removeItem(LS_S); cacheClear(); goPage('index.html'); }
 
 /* ============ NAV ============ */
 const GROUPS = [
@@ -411,8 +411,9 @@ document.addEventListener('input', e => { if (e.target.id === 'navSearch') filte
 document.addEventListener('keydown', e => { if (e.key === 'Escape') hideDrawer(); });
 
 const VIEWS = {};
-async function go(view, arg) {
+async function go(view, arg, fromPop) {
   D = { view, arg: arg || {} };
+  if (!fromPop) history.pushState({ v: view, arg: arg || {} }, '', '#' + view);
   hideDrawer(); drawNav(); window.scrollTo(0, 0);
   const c = $('#main');
   c.innerHTML = '<div class="loading">Loading…</div>';
@@ -1408,119 +1409,4 @@ document.addEventListener('change', async e => {
 function openDpModal(target, currentUrl) {
   DP_PENDING = null;
   modal(target === 'me' ? 'My photo' : 'Profile photo', `
-    <div class="profile">
-      <div class="dp" id="dpPrev">${avatarHtml(target === 'me' ? ME.name : (CUR_PERSON && CUR_PERSON.name), currentUrl)}</div>
-      <p class="hint" id="dpHint">${currentUrl ? 'Current photo. Choose Replace or Delete.' : 'No photo yet.'}</p>
-    </div>`,
-    `<div class="acts" style="width:100%;justify-content:center" id="dpBtns">
-       ${currentUrl ? `<button class="btn red sm" data-act="dpDelete" data-target="${target}">Delete</button>` : ''}
-       <button class="btn light sm" data-act="dpPick" data-target="${target}">${currentUrl ? 'Replace' : 'Choose photo'}</button>
-       <button class="btn light sm" data-act="close">Cancel</button>
-     </div>`);
-  $('#ovF').dataset.target = target;
-}
-function showDpPending(url) {
-  $('#dpPrev').innerHTML = `<img src="${esc(url)}" alt="">`;
-  $('#dpHint').textContent = 'New photo ready. Press Save or Replace.';
-  $('#dpBtns').innerHTML = `
-    <button class="btn green sm" data-act="dpSave">Save</button>
-    <button class="btn light sm" data-act="dpPick" data-target="${$('#ovF').dataset.target}">Replace</button>
-    <button class="btn light sm" data-act="close">Cancel</button>`;
-}
-async function saveDpUrl(target, url) {
-  if (target === 'me') {
-    await api('apiAdminSetPhoto', url);
-    MY_PHOTO = url;
-    $('#av').innerHTML = avatarHtml(ME.name, MY_PHOTO);
-  } else {
-    const p = CUR_PERSON; if (!p) return;
-    await api('apiSuperSavePerson', {
-      isEdit:true,
-      appNo: p.appNo, role: p.role, name: p.name, father: p.father, mobile: p.mobile,
-      email: p.email || '', address: p.address, joinDate: p.joinIso || '', adminId: p.adminId || '',
-      photoUrl: url, password: '', token: '',
-      qualification: p.qualification || '', whatsapp: p.whatsapp || '',
-      salary: p.salary ?? '', opening: p.opening || 0
-    });
-    CUR_PERSON.photoUrl = url;
-  }
-}
-
-function applyOrg(o) {
-  if (o.name !== undefined) {
-    $('#orgName').textContent = o.name || 'Community';
-    const sn = document.getElementById('sideName');
-    if (sn) sn.textContent = o.name || 'Community';
-  }
-
-  // HEADER BACKGROUND LOGIC
-  if (o.headerBg !== undefined) {
-    const hd = document.querySelector('.hd');
-    if (hd) {
-      if (o.headerBg) {
-        hd.style.background = `linear-gradient(135deg, rgba(7,28,64,0.8) 0%, rgba(15,61,127,0.8) 48%, rgba(10,42,92,0.8) 100%), url('${o.headerBg}') center/cover no-repeat`;
-      } else {
-        hd.style.background = 'linear-gradient(135deg, #071c40 0%, #0f3d7f 48%, #0a2a5c 100%)';
-      }
-    }
-  }
-
-  const seal = $('#seal');
-  if (seal) seal.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 46);
-  const sl = document.getElementById('sideLogo');
-  if (sl) sl.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="">` : ic('mosque');
-}
-
-/* ============ BOOT ============ */
-async function boot() {
-  TOKEN = localStorage.getItem(LS_S);
-  if (!TOKEN) return goPage('index.html');
-  try {
-    bootProgress(15, 'Checking your login…', '');
-    const r = await apiCall('apiSession', [TOKEN]);
-    if (!r || !r.ok) return leave(true);
-    if (!r.user) return leave(true);
-    if (r.user.role !== 'super_admin') return goPage(ROLE_PAGE[r.user.role] || 'index.html');
-    if (r.mustChange) return goPage('index.html');
-    ME = r.user;
-    $('#roleName').textContent = 'Super Admin';
-    applyOrg({
-      name: (r.org && r.org.name) || 'Community',
-      logo: (r.org && r.org.logo) || '',
-      headerBg: (r.org && r.org.headerBg) || ''
-    });
-    bootProgress(35, 'Loading icons…', '');
-    const ic2 = await apiCall('apiGetIcons', [TOKEN]).catch(() => null);
-    ICONS = (ic2 && ic2.icons) || {};
-    bootProgress(55, 'Loading your profile…', '');
-    const ph = await apiCall('apiAdminGetPhoto', [TOKEN]).catch(() => null);
-    MY_PHOTO = (ph && ph.url) || '';
-    $('#av').innerHTML = avatarHtml(ME.name, MY_PHOTO);
-    bootProgress(75, 'Loading dashboard…', '');
-    startIdle();
-    await go('dash', {});
-    bootProgress(100, 'Ready', 'Welcome');
-    setTimeout(bootDone, 250);
-  } catch (e) { bootDone(); showError(e.message); }
-}
-let LAST = Date.now();
-function startIdle() {
-  ['mousemove', 'keydown', 'click', 'touchstart'].forEach(ev => document.addEventListener(ev, () => { LAST = Date.now(); }, { passive: true }));
-  setInterval(async () => {
-    if (!TOKEN) return;
-    if (Date.now() - LAST > 15 * 60 * 1000) { toast('Logged out after 15 minutes of inactivity.'); return leave(false); }
-    const r = await apiCall('apiSession', [TOKEN]).catch(() => null);
-    if (!r || !r.ok) leave(true);
-  }, 60000);
-}
-boot();
-</script>
-  <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
-    });
-  }
-  </script>
-</body>
-</html>
+    <div class="pr
