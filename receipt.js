@@ -1,1108 +1,450 @@
+/*******************************************************************
+ * receipt.js : Centralized Receipt Print & Download Logic for all Roles.
+ * v7 — JPG garbage fixed. PDF untouched. Exact CSS ID mapping.
+ *******************************************************************/
 
-/********************************************************************
- * receipt.js — Complete Receipt System
- * Features:
- * 1. Open Receipt
- * 2. Download Receipt as JPG
- * 3. Print / Save as PDF
- * 4. Logo and image handling
- * 5. Mobile-friendly receipt layout
- * 6. Original receipt content is not modified during JPG download
- ********************************************************************/
+// HTML2Canvas load
+if (!document.getElementById('html2canvas-script')) {
+  const s1 = document.createElement('script');
+  s1.id = 'html2canvas-script';
+  s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  document.head.appendChild(s1);
+}
 
-(function () {
-  "use strict";
+// Urdu Font load
+if (!document.getElementById('urdu-font-link')) {
+  const l1 = document.createElement('link');
+  l1.id = 'urdu-font-link';
+  l1.rel = 'preconnect';
+  l1.href = 'https://fonts.googleapis.com';
+  document.head.appendChild(l1);
+  
+  const l2 = document.createElement('link');
+  l2.id = 'urdu-font-css';
+  l2.rel = 'stylesheet';
+  l2.href = 'https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap';
+  document.head.appendChild(l2);
+}
 
-  /* =========================================================
-     CONFIGURATION
-  ========================================================= */
-
-  const RECEIPT_CONFIG = {
-    organizationName: "MADRASA FAIZAN-E-MUSTAFA",
-    organizationUrdu: "مدرسہ فیضان مصطفیٰ",
-    logo: "",
-    currency: "₹",
-    filePrefix: "Receipt",
-    imageScale: 2,
-    background: "#ffffff",
-    primaryColor: "#123b73",
-    secondaryColor: "#16834a",
-    goldColor: "#c69b35"
-  };
-
-  /* =========================================================
-     LOAD HTML2CANVAS
-  ========================================================= */
-
-  let html2CanvasPromise = null;
-
-  function loadHtml2Canvas() {
-    if (window.html2canvas) {
-      return Promise.resolve(window.html2canvas);
+// Receipt CSS (Untouched from your perfect PDF version)
+if (!document.getElementById('receipt-css')) {
+  const style = document.createElement('style');
+  style.id = 'receipt-css';
+  style.innerHTML = `
+    #rc {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px 25px;
+      background: #fff;
+      border: 4px solid #174d38;
+      border-radius: 12px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #111;
+      position: relative;
+      overflow: hidden;
     }
+    #rc * { box-sizing: border-box; }
+    
+    #rc .header-top { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700; margin-bottom: 15px; }
+    #rc .header-top .reg { text-align: right; }
+    #rc .bismillah { font-size: 22px; white-space: nowrap; }
+    
+    #rc .header-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 15px; }
+    #rc .title-area { flex: 1; text-align: center; min-width: 0; }
+    
+    #rc .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; font-size: 42px; font-weight: 400; color: #00851f; text-align: center; direction: rtl; line-height: 1.8; margin: 0 auto 5px; white-space: nowrap; }
+    #rc .main-title { font-size: 26px; font-weight: 900; line-height: 1.2; margin: 3px 0 6px; color: #111; }
+    #rc .address { font-size: 13px; font-weight: 700; line-height: 1.4; }
+    
+    #rc .logo { width: 100px; height: 100px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; border: none; padding: 0; overflow: hidden; }
+    #rc .logo img { width: 100px; height: 100px; object-fit: contain; }
+    
+    #rc .separator { border: 0; border-top: 4px solid #174d38; margin: 15px 0; }
+    
+    #rc .receipt-info { display: flex; justify-content: space-between; align-items: center; border: 2px solid #444; padding: 10px 15px; font-size: 15px; font-weight: 800; margin-bottom: 15px; }
+    
+    #rc .body-split { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
+    
+    #rc .details-box { flex: 1.3; border: 2px solid #555; padding: 10px 15px; min-width: 0; }
+    #rc .detail-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 8px 0; border-bottom: 1px dotted #aaa; font-size: 14px; }
+    #rc .detail-row:last-child { border-bottom: none; }
+    #rc .detail-label { font-weight: 800; flex-shrink: 0; }
+    #rc .detail-value { font-weight: 800; text-align: right; overflow-wrap: anywhere; }
+    
+    #rc .financial-box { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    #rc .financial-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    #rc .fin-item { flex: 1 1 calc(50% - 10px); border: 2px solid #555; text-align: center; padding: 10px 5px; font-weight: 700; font-size: 13px; }
+    #rc .fin-item span { display: block; font-size: 20px; font-weight: 900; margin-top: 3px; }
+    
+    #rc .penalty-box { border: 2px solid #c77c7c; background: #fff5f5; color: #a52c32; text-align: center; padding: 10px 5px; font-weight: 800; font-size: 15px; }
+    #rc .penalty-box span { display: block; font-size: 22px; margin-top: 3px; }
+    
+    #rc .table-wrap { width: 100%; overflow-x: auto; margin-bottom: 20px; }
+    #rc table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    #rc thead { background: #174d38; color: #fff; }
+    #rc th { padding: 10px 8px; text-align: left; border: 1px solid #9aa69e; white-space: nowrap; }
+    #rc td { border: 1px solid #555; padding: 10px 8px; font-weight: 700; white-space: nowrap; }
+    #rc tbody tr:nth-child(even) { background: #f4f7f5; }
+    #rc .text-center { text-align: center; }
+    #rc .text-right { text-align: right; }
+    
+    #rc .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; padding: 0 10px 10px; }
+    #rc .signature { width: 45%; text-align: center; font-weight: 700; font-size: 14px; line-height: 1.4; }
+    
+    #rc .sig-img { display: flex; align-items: flex-end; justify-content: center; margin-bottom: 5px; height: 65px; }
+    #rc .sig-img.coll img { max-height: 35px; max-width: 110px; object-fit: contain; }
+    #rc .sig-img.auth img { max-height: 60px; max-width: 160px; object-fit: contain; }
+    
+    #rc .sign-line { width: 100%; border-top: 2px solid #444; margin-bottom: 8px; }
 
-    if (html2CanvasPromise) {
-      return html2CanvasPromise;
+    .noprint { transition: all 0.2s; }
+    .noprint:active:not(:disabled) { transform: scale(0.95); }
+
+    @media print {
+      @page { size: A4 portrait; margin: 5mm; }
+      body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+      body * { visibility: hidden !important; }
+      #ov, #ov * { visibility: visible !important; }
+      #rc, #rc * { visibility: visible !important; }
+      
+      #ov { position: absolute !important; left: 0 !important; top: 0 !important; background: none !important; display: block !important; padding: 0 !important; margin: 0 !important; }
+      #ov .box { box-shadow: none !important; border: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; transform: none !important; }
+      .noprint { display: none !important; }
+      
+      #rc {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        border: 3px solid #174d38 !important;
+        padding: 15px 20px !important;
+        min-height: auto !important;
+        page-break-inside: avoid !important;
+      }
+      #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
+  `;
+  document.head.appendChild(style);
+}
 
-    html2CanvasPromise = new Promise(function (resolve, reject) {
-      const existing = document.getElementById("receipt-html2canvas");
+/* =================================================================
+ * IMAGE HELPERS
+ * ================================================================= */
+function _blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
-      if (existing) {
-        existing.addEventListener("load", function () {
-          if (window.html2canvas) {
-            resolve(window.html2canvas);
-          } else {
-            reject(new Error("HTML2Canvas load nahi hua."));
-          }
-        }, { once: true });
+function _fetchWithTimeout(url, opts, ms) {
+  return Promise.race([
+    fetch(url, opts),
+    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
+  ]);
+}
 
-        existing.addEventListener("error", function () {
-          reject(new Error("HTML2Canvas load karne mein error."));
-        }, { once: true });
+function _normalizeDriveUrl(url) {
+  const patterns = [
+    /drive\.google\.com\/file\/d\/([^/?#]+)/,
+    /drive\.google\.com\/uc\?(?:[^#]*&)?id=([^&#]+)/,
+    /drive\.google\.com\/open\?(?:[^#]*&)?id=([^&#]+)/,
+    /drive\.google\.com\/thumbnail\?(?:[^#]*&)?id=([^&#]+)/,
+    /docs\.google\.com\/uc\?(?:[^#]*&)?id=([^&#]+)/,
+    /lh3\.googleusercontent\.com\/d\/([^/=?#]+)/
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m && m[1]) return 'https://lh3.googleusercontent.com/d/' + m[1] + '=w1000';
+  }
+  return null;
+}
 
-        if (window.html2canvas) {
-          resolve(window.html2canvas);
+async function _imageToDataUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('data:')) return url;
+  const originalUrl = url;
+  const driveUrl = _normalizeDriveUrl(url);
+  if (driveUrl) url = driveUrl;
+
+  try {
+    const r = await _fetchWithTimeout(url, { mode: 'cors', credentials: 'omit' }, 5000);
+    if (r.ok) { const blob = await r.blob(); if (blob.size > 50) return await _blobToDataUrl(blob); }
+  } catch (e) {}
+
+  try {
+    return await new Promise((resolve, reject) => {
+      const img = new Image(); img.crossOrigin = 'anonymous';
+      const t = setTimeout(() => reject(new Error('timeout')), 5000);
+      img.onload = () => { clearTimeout(t); try { const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img, 0, 0); resolve(c.toDataURL('image/png')); } catch (err) { reject(err); } };
+      img.onerror = () => { clearTimeout(t); reject(new Error('load fail')); };
+      img.src = url;
+    });
+  } catch (e) {}
+
+  try {
+    const clean = url.replace(/^https?:\/\//, '');
+    const proxy = 'https://images.weserv.nl/?url=' + encodeURIComponent(clean) + '&w=1000&output=png';
+    const r = await _fetchWithTimeout(proxy, { mode: 'cors' }, 6000);
+    if (r.ok) { const blob = await r.blob(); if (blob.size > 50) return await _blobToDataUrl(blob); }
+  } catch (e) {}
+
+  try {
+    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+    const r = await _fetchWithTimeout(proxy, { mode: 'cors' }, 6000);
+    if (r.ok) { const blob = await r.blob(); if (blob.size > 50) return await _blobToDataUrl(blob); }
+  } catch (e) {}
+
+  return url;
+}
+
+function _dlToast(msg, color) {
+  if (typeof toast === 'function') { toast(msg); return; }
+  let t = document.getElementById('_dl_toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_dl_toast';
+    t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:90vw;text-align:center;font-family:system-ui,sans-serif;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.background = color || '#0f172a';
+  t.style.display = 'block';
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => { t.style.display = 'none'; }, 3500);
+}
+
+
+/* =================================================================
+ * MAIN RECEIPT FUNCTION
+ * ================================================================= */
+async function openReceipt(id) {
+  if (typeof api !== 'function' || typeof modal !== 'function') {
+    return alert('System error: API or Modal function missing.');
+  }
+
+  const role = (typeof ME !== 'undefined' && ME && ME.role) ? ME.role : 'user';
+  const apiAction = (role === 'super_admin' || role === 'admin') ? 'apiSuperReceipt' : 'apiReceiptView';
+
+  try {
+    const r = await api(apiAction, id);
+    const o = r.org, p = r.person;
+    
+    const logoHtml = o.logo ? `<img src="${esc(o.logo)}" style="width:100px;height:100px;object-fit:contain;" onerror="this.remove()">` : 'LOGO';
+    
+    const rowsHtml = r.rows.map(x => `<tr>
+      <td>${x.no}</td><td>${esc(x.date)}</td><td>${esc(x.mode)}</td><td class="text-center">${esc(x.txnRef || '—')}</td>
+      <td>${esc(x.collector)}</td>
+      <td class="text-right">${x.reversal ? '−' : ''}${inr(Math.abs(x.amount))}</td>
+      <td class="text-right">${inr(x.balanceAfter)}</td></tr>`).join('');
+
+    const html = `
+      <div id="rc">
+        
+        <div class="header-top">
+          <div>Estd : 1990</div>
+          <div class="bismillah" dir="rtl">786/92</div>
+          <div class="reg">Reg. No. ${esc(o.reg || 'STM/2019/0786')}</div>
+        </div>
+
+        <div class="header-main">
+          <div class="title-area">
+            <div class="urdu-text" lang="ur">مدرسہ فیضان مصطفی</div>
+            <div class="main-title">${esc(o.name || 'MADARSA FAIZAN-E-MUSTAFA')}</div>
+            <div class="address">Address : ${esc(o.address || 'Ward 46, Simra, Dumra, Sitamarhi, Bihar, 843301')}</div>
+          </div>
+          <div class="logo">
+            ${logoHtml}
+          </div>
+        </div>
+
+        <hr class="separator">
+
+        <div class="receipt-info">
+          <div>Receipt: ${esc(r.receiptId)}</div>
+          <div>Date: ${esc(r.issued)}</div>
+          <div>Year: ${r.year}</div>
+        </div>
+
+        <div class="body-split">
+          <div class="details-box">
+            <div class="detail-row"><div class="detail-label">APPLICATION ID</div><div class="detail-value">${esc(p.appNo)}</div></div>
+            <div class="detail-row"><div class="detail-label">NAME</div><div class="detail-value">${esc(p.name)}</div></div>
+            <div class="detail-row"><div class="detail-label">FATHER'S NAME</div><div class="detail-value">${esc(p.father || '—')}</div></div>
+            <div class="detail-row"><div class="detail-label">MOBILE</div><div class="detail-value">${esc(p.mobile || '—')}</div></div>
+            <div class="detail-row"><div class="detail-label">ADDRESS</div><div class="detail-value">${esc(p.address || '—')}</div></div>
+          </div>
+
+          <div class="financial-box">
+            <div class="financial-grid">
+              <div class="fin-item">Total due<span>${inr(r.due)}</span></div>
+              <div class="fin-item">Total paid<span>${inr(r.paid)}</span></div>
+              <div class="fin-item">Balance<span>${inr(r.balance)}</span></div>
+              <div class="fin-item">Transactions<span>${r.rows.length}</span></div>
+            </div>
+            ${r.penalty > 0 ? `<div class="penalty-box">Penalty Included<span>${inr(r.penalty)}</span></div>` : ''}
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Date</th><th>Mode</th><th>Txn no.</th><th>Collector</th><th class="text-right">Amount</th><th class="text-right">Balance</th></tr></thead>
+            <tbody>
+              ${rowsHtml || '<tr><td colspan="7" class="text-center">No transactions.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="footer">
+          <div class="signature">
+            <div class="sig-img coll">
+              ${o.sigCollector ? `<img src="${esc(o.sigCollector)}" onerror="this.remove()">` : ''}
+            </div>
+            <div class="sign-line"></div>
+            <div>${esc(r.issuedBy || 'Collector')}</div>
+            <div>(Collector)</div>
+          </div>
+          <div class="signature">
+            <div class="sig-img auth">
+              ${o.sigAuth ? `<img src="${esc(o.sigAuth)}" onerror="this.remove()">` : ''}
+            </div>
+            <div class="sign-line"></div>
+            <div>${esc(o.name || 'Madarsa Faizan-E-Mustafa')}</div>
+            <div>Authorised</div>
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    modal('Receipt', html, `
+      <button class="btn light noprint" onclick="closeM()">Close</button>
+      <button class="btn noprint" style="background:var(--blue)" onclick="downloadReceiptJpg(this)">Download JPG</button>
+      <button class="btn noprint" onclick="window.print()">Print / PDF</button>
+    `, true);
+
+  } catch (e) {
+    if (e.message !== 'expired') alert(e.message || 'Error loading receipt.');
+  }
+}
+
+/* =================================================================
+ * JPG DOWNLOAD FUNCTION (Fixed: 9:16 Layout with Correct CSS ID)
+ * ================================================================= */
+async function downloadReceiptJpg(btn) {
+  if (btn && btn.disabled) return;
+  const element = document.getElementById('rc');
+  if (!element) return alert('Receipt not found.');
+
+  if (typeof html2canvas === 'undefined') {
+    return alert('Download library load ho rahi hai... 2 second baad try karein.');
+  }
+
+  const originalHtml = btn ? btn.innerHTML : '';
+  const originalBg   = btn ? (btn.style.background || 'var(--blue)') : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.75';
+    btn.style.cursor = 'wait';
+    btn.style.background = 'var(--gold)';
+    btn.innerHTML = '⏳ Downloading...';
+  }
+  _dlToast('⏳ Receipt download ho raha hai...', '#b45309');
+
+  try {
+    // 1. Convert images to base64 IN PLACE (Fixes CORS/Blanking issues)
+    const imgs = [...element.querySelectorAll('img')];
+    if (imgs.length) {
+      await Promise.all(imgs.map(async (img) => {
+        const src = img.getAttribute('src');
+        if (src && !src.startsWith('data:')) {
+          const b64 = await _imageToDataUrl(src);
+          if (b64) img.src = b64;
         }
-
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.id = "receipt-html2canvas";
-      script.src =
-        "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
-      script.async = true;
-
-      script.onload = function () {
-        if (window.html2canvas) {
-          resolve(window.html2canvas);
-        } else {
-          reject(new Error("HTML2Canvas available nahi hai."));
-        }
-      };
-
-      script.onerror = function () {
-        reject(new Error("HTML2Canvas download nahi ho saka."));
-      };
-
-      document.head.appendChild(script);
-    });
-
-    return html2CanvasPromise;
-  }
-
-  /* =========================================================
-     HELPERS
-  ========================================================= */
-
-  function safeText(value, fallback) {
-    if (value === undefined || value === null || value === "") {
-      return fallback || "";
+      }));
     }
 
-    return String(value);
-  }
-
-  function escapeHtml(value) {
-    const text = safeText(value);
-
-    if (typeof window.esc === "function") {
-      return window.esc(text);
-    }
-
-    return text.replace(/[&<>"']/g, function (character) {
-      const entities = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;"
-      };
-
-      return entities[character];
-    });
-  }
-
-  function formatMoney(value) {
-    const amount = Number(value);
-
-    if (!Number.isFinite(amount)) {
-      return RECEIPT_CONFIG.currency + "0";
-    }
-
-    if (typeof window.inr === "function") {
-      try {
-        return window.inr(amount);
-      } catch (error) {
-        // Default formatting is used below.
-      }
-    }
-
-    return RECEIPT_CONFIG.currency +
-      amount.toLocaleString("en-IN", {
-        maximumFractionDigits: 2
-      });
-  }
-
-  function formatDate(value) {
-    if (!value) {
-      return new Date().toLocaleDateString("en-IN");
-    }
-
-    let date;
-
-    if (value.toDate && typeof value.toDate === "function") {
-      date = value.toDate();
-    } else if (value.seconds) {
-      date = new Date(value.seconds * 1000);
-    } else {
-      date = new Date(value);
-    }
-
-    if (Number.isNaN(date.getTime())) {
-      return safeText(value);
-    }
-
-    return date.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
-    });
-  }
-
-  function notify(message) {
-    if (typeof window.showToast === "function") {
-      window.showToast(message);
-      return;
-    }
-
-    if (typeof window.toast === "function") {
-      window.toast(message);
-      return;
-    }
-
-    let toast = document.getElementById("receipt-toast");
-
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "receipt-toast";
-
-      Object.assign(toast.style, {
-        position: "fixed",
-        left: "50%",
-        bottom: "24px",
-        transform: "translateX(-50%)",
-        zIndex: "999999",
-        background: "#172033",
-        color: "#fff",
-        padding: "12px 18px",
-        borderRadius: "10px",
-        fontSize: "14px",
-        maxWidth: "90%",
-        textAlign: "center",
-        boxShadow: "0 5px 20px #0002"
-      });
-
-      document.body.appendChild(toast);
-    }
-
-    toast.textContent = message;
-    toast.style.display = "block";
-
-    clearTimeout(toast._hideTimer);
-
-    toast._hideTimer = setTimeout(function () {
-      toast.style.display = "none";
-    }, 2800);
-  }
-
-  function normalizeLogoUrl(url) {
-    if (!url) return "";
-
-    let result = String(url).trim();
-
-    const driveMatch = result.match(
-      /drive\.google\.com\/file\/d\/([^/?#]+)/
-    );
-
-    if (driveMatch) {
-      result =
-        "https://drive.google.com/uc?export=view&id=" +
-        encodeURIComponent(driveMatch[1]);
-    }
-
-    const openMatch = result.match(
-      /drive\.google\.com\/open\?id=([^&#]+)/
-    );
-
-    if (openMatch) {
-      result =
-        "https://drive.google.com/uc?export=view&id=" +
-        encodeURIComponent(openMatch[1]);
-    }
-
-    return result;
-  }
-
-  function getLogo() {
-    const organization = window.org || window.ORG || {};
-
-    return normalizeLogoUrl(
-      organization.logo ||
-      organization.logoUrl ||
-      organization.photoURL ||
-      RECEIPT_CONFIG.logo ||
-      ""
-    );
-  }
-
-  function getOrganizationName() {
-    const organization = window.org || window.ORG || {};
-
-    return safeText(
-      organization.name ||
-      organization.orgName ||
-      organization.title,
-      RECEIPT_CONFIG.organizationName
-    );
-  }
-
-  function getCurrentUser() {
-    return window.ME || window.currentUser || {};
-  }
-
-  function getUserName(user) {
-    return safeText(
-      user.name ||
-      user.fullName ||
-      user.displayName ||
-      user.userName,
-      "Member"
-    );
-  }
-
-  function getUserId(user) {
-    return safeText(
-      user.userId ||
-      user.uid ||
-      user.id ||
-      user.memberId,
-      "—"
-    );
-  }
-
-  function waitForImages(element) {
-    const images = Array.from(element.querySelectorAll("img"));
-
-    return Promise.all(images.map(function (image) {
-      if (image.complete && image.naturalWidth > 0) {
-        return Promise.resolve();
-      }
-
-      return new Promise(function (resolve) {
-        image.onload = resolve;
-        image.onerror = resolve;
-
-        setTimeout(resolve, 5000);
+    // 2. Wait for them to fully load into the DOM
+    await Promise.all(imgs.map(img => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise(resolve => {
+        const t = setTimeout(resolve, 3000);
+        img.onload = () => { clearTimeout(t); resolve(); };
+        img.onerror = () => { clearTimeout(t); resolve(); };
       });
     }));
-  }
 
-  function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = filename;
-    link.style.display = "none";
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    setTimeout(function () {
-      URL.revokeObjectURL(url);
-    }, 2000);
-  }
-
-  function makeSafeFilename(value) {
-    return safeText(value, "receipt")
-      .replace(/[\\/:*?"<>|]/g, "-")
-      .replace(/\s+/g, "-")
-      .slice(0, 80);
-  }
-
-  /* =========================================================
-     RECEIPT CSS
-  ========================================================= */
-
-  function injectReceiptStyles() {
-    if (document.getElementById("receipt-system-styles")) {
-      return;
-    }
-
-    const style = document.createElement("style");
-    style.id = "receipt-system-styles";
-
-    style.textContent = `
-      .receipt-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 999990;
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        overflow-y: auto;
-        padding: 18px 10px;
-        background: rgba(10, 20, 35, .68);
-        backdrop-filter: blur(5px);
-      }
-
-      .receipt-dialog {
-        width: 100%;
-        max-width: 520px;
-        margin: auto;
-        border-radius: 12px;
-        background: #fff;
-        box-shadow: 0 12px 45px rgba(0,0,0,.22);
-        overflow: hidden;
-      }
-
-      .receipt-actions {
-        position: sticky;
-        top: 0;
-        z-index: 5;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 12px;
-        background: #fff;
-        border-bottom: 1px solid #e5e7eb;
-      }
-
-      .receipt-action-btn {
-        flex: 1;
-        min-width: 100px;
-        padding: 11px 10px;
-        border: 0;
-        border-radius: 8px;
-        color: #fff;
-        font-weight: 700;
-        font-size: 13px;
-        cursor: pointer;
-      }
-
-      .receipt-action-download {
-        background: #16834a;
-      }
-
-      .receipt-action-print {
-        background: #123b73;
-      }
-
-      .receipt-action-close {
-        background: #596273;
-      }
-
-      .receipt-paper {
-        width: 100%;
-        padding: 24px 20px;
-        background: #fff;
-        color: #172033;
-        font-family: Arial, sans-serif;
-        box-sizing: border-box;
-      }
-
-      .receipt-paper *,
-      .receipt-paper *::before,
-      .receipt-paper *::after {
-        box-sizing: border-box;
-      }
-
-      .receipt-header {
-        text-align: center;
-        padding-bottom: 16px;
-        border-bottom: 2px solid #123b73;
-      }
-
-      .receipt-logo {
-        display: block;
-        width: 74px;
-        height: 74px;
-        object-fit: contain;
-        margin: 0 auto 8px;
-      }
-
-      .receipt-org-urdu {
-        font-size: 22px;
-        font-weight: 700;
-        line-height: 1.5;
-        color: #123b73;
-      }
-
-      .receipt-org-name {
-        margin-top: 3px;
-        font-size: 17px;
-        font-weight: 800;
-        line-height: 1.4;
-        color: #123b73;
-        overflow-wrap: anywhere;
-      }
-
-      .receipt-subtitle {
-        margin-top: 5px;
-        font-size: 11px;
-        letter-spacing: 2px;
-        color: #16834a;
-        font-weight: 800;
-      }
-
-      .receipt-title {
-        margin: 17px auto 12px;
-        width: fit-content;
-        padding: 7px 22px;
-        border: 1px solid #c69b35;
-        border-radius: 30px;
-        color: #123b73;
-        font-size: 15px;
-        font-weight: 800;
-      }
-
-      .receipt-meta {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin: 12px 0 16px;
-      }
-
-      .receipt-meta-item {
-        padding: 10px;
-        border-radius: 7px;
-        background: #f4f7fb;
-        min-width: 0;
-      }
-
-      .receipt-label {
-        margin-bottom: 4px;
-        font-size: 10px;
-        font-weight: 700;
-        color: #697386;
-        text-transform: uppercase;
-      }
-
-      .receipt-value {
-        font-size: 13px;
-        font-weight: 700;
-        overflow-wrap: anywhere;
-      }
-
-      .receipt-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 10px 0 15px;
-      }
-
-      .receipt-table th {
-        padding: 10px 8px;
-        background: #123b73;
-        color: #fff;
-        font-size: 11px;
-        text-align: left;
-      }
-
-      .receipt-table td {
-        padding: 11px 8px;
-        border: 1px solid #e2e7ef;
-        font-size: 12px;
-        overflow-wrap: anywhere;
-      }
-
-      .receipt-table th:last-child,
-      .receipt-table td:last-child {
-        text-align: right;
-      }
-
-      .receipt-total {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        margin-top: 12px;
-        padding: 14px;
-        border-radius: 8px;
-        background: #eaf6ee;
-        color: #12683a;
-        font-size: 14px;
-        font-weight: 800;
-      }
-
-      .receipt-words {
-        margin-top: 12px;
-        padding: 11px;
-        border: 1px dashed #cbd5e1;
-        border-radius: 7px;
-        font-size: 11px;
-        line-height: 1.6;
-        overflow-wrap: anywhere;
-      }
-
-      .receipt-note {
-        margin-top: 18px;
-        text-align: center;
-        font-size: 11px;
-        line-height: 1.7;
-        color: #596273;
-      }
-
-      .receipt-signature {
-        display: flex;
-        justify-content: space-between;
-        gap: 18px;
-        margin-top: 35px;
-      }
-
-      .receipt-signature div {
-        width: 48%;
-        padding-top: 7px;
-        border-top: 1px solid #8993a4;
-        text-align: center;
-        font-size: 10px;
-        font-weight: 700;
-      }
-
-      @media (max-width: 420px) {
-        .receipt-overlay {
-          padding: 6px;
+    // 3. Render canvas with 'onclone' to force 9:16 layout without breaking CSS ID
+    const canvas = await html2canvas(element, {
+      scale: 2, // High resolution
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff',
+      logging: false,
+      imageTimeout: 5000,
+      onclone: (clonedDoc, clonedElement) => {
+        // Force the cloned element to 9:16 ratio for the JPG
+        clonedElement.style.position = 'fixed';
+        clonedElement.style.left = '-9999px'; // Move it offscreen
+        clonedElement.style.top = '0';
+        clonedElement.style.width = '800px';
+        clonedElement.style.height = '1420px'; // 9:16 Ratio
+        clonedElement.style.display = 'flex';
+        clonedElement.style.flexDirection = 'column';
+        clonedElement.style.margin = '0';
+        clonedElement.style.padding = '25px 30px'; // Extra breathing space for mobile view
+        clonedElement.style.boxSizing = 'border-box';
+        clonedElement.style.background = '#ffffff';
+        
+        // Push footer to the absolute bottom
+        const footer = clonedElement.querySelector('.footer');
+        if (footer) {
+           footer.style.marginTop = 'auto';
+           footer.style.paddingBottom = '15px';
         }
-
-        .receipt-paper {
-          padding: 18px 12px;
-        }
-
-        .receipt-org-name {
-          font-size: 15px;
-        }
-
-        .receipt-org-urdu {
-          font-size: 20px;
-        }
-
-        .receipt-meta {
-          gap: 7px;
-        }
-
-        .receipt-meta-item {
-          padding: 8px;
-        }
-
-        .receipt-table th,
-        .receipt-table td {
-          padding: 8px 5px;
-          font-size: 11px;
-        }
-      }
-
-      @media print {
-        body.receipt-printing * {
-          visibility: hidden !important;
-        }
-
-        body.receipt-printing #receipt-print-area,
-        body.receipt-printing #receipt-print-area * {
-          visibility: visible !important;
-        }
-
-        body.receipt-printing #receipt-print-area {
-          position: absolute !important;
-          left: 0 !important;
-          top: 0 !important;
-          width: 100% !important;
-          max-width: none !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          box-shadow: none !important;
-          overflow: visible !important;
-          background: #fff !important;
-        }
-
-        body.receipt-printing .receipt-actions {
-          display: none !important;
-        }
-
-        body.receipt-printing .receipt-paper {
-          width: 100% !important;
-          padding: 10mm !important;
-          box-shadow: none !important;
-        }
-
-        @page {
-          size: A4;
-          margin: 8mm;
-        }
-      }
-    `;
-
-    document.head.appendChild(style);
-  }
-
-  /* =========================================================
-     RECEIPT DATA
-  ========================================================= */
-
-  function findReceiptData(id) {
-    const collections = [
-      window.RECEIPTS,
-      window.receipts,
-      window.PAYMENTS,
-      window.payments,
-      window.transactions,
-      window.paymentHistory
-    ];
-
-    for (const collection of collections) {
-      if (Array.isArray(collection)) {
-        const found = collection.find(function (item) {
-          return String(
-            item.id ||
-            item.receiptId ||
-            item.paymentId ||
-            item.key ||
-            ""
-          ) === String(id);
-        });
-
-        if (found) return found;
-      }
-
-      if (collection && typeof collection === "object" &&
-          !Array.isArray(collection)) {
-        if (collection[id]) return collection[id];
-      }
-    }
-
-    return null;
-  }
-
-  function getReceiptAmount(data) {
-    return Number(
-      data.amount ??
-      data.paidAmount ??
-      data.paymentAmount ??
-      data.total ??
-      data.value ??
-      0
-    ) || 0;
-  }
-
-  function getReceiptNumber(id, data) {
-    return safeText(
-      data.receiptNo ||
-      data.receiptNumber ||
-      data.voucherNo ||
-      data.transactionId ||
-      data.paymentId ||
-      id,
-      "—"
-    );
-  }
-
-  function getReceiptDate(data) {
-    return formatDate(
-      data.date ||
-      data.paymentDate ||
-      data.createdAt ||
-      data.timestamp ||
-      new Date()
-    );
-  }
-
-  function getPaymentMethod(data) {
-    return safeText(
-      data.method ||
-      data.paymentMethod ||
-      data.mode ||
-      data.paymentMode,
-      "Cash"
-    );
-  }
-
-  function getMemberData(data) {
-    const currentUser = getCurrentUser();
-
-    return data.user ||
-      data.member ||
-      data.userData ||
-      data.memberData ||
-      currentUser;
-  }
-
-  /* =========================================================
-     BUILD RECEIPT HTML
-  ========================================================= */
-
-  function buildReceiptHtml(id, data) {
-    const organizationName = getOrganizationName();
-    const logo = getLogo();
-    const member = getMemberData(data);
-    const amount = getReceiptAmount(data);
-    const receiptNo = getReceiptNumber(id, data);
-    const date = getReceiptDate(data);
-
-    const memberName = getUserName(member);
-    const memberId = getUserId(member);
-
-    const fatherName = safeText(
-      member.fatherName ||
-      member.father ||
-      member.guardianName,
-      "—"
-    );
-
-    const phone = safeText(
-      member.mobile ||
-      member.phone ||
-      member.phoneNumber,
-      "—"
-    );
-
-    const purpose = safeText(
-      data.purpose ||
-      data.description ||
-      data.for ||
-      data.category,
-      "Subscription / Contribution"
-    );
-
-    const method = getPaymentMethod(data);
-
-    const previousDue = Number(
-      data.previousDue ||
-      data.oldDue ||
-      data.dueBefore ||
-      0
-    ) || 0;
-
-    const remainingDue = Number(
-      data.remainingDue ??
-      data.dueAfter ??
-      data.balanceDue ??
-      data.dueAmount ??
-      0
-    ) || 0;
-
-    const logoHtml = logo
-      ? '<img class="receipt-logo" src="' +
-        escapeHtml(logo) +
-        '" crossorigin="anonymous" alt="Organization Logo">'
-      : "";
-
-    return `
-      <div class="receipt-paper" id="receipt-paper">
-        <header class="receipt-header">
-          ${logoHtml}
-          <div class="receipt-org-urdu">
-            ${escapeHtml(RECEIPT_CONFIG.organizationUrdu)}
-          </div>
-          <div class="receipt-org-name">
-            ${escapeHtml(organizationName)}
-          </div>
-          <div class="receipt-subtitle">OFFICIAL PAYMENT RECEIPT</div>
-        </header>
-
-        <div class="receipt-title">PAYMENT RECEIPT</div>
-
-        <div class="receipt-meta">
-          <div class="receipt-meta-item">
-            <div class="receipt-label">Receipt Number</div>
-            <div class="receipt-value">${escapeHtml(receiptNo)}</div>
-          </div>
-
-          <div class="receipt-meta-item">
-            <div class="receipt-label">Payment Date</div>
-            <div class="receipt-value">${escapeHtml(date)}</div>
-          </div>
-
-          <div class="receipt-meta-item">
-            <div class="receipt-label">Member Name</div>
-            <div class="receipt-value">${escapeHtml(memberName)}</div>
-          </div>
-
-          <div class="receipt-meta-item">
-            <div class="receipt-label">Member ID</div>
-            <div class="receipt-value">${escapeHtml(memberId)}</div>
-          </div>
-
-          <div class="receipt-meta-item">
-            <div class="receipt-label">Father's Name</div>
-            <div class="receipt-value">${escapeHtml(fatherName)}</div>
-          </div>
-
-          <div class="receipt-meta-item">
-            <div class="receipt-label">Mobile Number</div>
-            <div class="receipt-value">${escapeHtml(phone)}</div>
-          </div>
-        </div>
-
-        <table class="receipt-table">
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Payment Mode</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>${escapeHtml(purpose)}</td>
-              <td>${escapeHtml(method)}</td>
-              <td>${escapeHtml(formatMoney(amount))}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="receipt-total">
-          <span>Total Received</span>
-          <span>${escapeHtml(formatMoney(amount))}</span>
-        </div>
-
-        <div class="receipt-words">
-          <strong>Previous Due:</strong>
-          ${escapeHtml(formatMoney(previousDue))}
-          <br>
-          <strong>Due Balance:</strong>
-          ${escapeHtml(formatMoney(remainingDue))}
-        </div>
-
-        <div class="receipt-note">
-          Thank you for your contribution.
-          <br>
-          Please keep this receipt for your records.
-          <br>
-          This is a computer-generated receipt.
-        </div>
-
-        <div class="receipt-signature">
-          <div>Received By</div>
-          <div>Authorized Signature</div>
-        </div>
-      </div>
-    `;
-  }
-
-  /* =========================================================
-     OPEN RECEIPT
-  ========================================================= */
-
-  function openReceipt(id) {
-    injectReceiptStyles();
-
-    const data = findReceiptData(id);
-
-    if (!data) {
-      notify(
-        "Receipt data nahi mila. Check karein ki payment record available hai."
-      );
-      return;
-    }
-
-    const previous = document.getElementById("receipt-overlay");
-
-    if (previous) previous.remove();
-
-    const overlay = document.createElement("div");
-    overlay.id = "receipt-overlay";
-    overlay.className = "receipt-overlay";
-
-    overlay.innerHTML = `
-      <div class="receipt-dialog" role="dialog"
-           aria-modal="true" aria-label="Payment Receipt">
-
-        <div class="receipt-actions">
-          <button type="button"
-                  class="receipt-action-btn receipt-action-download"
-                  id="receipt-download-btn">
-            Download JPG
-          </button>
-
-          <button type="button"
-                  class="receipt-action-btn receipt-action-print"
-                  id="receipt-print-btn">
-            Print / PDF
-          </button>
-
-          <button type="button"
-                  class="receipt-action-btn receipt-action-close"
-                  id="receipt-close-btn">
-            Close
-          </button>
-        </div>
-
-        <div id="receipt-print-area">
-          ${buildReceiptHtml(id, data)}
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    overlay.addEventListener("click", function (event) {
-      if (event.target === overlay) {
-        overlay.remove();
       }
     });
 
-    overlay.querySelector("#receipt-close-btn")
-      .addEventListener("click", function () {
-        overlay.remove();
-      });
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const a = document.createElement('a');
+    a.href = imgData;
+    a.download = 'Receipt_' + (Date.now()) + '.jpg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 
-    overlay.querySelector("#receipt-download-btn")
-      .addEventListener("click", function () {
-        downloadReceiptJpg(this);
-      });
+    if (btn) {
+      btn.innerHTML = '✅ Downloaded!';
+      btn.style.background = 'var(--green)';
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        btn.style.pointerEvents = 'auto';
+        btn.style.background = originalBg;
+      }, 2000);
+    }
+    _dlToast('✅ Receipt download ho gaya!', '#12a150');
 
-    overlay.querySelector("#receipt-print-btn")
-      .addEventListener("click", function () {
-        printReceipt();
-      });
-
-    document.addEventListener("keydown", function closeOnEscape(event) {
-      if (event.key === "Escape") {
-        overlay.remove();
-        document.removeEventListener("keydown", closeOnEscape);
-      }
-    });
+  } catch (e) {
+    if (btn) {
+      btn.innerHTML = '❌ Failed — Retry';
+      btn.style.background = 'var(--red)';
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        btn.style.pointerEvents = 'auto';
+        btn.style.background = originalBg;
+      }, 2500);
+    }
+    _dlToast('❌ Download fail: ' + (e.message || 'Unknown error'), '#e5484d');
+    console.error('[Receipt JPG] fail:', e);
   }
-
-  /* =========================================================
-     DOWNLOAD RECEIPT AS JPG
-  ========================================================= */
-
-  async function downloadReceiptJpg(button) {
-    const receipt = document.getElementById("receipt-paper");
-
-    if (!receipt) {
-      notify("Receipt nahi mila.");
-      return;
-    }
-
-    const originalText = button ? button.textContent : "";
-
-    try {
-      if (button) {
-        button.disabled = true;
-        button.textContent = "Preparing JPG...";
-      }
-
-      await loadHtml2Canvas();
-      await waitForImages(receipt);
-
-      const canvas = await window.html2canvas(receipt, {
-        scale: RECEIPT_CONFIG.imageScale,
-        backgroundColor: RECEIPT_CONFIG.background,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        imageTimeout: 10000,
-        scrollX: 0,
-        scrollY: 0
-      });
-
-      const data = findReceiptData(
-        (function () {
-          const number = document.querySelector(
-            "#receipt-paper .receipt-meta-item .receipt-value"
-          );
-
-          return number ? number.textContent.trim() : "receipt";
-        })()
-      );
-
-      const filename = makeSafeFilename(
-        RECEIPT_CONFIG.filePrefix + "-" +
-        (data ? getReceiptNumber("", data) : "download")
-      ) + ".jpg";
-
-      const blob = await new Promise(function (resolve) {
-        canvas.toBlob(resolve, "image/jpeg", 0.95);
-      });
-
-      if (blob) {
-        downloadBlob(blob, filename);
-      } else {
-        const link = document.createElement("a");
-        link.href = canvas.toDataURL("image/jpeg", 0.95);
-        link.download = filename;
-        link.click();
-      }
-
-      notify("Receipt JPG download shuru ho gaya.");
-    } catch (error) {
-      console.error("Receipt JPG error:", error);
-      notify(
-        "JPG nahi ban saka. Logo ya image ke CORS issue ko check karein."
-      );
-    } finally {
-      if (button) {
-        button.disabled = false;
-        button.textContent = originalText || "Download JPG";
-      }
-    }
-  }
-
-  /* =========================================================
-     PRINT / SAVE AS PDF
-  ========================================================= */
-
-  function printReceipt() {
-    const receipt = document.getElementById("receipt-print-area");
-
-    if (!receipt) {
-      notify("Print karne ke liye receipt nahi mili.");
-      return;
-    }
-
-    document.body.classList.add("receipt-printing");
-
-    const cleanup = function () {
-      document.body.classList.remove("receipt-printing");
-      window.removeEventListener("afterprint", cleanup);
-    };
-
-    window.addEventListener("afterprint", cleanup);
-
-    setTimeout(function () {
-      window.print();
-
-      setTimeout(cleanup, 1500);
-    }, 200);
-  }
-
-  /* =========================================================
-     OPTIONAL: OPEN RECEIPT FROM BUTTON
-     Example:
-     <button onclick="openReceipt('PAYMENT_ID')">Receipt</button>
-  ========================================================= */
-
-  document.addEventListener("click", function (event) {
-    const button = event.target.closest("[data-open-receipt]");
-
-    if (!button) return;
-
-    const id = button.getAttribute("data-open-receipt");
-
-    if (id) {
-      openReceipt(id);
-    }
-  });
-
-  /* =========================================================
-     PUBLIC FUNCTIONS
-  ========================================================= */
-
-  window.openReceipt = openReceipt;
-  window.downloadReceiptJpg = downloadReceiptJpg;
-  window.printReceipt = printReceipt;
-
-})();
+}
