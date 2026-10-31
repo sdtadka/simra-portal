@@ -285,7 +285,7 @@ window.onerror = m => showError('Script error: ' + m);
 async function api(fn, ...a) {
   busyStart();
   try {
-    const r = await apiCall(fn, [TOKEN, ...a]);
+    const r = await cachedCall_(fn, [TOKEN, ...a]);
     if (r && r.expired) { await leave(true); throw new Error('expired'); }
     if (r && r.ok === false) throw new Error(r.msg || 'Something went wrong.');
     return r;
@@ -300,7 +300,7 @@ function closeM() { $('#ov').classList.remove('open'); $('#ovB').innerHTML = '';
 function avatarHtml(name, url) { return url ? `<img src="${esc(url)}" alt="">` : esc((name || 'U').charAt(0).toUpperCase()); }
 async function leave(expired) {
   if (!expired && TOKEN) { try { await apiCall('apiLogout', [TOKEN]); } catch (e) {} }
-  localStorage.removeItem(LS_S);
+  localStorage.removeItem(LS_S); cacheClear();
   goPage('index.html');
 }
 
@@ -361,8 +361,9 @@ document.addEventListener('input', e => { if (e.target.id === 'navSearch') filte
 document.addEventListener('keydown', e => { if (e.key === 'Escape') hideDrawer(); });
 
 const VIEWS = {};
-async function go(view, arg) {
+async function go(view, arg, fromPop) {
   D = { view, arg: arg || {} };
+  if (!fromPop) history.pushState({ v: view, arg: arg || {} }, '', '#' + view);
   hideDrawer(); drawNav(); window.scrollTo(0, 0);
   const c = $('#main');
   c.innerHTML = '<div class="loading">Loading…</div>';
@@ -711,19 +712,20 @@ async function boot() {
     $('#av').innerHTML = avatarHtml(MY.person.name, MY.person.photoUrl);
     bootProgress(85, 'Loading page…', '');
     startIdle();
-    await go('home', {});
+    history.replaceState({ v: 'home', arg: {} }, '', '#home');
+    await go('home', {}, true);
     bootProgress(100, 'Ready', 'Welcome');
     setTimeout(bootDone, 250);
   } catch (e) { bootDone(); showError(e.message); }
 }
 let LAST = Date.now();
+window.addEventListener('popstate', function (e) { const st = e.state; if (st && st.v) go(st.v, st.arg, true); else go(D && D.view ? D.view : 'home', {}, true); });
 function startIdle() {
   ['mousemove', 'keydown', 'click', 'touchstart'].forEach(ev => document.addEventListener(ev, () => { LAST = Date.now(); }, { passive: true }));
   setInterval(async () => {
     if (!TOKEN) return;
-    if (Date.now() - LAST > 15 * 60 * 1000) return leave(false);
     const r = await apiCall('apiSession', [TOKEN]).catch(() => null);
-    if (!r || !r.ok) leave(true);
+    if (r && r.ok === false && r.expired) leave(true);
   }, 60000);
 }
 boot();
