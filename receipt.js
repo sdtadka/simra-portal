@@ -1,6 +1,6 @@
 /*******************************************************************
  * receipt.js : Centralized Receipt Print & Download Logic for all Roles.
- * v5 — Fixed JPG layout, 9:16 aspect ratio, optimized PDF size.
+ * v6 — Fixed JPG garbage issue, Flexbox for html2canvas, precise sizes.
  *******************************************************************/
 
 // HTML2Canvas load
@@ -31,125 +31,103 @@ if (!document.getElementById('receipt-css')) {
   const style = document.createElement('style');
   style.id = 'receipt-css';
   style.innerHTML = `
-    /* Scoped to .receipt-container to prevent affecting app layout */
-    .receipt-container {
+    /* Scoped to #rc to prevent affecting app layout */
+    #rc {
       box-sizing: border-box;
       width: 100%;
       max-width: 800px;
       margin: auto;
-      padding: 18px 20px;
+      padding: 20px 25px;
       background: #fff;
       border: 4px solid #174d38;
-      border-radius: 15px;
+      border-radius: 12px;
       font-family: Arial, Helvetica, sans-serif;
       color: #111;
       position: relative;
       overflow: hidden;
     }
-    .receipt-container * { box-sizing: border-box; }
+    #rc * { box-sizing: border-box; }
     
-    .receipt-container .header-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
-    .receipt-container .header-top .reg { text-align: right; }
-    .receipt-container .bismillah { font-size: 22px; white-space: nowrap; }
-    .receipt-container .header-main { display: grid; grid-template-columns: 1fr 96px; align-items: center; gap: 12px; margin-bottom: 16px; }
-    .receipt-container .title-area { text-align: center; min-width: 0; }
+    #rc .header-top { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700; margin-bottom: 15px; }
+    #rc .header-top .reg { text-align: right; }
+    #rc .bismillah { font-size: 22px; white-space: nowrap; }
     
-    .receipt-container .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; font-size: clamp(36px, 6.5vw, 62px); font-weight: 400; color: #00851f; text-align: center; direction: rtl; line-height: 1.65; margin: 0 auto 7px; white-space: nowrap; letter-spacing: 0; }
-    .receipt-container .main-title { font-size: clamp(18px, 3.5vw, 29px); font-weight: 900; line-height: 1.2; letter-spacing: .3px; margin: 3px 0 8px; color: #111; }
-    .receipt-container .address { font-size: 13px; font-weight: 700; line-height: 1.5; }
+    #rc .header-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 15px; }
+    #rc .title-area { flex: 1; text-align: center; min-width: 0; }
     
-    /* Logo border removed */
-    .receipt-container .logo { width: 96px; height: 96px; border: none; outline: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 11px; font-weight: bold; color: #174d38; background: transparent; padding: 0; overflow: hidden; }
-    .receipt-container .logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+    #rc .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; font-size: 42px; font-weight: 400; color: #00851f; text-align: center; direction: rtl; line-height: 1.8; margin: 0 auto 5px; white-space: nowrap; }
+    #rc .main-title { font-size: 26px; font-weight: 900; line-height: 1.2; margin: 3px 0 6px; color: #111; }
+    #rc .address { font-size: 13px; font-weight: 700; line-height: 1.4; }
     
-    .receipt-container .separator { border: 0; border-top: 4px solid #174d38; margin: 12px 0; }
+    /* Logo - Border removed */
+    #rc .logo { width: 100px; height: 100px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; border: none; padding: 0; overflow: hidden; }
+    #rc .logo img { width: 100px; height: 100px; object-fit: contain; }
     
-    .receipt-container .receipt-info { display: grid; grid-template-columns: 1.5fr 1fr auto; gap: 8px; align-items: center; border: 2px solid #444; padding: 9px 10px; font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+    #rc .separator { border: 0; border-top: 4px solid #174d38; margin: 15px 0; }
     
-    .receipt-container .body-split { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; margin-bottom: 12px; }
+    #rc .receipt-info { display: flex; justify-content: space-between; align-items: center; border: 2px solid #444; padding: 10px 15px; font-size: 15px; font-weight: 800; margin-bottom: 15px; }
     
-    .receipt-container .details-box { border: 2px solid #555; padding: 10px 12px; min-width: 0; }
-    .receipt-container .detail-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 7px 0; border-bottom: 1px dotted #aaa; font-size: 14px; }
-    .receipt-container .detail-row:last-child { border-bottom: none; }
-    .receipt-container .detail-label { font-weight: 800; flex-shrink: 0; }
-    .receipt-container .detail-value { font-weight: 800; text-align: right; overflow-wrap: anywhere; }
+    #rc .body-split { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
     
-    .receipt-container .financial-box { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
-    .receipt-container .financial-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .receipt-container .fin-item { border: 2px solid #555; text-align: center; padding: 9px 4px; font-weight: 700; font-size: 13px; }
-    .receipt-container .fin-item span { display: block; font-size: 20px; font-weight: 900; margin-top: 3px; }
+    #rc .details-box { flex: 1.3; border: 2px solid #555; padding: 10px 15px; min-width: 0; }
+    #rc .detail-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 8px 0; border-bottom: 1px dotted #aaa; font-size: 14px; }
+    #rc .detail-row:last-child { border-bottom: none; }
+    #rc .detail-label { font-weight: 800; flex-shrink: 0; }
+    #rc .detail-value { font-weight: 800; text-align: right; overflow-wrap: anywhere; }
     
-    .receipt-container .penalty-box { border: 2px solid #c77c7c; background: #fff5f5; color: #a52c32; text-align: center; padding: 9px 4px; font-weight: 800; font-size: 15px; }
-    .receipt-container .penalty-box span { display: block; font-size: 22px; margin-top: 3px; }
+    #rc .financial-box { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    #rc .financial-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    #rc .fin-item { flex: 1 1 calc(50% - 10px); border: 2px solid #555; text-align: center; padding: 10px 5px; font-weight: 700; font-size: 13px; }
+    #rc .fin-item span { display: block; font-size: 20px; font-weight: 900; margin-top: 3px; }
     
-    .receipt-container .table-wrap { width: 100%; overflow-x: auto; margin-top: 10px; }
-    .receipt-container table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .receipt-container thead { background: #174d38; color: #fff; }
-    .receipt-container th { padding: 9px 6px; text-align: left; border: 1px solid #9aa69e; white-space: nowrap; }
-    .receipt-container td { border: 1px solid #555; padding: 8px 6px; font-weight: 700; white-space: nowrap; }
-    .receipt-container tbody tr:nth-child(even) { background: #f4f7f5; }
-    .receipt-container .text-center { text-align: center; }
-    .receipt-container .text-right { text-align: right; }
+    #rc .penalty-box { border: 2px solid #c77c7c; background: #fff5f5; color: #a52c32; text-align: center; padding: 10px 5px; font-weight: 800; font-size: 15px; }
+    #rc .penalty-box span { display: block; font-size: 22px; margin-top: 3px; }
     
-    .receipt-container .footer { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-top: 50px; padding: 0 5px 10px; }
-    .receipt-container .signature { width: 42%; text-align: center; font-weight: 700; font-size: 14px; line-height: 1.4; }
+    #rc .table-wrap { width: 100%; overflow-x: auto; margin-bottom: 20px; }
+    #rc table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    #rc thead { background: #174d38; color: #fff; }
+    #rc th { padding: 10px 8px; text-align: left; border: 1px solid #9aa69e; white-space: nowrap; }
+    #rc td { border: 1px solid #555; padding: 10px 8px; font-weight: 700; white-space: nowrap; }
+    #rc tbody tr:nth-child(even) { background: #f4f7f5; }
+    #rc .text-center { text-align: center; }
+    #rc .text-right { text-align: right; }
     
-    /* Signature sizes customized */
-    .receipt-container .sig-img { display: flex; align-items: flex-end; justify-content: center; margin-bottom: 4px; }
-    .receipt-container .sig-img.collector { height: 35px; }
-    .receipt-container .sig-img.collector img { max-height: 35px; max-width: 110px; object-fit: contain; }
-    .receipt-container .sig-img.authorised { height: 60px; }
-    .receipt-container .sig-img.authorised img { max-height: 60px; max-width: 160px; object-fit: contain; }
+    #rc .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; padding: 0 10px 10px; }
+    #rc .signature { width: 45%; text-align: center; font-weight: 700; font-size: 14px; line-height: 1.4; }
     
-    .receipt-container .sign-line { width: 100%; border-top: 2px solid #444; margin-bottom: 6px; }
+    /* Signature sizes fixed via CSS */
+    #rc .sig-img { display: flex; align-items: flex-end; justify-content: center; margin-bottom: 5px; height: 65px; }
+    #rc .sig-img.coll img { max-height: 35px; max-width: 110px; object-fit: contain; }
+    #rc .sig-img.auth img { max-height: 60px; max-width: 160px; object-fit: contain; }
+    
+    #rc .sign-line { width: 100%; border-top: 2px solid #444; margin-bottom: 8px; }
 
     /* BUTTON FEEDBACK */
     .noprint { transition: all 0.2s; }
     .noprint:active:not(:disabled) { transform: scale(0.95); }
 
-    /* SCREEN MOBILE RESPONSIVE */
-    @media screen and (max-width: 560px) {
-      .receipt-container { padding: 10px; border-width: 3px; border-radius: 12px; }
-      .receipt-container .header-top { font-size: 9px; gap: 3px; }
-      .receipt-container .bismillah { font-size: 14px; }
-      .receipt-container .header-main { grid-template-columns: 1fr 52px; gap: 7px; }
-      .receipt-container .logo { width: 52px; height: 52px; font-size: 7px; }
-      .receipt-container .urdu-text { font-size: clamp(28px, 7vw, 40px); line-height: 1.8; }
-      .receipt-container .main-title { font-size: clamp(12px, 3.5vw, 18px); }
-      .receipt-container .address { font-size: 9px; }
-      .receipt-container .receipt-info { grid-template-columns: 1fr; gap: 5px; font-size: 12px; }
-      .receipt-container .body-split { grid-template-columns: 1fr; }
-      .receipt-container .detail-row { font-size: 12px; }
-      .receipt-container .fin-item { font-size: 12px; }
-      .receipt-container .fin-item span { font-size: 17px; }
-      .receipt-container table { min-width: 620px; font-size: 12px; }
-      .receipt-container .footer { margin-top: 30px; padding: 0 0 10px; }
-      .receipt-container .signature { font-size: 11px; }
-    }
-
     /* PRINT (PDF) SETTINGS - SINGLE PAGE A4 */
     @media print {
       @page { size: A4 portrait; margin: 5mm; }
-      body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
+      body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
       body * { visibility: hidden !important; }
       #ov, #ov * { visibility: visible !important; }
-      .receipt-container, .receipt-container * { visibility: visible !important; }
+      #rc, #rc * { visibility: visible !important; }
       
-      #ov { position: absolute !important; left: 0 !important; top: 0 !important; background: none !important; display: block !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; }
-      #ov .box { box-shadow: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; position: static !important; transform: none !important; }
+      #ov { position: absolute !important; left: 0 !important; top: 0 !important; background: none !important; display: block !important; padding: 0 !important; margin: 0 !important; }
+      #ov .box { box-shadow: none !important; border: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; transform: none !important; }
       .noprint { display: none !important; }
       
-      .receipt-container {
+      #rc {
         max-width: 100% !important;
         width: 100% !important;
         margin: 0 auto !important;
         border: 3px solid #174d38 !important;
-        padding: 15px !important;
-        page-break-inside: avoid !important;
-        box-shadow: none !important;
+        padding: 15px 20px !important;
         min-height: auto !important;
+        page-break-inside: avoid !important;
       }
-      .receipt-container * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      #rc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
   `;
   document.head.appendChild(style);
@@ -262,7 +240,7 @@ async function openReceipt(id) {
     const r = await api(apiAction, id);
     const o = r.org, p = r.person;
     
-    const logoHtml = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : 'LOGO';
+    const logoHtml = o.logo ? `<img src="${esc(o.logo)}" style="width:100px;height:100px;object-fit:contain;" onerror="this.remove()">` : 'LOGO';
     
     const rowsHtml = r.rows.map(x => `<tr>
       <td>${x.no}</td><td>${esc(x.date)}</td><td>${esc(x.mode)}</td><td class="text-center">${esc(x.txnRef || '—')}</td>
@@ -271,7 +249,7 @@ async function openReceipt(id) {
       <td class="text-right">${inr(x.balanceAfter)}</td></tr>`).join('');
 
     const html = `
-      <div class="receipt-container" id="rc">
+      <div id="rc">
         
         <div class="header-top">
           <div>Estd : 1990</div>
@@ -329,13 +307,17 @@ async function openReceipt(id) {
 
         <div class="footer">
           <div class="signature">
-            <div class="sig-img collector">${o.sigCollector ? `<img src="${esc(o.sigCollector)}" alt="" onerror="this.remove()">` : ''}</div>
+            <div class="sig-img coll">
+              ${o.sigCollector ? `<img src="${esc(o.sigCollector)}" onerror="this.remove()">` : ''}
+            </div>
             <div class="sign-line"></div>
             <div>${esc(r.issuedBy || 'Collector')}</div>
             <div>(Collector)</div>
           </div>
           <div class="signature">
-            <div class="sig-img authorised">${o.sigAuth ? `<img src="${esc(o.sigAuth)}" alt="" onerror="this.remove()">` : ''}</div>
+            <div class="sig-img auth">
+              ${o.sigAuth ? `<img src="${esc(o.sigAuth)}" onerror="this.remove()">` : ''}
+            </div>
             <div class="sign-line"></div>
             <div>${esc(o.name || 'Madarsa Faizan-E-Mustafa')}</div>
             <div>Authorised</div>
@@ -357,7 +339,7 @@ async function openReceipt(id) {
 }
 
 /* =================================================================
- * JPG DOWNLOAD FUNCTION (9:16 Ratio Fixed)
+ * JPG DOWNLOAD FUNCTION (Flexbox layout for perfect rendering)
  * ================================================================= */
 async function downloadReceiptJpg(btn) {
   if (btn && btn.disabled) return;
@@ -380,25 +362,27 @@ async function downloadReceiptJpg(btn) {
   }
   _dlToast('⏳ Receipt download ho raha hai...', '#b45309');
 
-  // --- CLONE RECEIPT (Force 9:16 ratio, 800x1422) ---
+  // --- CLONE RECEIPT (Force 9:16 ratio) ---
   const clone = element.cloneNode(true);
   clone.id = 'rc-clone';
   clone.style.position = 'fixed';
-  clone.style.left = '-10000px';
+  clone.style.left = '-9999px';
   clone.style.top = '0';
   clone.style.width = '800px';
-  clone.style.minHeight = '1422px'; // 9:16 ratio for 800px width
+  clone.style.height = '1420px'; // 9:16 Ratio for perfect mobile image
   clone.style.background = '#fff';
+  clone.style.borderRadius = '0'; // flat corners for image
+  
+  // Push footer to the bottom
   clone.style.display = 'flex';
   clone.style.flexDirection = 'column';
-  
-  // Push footer to the bottom to fill 9:16 space perfectly
   const footer = clone.querySelector('.footer');
   if (footer) footer.style.marginTop = 'auto';
 
   document.body.appendChild(clone);
 
   try {
+    // Convert images to base64 to avoid CORS
     const imgs = [...clone.querySelectorAll('img')];
     if (imgs.length) {
       await Promise.all(imgs.map(async (img) => {
@@ -410,6 +394,7 @@ async function downloadReceiptJpg(btn) {
       }));
     }
 
+    // Wait for images
     await Promise.all(imgs.map(img => {
       if (img.complete && img.naturalWidth > 0) return Promise.resolve();
       return new Promise(resolve => {
@@ -419,6 +404,9 @@ async function downloadReceiptJpg(btn) {
       });
     }));
 
+    // Wait extra 200ms for layout to settle
+    await new Promise(r => setTimeout(r, 200));
+
     const canvas = await html2canvas(clone, {
       scale: 2,
       useCORS: true,
@@ -427,7 +415,7 @@ async function downloadReceiptJpg(btn) {
       logging: false,
       imageTimeout: 8000,
       windowWidth: 800,
-      windowHeight: 1422
+      windowHeight: 1420
     });
 
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
