@@ -11,7 +11,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--blue:#1e6bff;--green:#12a150;--orange:#ff8a00;--purple:#7c3aed;--red:#e5484d;--gold:#c99a2e;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--bg:#f4f7fc;--navy:#0b2a5b;--blue-t:#eaf1ff;--green-t:#e8f8ef;--orange-t:#fff3e2;--purple-t:#f1eaff;--red-t:#fdecec;--gold-t:#fbf4df;--side:264px}
-html,body{overflow-x:hidden;user-select:none;-webkit-user-select:none}
+html,body{user-select:none;-webkit-user-select:none}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;min-height:100vh}
 @media(min-width:960px){html,body{user-select:auto;-webkit-user-select:auto}}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -189,9 +189,22 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 @media(min-width:960px){.side{transform:none}body.side-closed .side{transform:translateX(-100%)}.pagewrap{margin-left:var(--side)}body.side-closed .pagewrap{margin-left:0}#menuBtn{display:none}body.side-closed #menuBtn{display:grid}#scrim{display:none}}
 
 /* pull-to-refresh band (login page wala reload nahi hoga) */
-html,body{overscroll-behavior-y:none}
+html,body{overscroll-behavior-y:contain}
 .pv-btn{border:0;border-radius:12px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer}
 .post-title{transition:color .2s}
+
+/* header compact, photo saaf dikhe */
+.hd{padding:10px 14px 12px}
+.hd::after{display:none}
+.seal{width:50px;height:50px;margin:2px auto 0}
+.orgname{margin-top:6px;font-size:clamp(17px,4vw,22px);line-height:1.2}
+.role{margin-top:6px;padding:4px 12px;font-size:12px}
+.tag{margin-top:4px;font-size:12px}
+@media(min-width:900px){.hd{padding:12px 22px 14px}}
+/* scroll/touch fix */
+.pagewrap{overflow-x:clip}
+html,body{touch-action:pan-y}
+img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 </style>
 </head>
 <body>
@@ -211,7 +224,6 @@ html,body{overscroll-behavior-y:none}
     <div class="row">
       <button class="menubtn" id="menuBtn"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="btn light sm" onclick="goPage('index.html?stay=1')">Login page</button>
         <button class="avatar" id="av"></button>
       </div>
     </div>
@@ -330,6 +342,8 @@ function bootProgress(p, t, s) { $('#bootBar').style.width = p + '%'; if (t) $('
 function bootDone() { $('#boot').classList.add('gone'); }
 function showError(t) { $('#main').innerHTML = '<div class="errbox"><b>Page could not load.</b><br>' + esc(t) + '</div>'; }
 window.onerror = m => showError('Script error: ' + m);
+/* long press par photo ka menu nahi, sirf click (viewer) */
+document.addEventListener('contextmenu', e => { if (e.target && e.target.tagName === 'IMG') e.preventDefault(); });
 
 async function api(fn, ...a) {
   busyStart();
@@ -1162,12 +1176,12 @@ VIEWS.profile = async (c) => {
 /* ============ NEW POST MODAL ============ */
 function openNewPostForm() {
   modal('Create New Post', `<div class="fgrid">
-    <div><label class="fl">Title *<input class="inp" id="postTitle"></label></div>
+    <div><label class="fl">Post title *<input class="inp" id="postTitle" placeholder="Post ka title"></label></div>
     <div style="display:flex;gap:10px;align-items:flex-end">
       <label class="fl" style="margin:0">Title color<input type="color" id="postColor" value="#0f172a" style="display:block;width:56px;height:40px;border:0;background:none;padding:0"></label>
       <span class="hint" style="margin:0">Title ka rang chunein</span>
     </div>
-    <div><label class="fl">Content<textarea class="inp" id="postBody" rows="4"></textarea></label></div>
+    <div><label class="fl">Description (post ka vivaran)<textarea class="inp" id="postBody" rows="6" placeholder="Post ka vivaran yahan likhein..."></textarea></label></div>
     <div><label class="fl">Photos (optional, ek se zyada chun sakte hain)<input class="inp" type="file" id="postPhoto" accept="image/*" multiple></label></div>
     <div id="postPrevs" class="acts"></div>
     <div><label class="fl">Auto delete</label>
@@ -1645,7 +1659,7 @@ function applyOrg(o) {
     const hd = document.querySelector('.hd');
     if (hd) {
       if (o.headerBg) {
-        hd.style.background = `linear-gradient(135deg, rgba(7,28,64,0.8) 0%, rgba(15,61,127,0.8) 48%, rgba(10,42,92,0.8) 100%), url('${o.headerBg}') center/cover no-repeat`;
+        hd.style.background = `linear-gradient(135deg, rgba(7,28,64,0.15) 0%, rgba(15,61,127,0.15) 48%, rgba(10,42,92,0.15) 100%), url('${o.headerBg}') center/cover no-repeat`;
       } else {
         hd.style.background = 'linear-gradient(135deg, #071c40 0%, #0f3d7f 48%, #0a2a5c 100%)';
       }
