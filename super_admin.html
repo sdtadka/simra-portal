@@ -187,6 +187,11 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 .cred-box small{color:#94a3b8;font-size:11px;text-transform:uppercase;display:block}
 @media(min-width:900px){.hd{padding:16px 22px 26px}.big3{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.main{max-width:1100px;margin:0 auto}}
 @media(min-width:960px){.side{transform:none}body.side-closed .side{transform:translateX(-100%)}.pagewrap{margin-left:var(--side)}body.side-closed .pagewrap{margin-left:0}#menuBtn{display:none}body.side-closed #menuBtn{display:grid}#scrim{display:none}}
+
+/* pull-to-refresh band (login page wala reload nahi hoga) */
+html,body{overscroll-behavior-y:none}
+.pv-btn{border:0;border-radius:12px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer}
+.post-title{transition:color .2s}
 </style>
 </head>
 <body>
@@ -594,6 +599,7 @@ async function openPersonPage(c, appNo) {
       </div>
     </div>
     ${isImam ? `
+      ${salaryCalendarHtml(d.salary, p)}
       <div class="card"><h3 class="sec">Salary history</h3>
         <div class="wrap"><table class="t"><thead><tr><th>Effective</th><th>Amount</th><th>Set by</th></tr></thead>
         <tbody>${((d.salary && d.salary.history) || []).map(h => `<tr><td>${esc(h.effective)}</td><td>${inr(h.amount)}</td><td>${esc(h.setBy)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No salary set yet.</td></tr>'}</tbody></table></div></div>
@@ -616,7 +622,7 @@ async function openPersonPage(c, appNo) {
         <div class="wrap"><table class="t"><thead><tr><th>Receipt ID</th><th>Issued</th><th>Total paid</th><th>Balance</th><th></th></tr></thead>
         <tbody>${d.receipts.map(r => `<tr><td class="mono"><b>${esc(r.receiptId)}</b></td><td>${esc(r.issued)}</td><td>${inr(r.totalPaid)}</td><td>${inr(r.balance)}</td>
           <td><button class="btn light sm" data-act="receipt" data-id="${esc(r.receiptId)}">${ic('eye')}Receipt</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">No receipts yet.</td></tr>'}</tbody></table></div></div>
-      <div class="card"><h3 class="sec">Khata book</h3>
+      <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 class="sec" style="margin:0">Khata book</h3><button class="btn light sm" data-act="refreshPerson" data-id="${esc(appNo)}">${ic('refresh')}Refresh</button></div>
         <div class="wrap"><table class="t"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Mode</th><th>Txn no.</th><th>Collector</th><th></th></tr></thead>
         <tbody>${d.payments.map(x => `<tr>
           <td>${esc(x.date)}</td>
@@ -840,8 +846,21 @@ VIEWS.notice = async (c) => {
 };
 
 /* ============ POSTS ============ */
+function photosGrid(id, list) {
+  if (!list || !list.length) return '';
+  const cols = list.length === 1 ? '1fr' : 'repeat(auto-fill,minmax(160px,1fr))';
+  return `<div style="display:grid;grid-template-columns:${cols};gap:10px;margin-bottom:20px">${list.map((u, i) => `
+    <div>
+      <img src="${esc(u)}" alt="" data-act="viewPhoto" data-id="${esc(id)}" data-i="${i}" style="width:100%;max-height:420px;object-fit:cover;border-radius:12px;display:block;cursor:zoom-in">
+      <div class="acts" style="margin-top:6px">
+        <button class="btn sm" data-act="sharePhoto" data-v="${esc(u)}">Share</button>
+        <button class="btn light sm" data-act="dlPhoto" data-v="${esc(u)}">Download</button>
+      </div>
+    </div>`).join('')}</div>`;
+}
 VIEWS.posts = async (c) => {
   const d = await api('apiPostList', 'madrasa');
+  d.list.forEach(x => { POST_PHOTOS[x.id] = x.photos || (x.photo ? [x.photo] : []); });
   c.innerHTML = `
     <div class="pagehead"><h2>Madrasa posts</h2></div>
     <p class="psub">Posts from Imam's Madrasa. Visible to everyone.</p>
@@ -852,13 +871,14 @@ VIEWS.posts = async (c) => {
 
     ${d.list.map(x => `
     <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
-      <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(x.title)}</h2>
+      <h2 class="post-title" style="font-size:22px; color:${esc(x.titleColor || 'var(--navy)')}; margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(x.title)}</h2>
       <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
         <span style="font-weight:600; color:var(--blue)">By ${esc(x.authorName)}</span>
         <span>•</span>
         <span>${esc(x.date)}</span>
+        ${x.expiresAt ? `<span>· Auto delete: ${esc(new Date(x.expiresAt).toLocaleString('en-IN'))}</span>` : '<span>· Manual delete</span>'}
       </div>
-      ${x.photo ? `<img src="${esc(x.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
+      ${photosGrid(x.id, x.photos || (x.photo ? [x.photo] : []))}
       <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(x.body)}</p>
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid var(--line);">
         ${callLink(x.authorMobile)}
@@ -1143,25 +1163,187 @@ VIEWS.profile = async (c) => {
 function openNewPostForm() {
   modal('Create New Post', `<div class="fgrid">
     <div><label class="fl">Title *<input class="inp" id="postTitle"></label></div>
+    <div style="display:flex;gap:10px;align-items:flex-end">
+      <label class="fl" style="margin:0">Title color<input type="color" id="postColor" value="#0f172a" style="display:block;width:56px;height:40px;border:0;background:none;padding:0"></label>
+      <span class="hint" style="margin:0">Title ka rang chunein</span>
+    </div>
     <div><label class="fl">Content<textarea class="inp" id="postBody" rows="4"></textarea></label></div>
-    <div><label class="fl">Photo (Optional)<input class="inp" type="file" id="postPhoto" accept="image/*"></label></div>
+    <div><label class="fl">Photos (optional, ek se zyada chun sakte hain)<input class="inp" type="file" id="postPhoto" accept="image/*" multiple></label></div>
+    <div id="postPrevs" class="acts"></div>
+    <div><label class="fl">Auto delete</label>
+      <select class="inp" id="postExp">
+        <option value="">Sirf manually delete</option>
+        <option value="24h">24 ghante baad</option>
+        <option value="custom">Time chunein (date + time)</option>
+      </select>
+      <input class="inp" type="datetime-local" id="postExpAt" style="display:none;margin-top:8px">
+    </div>
   </div>`, `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPostSave">Publish</button>`);
+
+  $('#postPhoto').addEventListener('change', e => {
+    const files = Array.from(e.target.files || []).filter(f => /^image\//.test(f.type));
+    $('#postPrevs').innerHTML = files.map(f => `<span class="chip c-role">${esc(f.name)}</span>`).join('');
+  });
+  $('#postExp').addEventListener('change', e => { $('#postExpAt').style.display = e.target.value === 'custom' ? 'block' : 'none'; });
 
   $('#btnPostSave').addEventListener('click', async () => {
     const btn = $('#btnPostSave'); if (btn.disabled) return; btn.disabled = true;
     try {
-      let url = '';
-      const file = document.getElementById('postPhoto').files[0];
-      if (file) {
-        toast('Uploading photo...');
-        const compressed = await compressImage(file);
-        const r = await api('apiUploadPhoto', compressed.b64, compressed.mime, compressed.name);
-        url = r.url;
+      const title = val('postTitle').trim();
+      if (!title) throw new Error('Title likhna zaroori hai.');
+      let expiresAt = '';
+      const mode = val('postExp');
+      if (mode === '24h') expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      if (mode === 'custom') {
+        const v = val('postExpAt');
+        if (!v) throw new Error('Auto delete ka date/time chunein.');
+        if (new Date(v).getTime() <= Date.now()) throw new Error('Time aage ka chunein.');
+        expiresAt = new Date(v).toISOString();
       }
-      await api('apiPostCreate', 'madrasa', val('postTitle'), val('postBody'), url);
+      const files = Array.from(document.getElementById('postPhoto').files || []);
+      const urls = [];
+      for (let i = 0; i < files.length; i++) {
+        toast('Photo ' + (i + 1) + ' of ' + files.length + ' upload ho rahi hai…');
+        const c = await compressImage(files[i]);
+        const r = await api('apiUploadPhoto', c.b64, c.mime, c.name);
+        urls.push(r.url);
+      }
+      await api('apiPostCreateV3', 'madrasa', title, val('postBody'), urls, { titleColor: val('postColor'), expiresAt });
       closeM(); toast('Post created'); go('posts', {});
-    } catch(e) { toast(e.message); btn.disabled = false; }
+    } catch (e) { if (e.message !== 'expired') toast(e.message); btn.disabled = false; }
   });
+}
+
+/* Photo viewer: pinch zoom, double tap zoom, swipe, share, download */
+const POST_PHOTOS = {};
+function openPhotoViewer(list, start) {
+  if (!list || !list.length) return;
+  let idx = start || 0, scale = 1, tx = 0, ty = 0;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;touch-action:none';
+  wrap.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;color:#fff;font-weight:700">
+      <span id="pvCnt"></span><button id="pvClose" style="background:none;border:0;color:#fff;font-size:30px;line-height:1;cursor:pointer">×</button>
+    </div>
+    <div id="pvStage" style="flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden">
+      <img id="pvImg" alt="" draggable="false" style="max-width:100%;max-height:100%;user-select:none;-webkit-user-drag:none;transition:transform .2s ease">
+    </div>
+    <div style="display:flex;justify-content:center;gap:10px;padding:12px">
+      <button class="pv-btn" id="pvShare" style="background:#1e6bff;color:#fff">Share</button>
+      <button class="pv-btn" id="pvDl" style="background:#fff;color:#0f172a">Download</button>
+    </div>`;
+  document.body.appendChild(wrap);
+  const img = wrap.querySelector('#pvImg'), stage = wrap.querySelector('#pvStage');
+  const cur = () => list[idx];
+  const apply = () => { img.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`; };
+  const show = () => { img.src = cur(); scale = 1; tx = 0; ty = 0; apply(); wrap.querySelector('#pvCnt').textContent = (idx + 1) + ' / ' + list.length; };
+  const close = () => wrap.remove();
+
+  let sx = 0, sy = 0, lx = 0, ly = 0, d0 = 0, s0 = 1, pinch = false, lastTap = 0;
+  const dist = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  stage.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) { pinch = true; d0 = dist(e.touches[0], e.touches[1]); s0 = scale; }
+    else {
+      sx = lx = e.touches[0].clientX; sy = ly = e.touches[0].clientY;
+      const now = Date.now();
+      if (now - lastTap < 300) { scale = scale > 1 ? 1 : 2.5; tx = 0; ty = 0; apply(); }
+      lastTap = now;
+    }
+  }, { passive: true });
+  stage.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (pinch && e.touches.length === 2) { scale = Math.min(5, Math.max(1, s0 * dist(e.touches[0], e.touches[1]) / d0)); apply(); }
+    else if (e.touches.length === 1 && scale > 1) {
+      const x = e.touches[0].clientX, y = e.touches[0].clientY;
+      tx += x - lx; ty += y - ly; lx = x; ly = y; apply();
+    }
+  }, { passive: false });
+  stage.addEventListener('touchend', e => {
+    if (e.touches.length === 0) {
+      if (pinch) { pinch = false; if (scale < 1.05) { scale = 1; tx = 0; ty = 0; apply(); } return; }
+      const dx = (e.changedTouches[0].clientX) - sx;
+      if (scale === 1 && Math.abs(dx) > 60 && list.length > 1) {
+        idx = dx < 0 ? (idx + 1) % list.length : (idx - 1 + list.length) % list.length;
+        show();
+      }
+    }
+  });
+  wrap.querySelector('#pvClose').addEventListener('click', close);
+  wrap.querySelector('#pvShare').addEventListener('click', () => sharePhoto(cur()));
+  wrap.querySelector('#pvDl').addEventListener('click', () => downloadPhoto(cur()));
+  show();
+}
+
+/* Share: sirf photo file (JPG), koi Drive link nahi */
+async function sharePhoto(url) {
+  try {
+    const blob = await (await fetch(url)).blob();
+    const file = new File([blob], 'madrasa-photo.jpg', { type: blob.type || 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+    } else {
+      toast('Is phone par photo share nahi ho sakti. Download karein.');
+    }
+  } catch (e) { if (e && e.name !== 'AbortError') toast('Share nahi ho paya. Download try karein.'); }
+}
+async function downloadPhoto(url) {
+  try {
+    const blob = await (await fetch(url)).blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'madrasa-photo.jpg';
+    document.body.appendChild(a); a.click(); a.remove();
+  } catch (e) { window.open(url, '_blank'); }
+}
+
+/* Imam salary calendar: join date se ab tak ke months, paid = green, unpaid = red */
+function parseDate_(s) {
+  if (!s) return null;
+  if (s instanceof Date) return isNaN(s) ? null : s;
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) return d;
+  const m = String(s).match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+  return m ? new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])) : null;
+}
+function salaryCalendarHtml(sal, p) {
+  const join = parseDate_(p.joinIso || p.joinDate);
+  if (!join) return `<div class="card"><h3 class="sec">Salary calendar</h3><div class="empty">Join date set nahi hai. Edit karke join date bharein.</div></div>`;
+  const monthly = Number((sal && sal.current) || 0);
+  const now = new Date();
+  const months = [];
+  let y = join.getFullYear(), m = join.getMonth();
+  while (y < now.getFullYear() || (y === now.getFullYear() && m <= now.getMonth())) {
+    months.push({ y, m }); m++; if (m > 11) { m = 0; y++; }
+  }
+  const paid = {};
+  let received = 0;
+  ((sal && sal.payouts) || []).forEach(x => {
+    const d = parseDate_(x.date); if (!d) return;
+    const k = d.getFullYear() + '-' + d.getMonth();
+    paid[k] = (paid[k] || 0) + Number(x.amount || 0);
+    received += Number(x.amount || 0);
+  });
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const paidMonths = months.filter(o => (paid[o.y + '-' + o.m] || 0) > 0).length;
+  const due = monthly * months.length;
+  const pending = Math.max(0, due - received);
+  const cells = months.map(o => {
+    const ok = (paid[o.y + '-' + o.m] || 0) >= monthly && monthly > 0;
+    const isPaid = (paid[o.y + '-' + o.m] || 0) > 0;
+    const bg = ok || isPaid ? 'background:#12a150;color:#fff' : 'background:#e5484d;color:#fff';
+    return `<div style="${bg};border-radius:10px;padding:8px 4px;text-align:center;font-size:12px;font-weight:700">${names[o.m]} ${String(o.y).slice(2)}</div>`;
+  }).join('');
+  return `<div class="card">
+    <h3 class="sec">Salary calendar</h3>
+    <p class="hint">Join: ${join.toLocaleDateString('en-IN')} · Monthly: ${inr(monthly)} · Green = mil gayi, Red = baaki</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px">${cells || '<div class="muted">Abhi koi month nahi.</div>'}</div>
+    <div class="sum" style="margin-top:12px">
+      <div class="sumc" style="background:linear-gradient(135deg,#1e6bff,#4f8dff)"><span>Total months</span><b>${months.length}</b></div>
+      <div class="sumc" style="background:linear-gradient(135deg,#12a150,#34c77a)"><span>Paid months</span><b>${paidMonths}</b></div>
+      <div class="sumc" style="background:linear-gradient(135deg,#64748b,#334155)"><span>Total due</span><b>${inr(due)}</b></div>
+      <div class="sumc" style="background:linear-gradient(135deg,#7c3aed,#a86bff)"><span>Mil gaya</span><b>${inr(received)}</b></div>
+    </div>
+    <div class="pen-row"><span>Baaki amount</span><b style="color:${pending > 0 ? '#b42328' : '#127a45'}">${inr(pending)}</b></div>
+  </div>`;
 }
 
 /* ============ ACTIONS ============ */
@@ -1241,6 +1423,10 @@ const ACTS = {
     D = { view: 'penalty', arg: {} };
     go('penalty', {}).then(() => { setTimeout(() => { const inp = $('#pApp'); if (inp) inp.value = id; }, 300); });
   },
+  viewPhoto: (id, el) => openPhotoViewer(POST_PHOTOS[id] || [], Number(el.dataset.i) || 0),
+  sharePhoto: (id, el) => sharePhoto(el.dataset.v),
+  dlPhoto: (id, el) => downloadPhoto(el.dataset.v),
+  refreshPerson: (id) => openPersonPage($('#main'), id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
   addAdmin: () => openAdminForm(null),
   editAdmin: (id) => openAdminForm(ADMIN_LIST.find(a => a.adminId === id)),
   resetAdmin: async (id) => {
