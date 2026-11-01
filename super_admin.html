@@ -874,7 +874,7 @@ function photosGrid(id, list) {
 }
 VIEWS.posts = async (c) => {
   const d = await api('apiPostList', 'madrasa');
-  d.list.forEach(x => { POST_PHOTOS[x.id] = x.photos || (x.photo ? [x.photo] : []); });
+  d.list.forEach(x => { POST_PHOTOS[x.id] = x.photos || (x.photo ? [x.photo] : []); POST_ITEMS[x.id] = { id: x.id, title: x.title, body: x.body, photos: POST_PHOTOS[x.id], titleColor: x.titleColor }; });
   c.innerHTML = `
     <div class="pagehead"><h2>Madrasa posts</h2></div>
     <p class="psub">Posts from Imam's Madrasa. Visible to everyone.</p>
@@ -897,7 +897,7 @@ VIEWS.posts = async (c) => {
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid var(--line);">
         ${callLink(x.authorMobile)}
         ${waLink(x.authorMobile)}
-        ${(ME.role === 'super_admin' || ME.role === 'admin') ? `<button class="btn red sm" style="margin-left:auto;" data-act="delPost" data-id="${esc(x.id)}">Delete</button>` : ''}
+        ${(ME.role === 'super_admin' || ME.role === 'admin') ? `<button class="btn light sm" style="margin-left:auto;" data-act="editPost" data-id="${esc(x.id)}">Edit</button><button class="btn red sm" data-act="delPost" data-id="${esc(x.id)}">Delete</button>` : ''}
       </div>
     </div>`).join('') || '<div class="empty">No posts yet.</div>'}`;
 };
@@ -1173,17 +1173,50 @@ VIEWS.profile = async (c) => {
     <div class="acts"><button class="btn green" data-act="saveProfile">Save profile</button></div>`;
 };
 
-/* ============ NEW POST MODAL ============ */
-function openNewPostForm() {
-  modal('Create New Post', `<div class="fgrid">
-    <div><label class="fl">Post title *<input class="inp" id="postTitle" placeholder="Post ka title"></label></div>
-    <div style="display:flex;gap:10px;align-items:flex-end">
-      <label class="fl" style="margin:0">Title color<input type="color" id="postColor" value="#0f172a" style="display:block;width:56px;height:40px;border:0;background:none;padding:0"></label>
-      <span class="hint" style="margin:0">Title ka rang chunein</span>
+/* ============ POST COMPOSER (new + edit) ============ */
+const POST_ITEMS = {};
+const POST_MAX_PHOTOS = 10;
+const POST_MAX_BYTES = 25 * 1024 * 1024;
+let PCOMP = [];   /* { kind:'old', url, removed } | { kind:'new', file, preview } */
+
+function photoFileError_(f) {
+  const n = (f.name || '').toLowerCase();
+  const isImg = /^image\//.test(f.type || '') || /\.(jpe?g|png|gif|webp|heic|heif)$/.test(n);
+  if (!isImg) return f.name + ': sirf photo chunein (JPG, PNG, GIF, WEBP, HEIC).';
+  if (f.size > POST_MAX_BYTES) return f.name + ': 25 MB se badi hai.';
+  return '';
+}
+function pcompActive_() { return PCOMP.filter(i => i.kind === 'new' || !i.removed).length; }
+
+function renderPcomp_() {
+  const box = document.getElementById('pcompBox'); if (!box) return;
+  const items = PCOMP.map((it, i) => {
+    if (it.kind === 'old' && it.removed) return '';
+    const src = it.kind === 'old' ? it.url : it.preview;
+    const thumb = src ? `<img src="${esc(src)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px;display:block">` : `<span class="muted" style="font-size:11px;padding:6px;display:block">${esc(it.file.name)}</span>`;
+    return `<div style="position:relative;width:96px;height:96px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#f7f9fd">
+      ${thumb}
+      <button type="button" data-act="pcompRemove" data-i="${i}" title="Remove" style="position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(15,23,42,.75);color:#fff;font-size:16px;line-height:1;cursor:pointer">×</button>
+    </div>`;
+  }).join('');
+  box.innerHTML = items || '<span class="muted" style="font-size:12px">Abhi koi photo nahi chuni gayi.</span>';
+  const cnt = document.getElementById('pcompCount'); if (cnt) cnt.textContent = pcompActive_() + ' / ' + POST_MAX_PHOTOS;
+}
+
+function postComposerForm_(post) {
+  return `<div class="fgrid">
+    <div><label class="fl">Post title *<input class="inp" id="postTitle" placeholder="Post ka title" value="${esc(post ? post.title : '')}"></label></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <label class="fl" style="margin:0">Title color<input type="color" id="postColor" value="${esc(post && post.titleColor ? post.titleColor : '#0f172a')}" style="display:block;width:56px;height:40px;border:0;background:none;padding:0"></label>
     </div>
-    <div><label class="fl">Description (post ka vivaran)<textarea class="inp" id="postBody" rows="6" placeholder="Post ka vivaran yahan likhein..."></textarea></label></div>
-    <div><label class="fl">Photos (optional, ek se zyada chun sakte hain)<input class="inp" type="file" id="postPhoto" accept="image/*" multiple></label></div>
-    <div id="postPrevs" class="acts"></div>
+    <div><label class="fl">Description (post ka vivaran)<textarea class="inp" id="postBody" rows="6" placeholder="Post ka vivaran yahan likhein...">${esc(post ? post.body : '')}</textarea></label></div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="fl" style="margin:0">Photos</span><span class="muted" id="pcompCount" style="font-size:12px"></span></div>
+      <div id="pcompBox" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"></div>
+      <label class="btn light sm" style="margin-top:8px;display:inline-flex">+ Photo chunein
+        <input type="file" id="postPhotoPick" accept="image/*" multiple style="display:none"></label>
+      <p class="hint" style="margin-top:6px">JPG, PNG, GIF, WEBP, HEIC. Har photo 25 MB tak. Photo Drive par tabhi jayegi jab aap Publish/Save karenge.</p>
+    </div>
     <div><label class="fl">Auto delete</label>
       <select class="inp" id="postExp">
         <option value="">Sirf manually delete</option>
@@ -1192,41 +1225,81 @@ function openNewPostForm() {
       </select>
       <input class="inp" type="datetime-local" id="postExpAt" style="display:none;margin-top:8px">
     </div>
-  </div>`, `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPostSave">Publish</button>`);
-
-  $('#postPhoto').addEventListener('change', e => {
-    const files = Array.from(e.target.files || []).filter(f => /^image\//.test(f.type));
-    $('#postPrevs').innerHTML = files.map(f => `<span class="chip c-role">${esc(f.name)}</span>`).join('');
-  });
-  $('#postExp').addEventListener('change', e => { $('#postExpAt').style.display = e.target.value === 'custom' ? 'block' : 'none'; });
-
-  $('#btnPostSave').addEventListener('click', async () => {
-    const btn = $('#btnPostSave'); if (btn.disabled) return; btn.disabled = true;
-    try {
-      const title = val('postTitle').trim();
-      if (!title) throw new Error('Title likhna zaroori hai.');
-      let expiresAt = '';
-      const mode = val('postExp');
-      if (mode === '24h') expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-      if (mode === 'custom') {
-        const v = val('postExpAt');
-        if (!v) throw new Error('Auto delete ka date/time chunein.');
-        if (new Date(v).getTime() <= Date.now()) throw new Error('Time aage ka chunein.');
-        expiresAt = new Date(v).toISOString();
-      }
-      const files = Array.from(document.getElementById('postPhoto').files || []);
-      const urls = [];
-      for (let i = 0; i < files.length; i++) {
-        toast('Photo ' + (i + 1) + ' of ' + files.length + ' upload ho rahi hai…');
-        const c = await compressImage(files[i]);
-        const r = await api('apiUploadPhoto', c.b64, c.mime, c.name);
-        urls.push(r.url);
-      }
-      await api('apiPostCreateV3', 'madrasa', title, val('postBody'), urls, { titleColor: val('postColor'), expiresAt });
-      closeM(); toast('Post created'); go('posts', {});
-    } catch (e) { if (e.message !== 'expired') toast(e.message); btn.disabled = false; }
-  });
+  </div>`;
 }
+
+function openPostComposer_(post) {
+  PCOMP = post ? (post.photos || []).map(u => ({ kind: 'old', url: u, removed: false })) : [];
+  modal(post ? 'Edit post' : 'Create New Post', postComposerForm_(post),
+    `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPostSave">${post ? 'Save changes' : 'Publish'}</button>`);
+  renderPcomp_();
+  document.getElementById('postPhotoPick').addEventListener('change', e => {
+    const picked = Array.from(e.target.files || []);
+    e.target.value = '';
+    let msgs = [];
+    picked.forEach(f => {
+      const err = photoFileError_(f);
+      if (err) { msgs.push(err); return; }
+      if (pcompActive_() >= POST_MAX_PHOTOS) { msgs.push('Maximum ' + POST_MAX_PHOTOS + ' photos.'); return; }
+      const preview = /^image\/(jpeg|png|gif|webp)$/.test(f.type || '') ? URL.createObjectURL(f) : '';
+      PCOMP.push({ kind: 'new', file: f, preview });
+    });
+    if (msgs.length) toast(msgs[0]);
+    renderPcomp_();
+  });
+  document.getElementById('postExp').addEventListener('change', e => { document.getElementById('postExpAt').style.display = e.target.value === 'custom' ? 'block' : 'none'; });
+  document.getElementById('btnPostSave').addEventListener('click', () => savePostComposer_(post));
+}
+
+async function photoToUpload_(file) {
+  if (file.type === 'image/gif') {
+    const b64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = () => rej(new Error('File read failed')); r.readAsDataURL(file); });
+    return { b64, mime: 'image/gif', name: file.name };
+  }
+  try { return await compressImage(file); }
+  catch (e) { throw new Error(file.name + ': ye photo browser mein nahi khulti. JPG ya PNG mein badal kar upload karein.'); }
+}
+
+async function savePostComposer_(post) {
+  const btn = document.getElementById('btnPostSave'); if (!btn || btn.disabled) return;
+  btn.disabled = true;
+  const uploaded = [];
+  try {
+    const title = val('postTitle').trim();
+    if (!title) throw new Error('Title likhna zaroori hai.');
+    if (pcompActive_() === 0) throw new Error('Kam se kam ek photo chuniye.');
+    let expiresAt = '';
+    const mode = val('postExp');
+    if (mode === '24h') expiresAt = new Date(Date.now() + 86400000).toISOString();
+    if (mode === 'custom') {
+      const v = val('postExpAt');
+      if (!v) throw new Error('Auto delete ka date/time chunein.');
+      if (new Date(v).getTime() <= Date.now()) throw new Error('Time aage ka chunein.');
+      expiresAt = new Date(v).toISOString();
+    }
+    const finalPhotos = [];
+    for (const it of PCOMP) {
+      if (it.kind === 'old') { if (!it.removed) finalPhotos.push(it.url); continue; }
+      toast('Photo upload ho rahi hai…');
+      const c = await photoToUpload_(it.file);
+      const r = await api('apiUploadPhoto', c.b64, c.mime, c.name);
+      uploaded.push(r.url);
+      finalPhotos.push(r.url);
+    }
+    const opts = { titleColor: val('postColor'), expiresAt };
+    const body = val('postBody');
+    if (post) await api('apiPostUpdateV3', post.id, finalPhotos, title, body, opts);
+    else await api('apiPostCreateV3', 'madrasa', title, body, finalPhotos, opts);
+    closeM(); toast(post ? 'Post update ho gayi' : 'Post published'); go('posts', {});
+  } catch (e) {
+    for (const u of uploaded) { try { await api('apiDeleteFile', u); } catch (_) {} }
+    if (e.message !== 'expired') toast(e.message);
+    btn.disabled = false;
+  }
+}
+
+function openNewPostForm() { openPostComposer_(null); }
+function openEditPostForm(post) { openPostComposer_(post); }
 
 /* Photo viewer: pinch zoom, double tap zoom, swipe, share, download */
 const POST_PHOTOS = {};
@@ -1441,6 +1514,8 @@ const ACTS = {
   sharePhoto: (id, el) => sharePhoto(el.dataset.v),
   dlPhoto: (id, el) => downloadPhoto(el.dataset.v),
   refreshPerson: (id) => openPersonPage($('#main'), id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
+  editPost: (id) => openEditPostForm(POST_ITEMS[id]),
+  pcompRemove: (id, el) => { const i = Number(el.dataset.i); const it = PCOMP[i]; if (!it) return; if (it.kind === 'old') it.removed = true; else PCOMP.splice(i, 1); renderPcomp_(); },
   addAdmin: () => openAdminForm(null),
   editAdmin: (id) => openAdminForm(ADMIN_LIST.find(a => a.adminId === id)),
   resetAdmin: async (id) => {
