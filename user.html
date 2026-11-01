@@ -11,7 +11,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--blue:#1e6bff;--green:#12a150;--orange:#ff8a00;--purple:#7c3aed;--red:#e5484d;--gold:#c99a2e;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--bg:#f4f7fc;--navy:#0b2a5b;--blue-t:#eaf1ff;--green-t:#e8f8ef;--orange-t:#fff3e2;--purple-t:#f1eaff;--red-t:#fdecec;--gold-t:#fbf4df;--side:264px}
-html,body{overflow-x:hidden;user-select:none;-webkit-user-select:none}
+html,body{user-select:none;-webkit-user-select:none}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;min-height:100vh}
 @media(min-width:960px){html,body{user-select:auto;-webkit-user-select:auto}}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -176,7 +176,7 @@ tr.row-paid td{background:#f3fbf6}tr.row-due td{background:#fff5f5}
 @media(min-width:900px){.hd{padding:12px 22px 14px}}
 
 /* pull-to-refresh band (login page wala reload nahi hoga) */
-html,body{overscroll-behavior-y:none}
+html,body{overscroll-behavior-y:contain}
 .pv-btn{border:0;border-radius:12px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer}
 .post-title{transition:color .2s}
 </style>
@@ -294,6 +294,8 @@ function bootProgress(p, t, s) { $('#bootBar').style.width = p + '%'; if (t) $('
 function bootDone() { $('#boot').classList.add('gone'); }
 function showError(t) { $('#main').innerHTML = '<div class="errbox"><b>Page could not load.</b><br>' + esc(t) + '</div>'; }
 window.onerror = m => showError('Script error: ' + m);
+/* long press par photo ka menu nahi, sirf click (viewer) */
+document.addEventListener('contextmenu', e => { if (e.target && e.target.tagName === 'IMG') e.preventDefault(); });
 
 async function api(fn, ...a) {
   busyStart();
