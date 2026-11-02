@@ -1,42 +1,31 @@
 const CACHE_NAME = 'simra-app-v2';
-const APP_SHELL = [
-  './',
-  './index.html',
-  './api.js',
-  './receipt.js'
+const ASSETS = [
+  './', './index.html', './admin.html', './super_admin.html', './imam.html',
+  './member.html', './user.html', './api.js', './receipt.js', './manifest.json',
+  './icon-192.png', './icon-512.png'
 ];
-const DATA_CACHE = 'simra-data-v2';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
+  e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS)));
 });
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.map(key => {
-        if (key !== CACHE_NAME && key !== DATA_CACHE) return caches.delete(key);
-      })
-    ))
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (e) => {
-  const req = e.request;
-  if (req.method !== 'GET') return;
-
-  // For Google Apps Script API (POST) — no SW caching (handled by frontend).
-  const url = req.url || '';
-  if (url.indexOf('script.google.com') >= 0) return;
-
-  // Static asset: cache-first
+  const url = new URL(e.request.url);
+  /* Apps Script API (POST) aur dusre domain kabhi cache nahi */
+  if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
+  /* Network pehle, offline ho to cache: app shell hamesha khulega */
   e.respondWith(
-    caches.match(req).then(hit => hit || fetch(req).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE_NAME).then(c => c.put(req, copy));
+    fetch(e.request).then((res) => {
+      if (res && res.ok) { const copy = res.clone(); caches.open(CACHE_NAME).then((c) => c.put(e.request, copy)); }
       return res;
-    }).catch(() => caches.match(req)))
+    }).catch(() => caches.match(e.request).then((m) => m || caches.match('./index.html')))
   );
 });
