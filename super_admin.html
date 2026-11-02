@@ -7,7 +7,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Super Admin · Community Portal</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--blue:#1e6bff;--green:#12a150;--orange:#ff8a00;--purple:#7c3aed;--red:#e5484d;--gold:#c99a2e;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--bg:#f4f7fc;--navy:#0b2a5b;--blue-t:#eaf1ff;--green-t:#e8f8ef;--orange-t:#fff3e2;--purple-t:#f1eaff;--red-t:#fdecec;--gold-t:#fbf4df;--side:264px}
@@ -75,6 +75,9 @@ h3.sec{font-size:15px;font-weight:700;margin:18px 0 10px;color:var(--navy);displ
 h3.sec::before{content:'';width:4px;height:18px;border-radius:4px;background:var(--blue)}
 .muted{color:var(--muted)}
 .loading,.empty{padding:26px;text-align:center;color:var(--muted)}
+.loading{min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-weight:650}
+.loading::before{content:"";width:30px;height:30px;border:3px solid #dbe7ff;border-top-color:var(--blue);border-right-color:#62b7ff;border-radius:50%;animation:loadspin .75s linear infinite}
+@keyframes loadspin{to{transform:rotate(360deg)}}
 .errbox{padding:16px;border-radius:14px;background:var(--red-t);color:#8a1c20;border:1px solid #f6c6c8;line-height:1.6}
 .big3{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .big3 .big:last-child{grid-column:1/-1}
@@ -225,6 +228,52 @@ img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
   .more-item .mi{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--blue-t);color:var(--blue)}
   .more-item.logout .mi{background:var(--red-t);color:var(--red)}
 }
+
+/* ===== Premium responsive polish ===== */
+:root{--glass:rgba(255,255,255,.72);--glass-line:rgba(255,255,255,.62);--soft-shadow:0 10px 28px rgba(15,35,75,.075)}
+body{background:radial-gradient(ellipse at 10% 0%,rgba(30,107,255,.075),transparent 34%),linear-gradient(180deg,#f8faff 0%,#f1f5fb 100%);background-attachment:fixed}
+.hd{box-shadow:0 12px 30px rgba(7,28,64,.15)}
+.menubtn,.avatar{box-shadow:0 5px 16px rgba(0,0,0,.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.pagehead{margin-top:10px;margin-bottom:7px;border-left-width:4px}
+.pagehead h2{letter-spacing:-.35px}
+.card{border-color:rgba(213,223,240,.9);box-shadow:var(--soft-shadow);border-radius:18px;transition:box-shadow .18s ease,transform .18s ease}
+.tile{box-shadow:0 5px 16px rgba(15,35,75,.045);transition:transform .18s ease,box-shadow .18s ease;border-radius:18px}
+.big{overflow:hidden;isolation:isolate;transition:transform .18s ease,box-shadow .18s ease}
+.big::after{content:"";position:absolute;inset:-30% -15% auto auto;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.12);filter:blur(1px);z-index:-1}
+.btn{box-shadow:0 5px 12px rgba(30,107,255,.14);transition:transform .15s ease,filter .15s ease,box-shadow .15s ease}
+.btn.light{box-shadow:none}
+.btn:active,.tile:active,.big:active,.sitem:active{transform:scale(.985)}
+input,select,textarea{border-radius:12px;transition:border-color .15s ease,box-shadow .15s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#8bb4ff!important;box-shadow:0 0 0 3px rgba(30,107,255,.12)}
+#ov{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(8,22,48,.48)}
+#ov .box{border:1px solid rgba(255,255,255,.7);box-shadow:0 24px 70px rgba(4,16,42,.24);border-radius:24px}
+.toast{border:1px solid rgba(255,255,255,.24);box-shadow:0 10px 30px rgba(8,22,48,.2);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+/* Floating glass bottom navigation */
+@media(max-width:959px){
+  .main{padding:12px 12px calc(116px + env(safe-area-inset-bottom,0px))}
+  .bnav{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));padding:7px;border-radius:25px;gap:5px;background:linear-gradient(135deg,rgba(255,255,255,.83),rgba(240,246,255,.72));border:1px solid rgba(255,255,255,.92);box-shadow:0 12px 36px rgba(11,42,91,.19),inset 0 1px 0 rgba(255,255,255,.95);backdrop-filter:blur(24px) saturate(175%);-webkit-backdrop-filter:blur(24px) saturate(175%)}
+  .bnav button{position:relative;min-height:52px;color:#61718c;border:1px solid transparent;border-radius:17px;font-size:10px;font-weight:750;padding:6px 2px;gap:3px;transition:background .18s ease,color .18s ease,transform .18s ease}
+  .bnav button svg.i{width:21px;height:21px;stroke-width:1.9}
+  .bnav button.on{color:#1558d6;background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(219,233,255,.88));border-color:rgba(139,180,255,.58);box-shadow:0 5px 14px rgba(30,107,255,.13),inset 0 1px 0 #fff}
+  .bnav button.on::before{content:"";position:absolute;top:4px;left:50%;transform:translateX(-50%);width:18px;height:3px;border-radius:9px;background:linear-gradient(90deg,#1e6bff,#66b9ff)}
+  .bnav .more-c,.bnav .more-c.on{width:45px;height:45px;min-height:45px;flex:0 0 45px;align-self:center;border-radius:16px;background:linear-gradient(145deg,rgba(30,107,255,.12),rgba(255,255,255,.8));border:1px solid rgba(139,180,255,.55);color:#1e5ed8;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+  .bnav .more-c svg.i{width:22px;height:22px}
+  .more-item{box-shadow:0 5px 16px rgba(15,35,75,.05)}
+  .pagehead h2{font-size:20px}
+  .tiles{gap:9px}
+  .tile{padding:11px;min-height:72px;gap:9px}
+  .tile .ti{width:44px;height:44px;flex-basis:44px}
+  .tile .ti svg.i{width:24px;height:24px}
+  .big{min-height:88px;padding:12px;border-radius:17px}
+  .big .ic{width:50px;height:50px;flex-basis:50px}
+}
+@media(min-width:960px){
+  .pagewrap{max-width:1600px}
+  .main{padding:20px 22px 44px}
+  .card:hover,.tile:hover{box-shadow:0 13px 30px rgba(15,35,75,.09)}
+  .tile:hover,.big:hover{transform:translateY(-2px)}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -877,7 +926,7 @@ VIEWS.expOpen = async (c, arg) => {
     </div>
     <div class="card" style="margin-top:10px"><h3 class="sec">Remove items</h3>
       ${r.items.map(i => `<div class="pen-row"><span>${i.itemNo}. ${esc(i.title)}</span>
-        <button class="btn red sm" data-act="delItem" data-id="${esc(arg.id)}" data-no="${i.itemNo}">Delete</button></div>`).join('') || '<div class="muted">No items.</div>'}
+        <button class="btn red sm" data-act="delExpenseItem" data-id="${esc(arg.id)}" data-no="${i.itemNo}">Delete</button></div>`).join('') || '<div class="muted">No items.</div>'}
     </div>`;
 };
 
@@ -1248,9 +1297,12 @@ const SEC_LABEL_ = { madrasa: 'Madrasa', mposts: 'Madrasa posts', masjid: 'Masji
 
 function photoFileError_(f) {
   const n = (f.name || '').toLowerCase();
-  const isImg = /^image\//.test(f.type || '') || /\.(jpe?g|png|gif|webp|heic|heif|bmp|tiff?|avif)$/.test(n);
-  if (!isImg) return f.name + ': ye photo format allowed nahi hai.';
-  if (f.size > POST_MAX_BYTES) return f.name + ': 25 MB se badi hai.';
+  // Android gallery/document picker kabhi-kabhi MIME type blank bhejta hai;
+  // isliye file extension ko bhi check karein.
+  const isImg = /^image\//i.test(f.type || '') || /\.(jpe?g|png|gif|webp|heic|heif|bmp|tiff?|avif|jfif|jxl)$/.test(n);
+  if (!isImg) return (f.name || 'Selected file') + ': photo format pehchana nahi gaya. Gallery se image chunein.';
+  // Photos are compressed before upload; reject only unusually large originals.
+  if (f.size > 50 * 1024 * 1024) return (f.name || 'Photo') + ': file 50 MB se badi hai. Chhoti/compressed photo chunein.';
   return '';
 }
 function pcompActive_() { return PCOMP.filter(i => i.kind === 'new' || !i.removed).length; }
@@ -1283,7 +1335,7 @@ function composerForm_(it) {
       <div style="display:flex;justify-content:space-between;align-items:center"><span class="fl" style="margin:0">Photos</span><span class="muted" id="pcompCount" style="font-size:12px"></span></div>
       <div id="pcompBox" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"></div>
       <label class="btn light sm" style="margin-top:8px;display:inline-flex">+ Photo chunein
-        <input type="file" id="postPhotoPick" accept="image/*,.heic,.heif" multiple style="display:none"></label>
+        <input type="file" id="postPhotoPick" accept="image/*,.heic,.heif,.avif,.bmp,.tif,.tiff" multiple style="display:none"></label>
     </div>
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center"><span class="fl" style="margin:0">Files</span><span class="muted" id="fcompCount" style="font-size:12px"></span></div>
@@ -1328,7 +1380,7 @@ function openComposer_(sec, it) {
       const err = photoFileError_(f);
       if (err) { msg = msg || err; return; }
       if (pcompActive_() >= POST_MAX_PHOTOS) { msg = msg || ('Maximum ' + POST_MAX_PHOTOS + ' photos.'); return; }
-      const preview = /^image\/(jpeg|png|gif|webp)$/.test(f.type || '') ? URL.createObjectURL(f) : '';
+      const preview = (/^image\//i.test(f.type || '') && !/heic|heif/i.test((f.type || '') + ' ' + f.name)) || /\.(jpe?g|png|gif|webp|bmp|tiff?|avif|jfif)$/i.test(f.name || '') ? URL.createObjectURL(f) : '';
       PCOMP.push({ kind: 'new', file: f, preview: preview });
     });
     if (msg) toast(msg);
@@ -1399,37 +1451,57 @@ async function fileAction_(url, name, share) {
 
 function loadHeic_() {
   if (window.heic2any) return Promise.resolve();
-  return new Promise((res, rej) => {
+  if (window.__heicLoadPromise) return window.__heicLoadPromise;
+  window.__heicLoadPromise = new Promise((res, rej) => {
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
-    s.onload = res;
-    s.onerror = () => rej(new Error('HEIC converter load nahi hua. Internet check karein.'));
+    s.onload = () => window.heic2any ? res() : rej(new Error('HEIC converter load nahi hua.'));
+    s.onerror = () => { window.__heicLoadPromise = null; rej(new Error('HEIC/HEIF photo convert nahi hui. Internet chalu karke dobara try karein, ya JPG mein save karein.')); };
     document.head.appendChild(s);
   });
+  return window.__heicLoadPromise;
 }
 async function toJpegFile_(f) {
-  const isHeic = /heic|heif/i.test(f.type || '') || /\.(heic|heif)$/i.test(f.name || '');
+  const isHeic = /heic|heif/i.test((f.type || '') + ' ' + (f.name || ''));
   if (!isHeic) return f;
   await loadHeic_();
-  const out = await window.heic2any({ blob: f, toType: 'image/jpeg', quality: 0.9 });
+  const out = await window.heic2any({ blob: f, toType: 'image/jpeg', quality: 0.88 });
   const blob = Array.isArray(out) ? out[0] : out;
+  if (!blob || !blob.size) throw new Error('HEIC photo convert nahi hui. Gallery se JPG/PNG photo chunein.');
   return new File([blob], (f.name || 'photo').replace(/\.(heic|heif)$/i, '') + '.jpg', { type: 'image/jpeg' });
 }
+function fileToData_(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      const comma = result.indexOf(',');
+      if (comma < 0 || !result.slice(comma + 1)) return reject(new Error('Photo read nahi hui. Dobara select karein.'));
+      resolve({ b64: result.slice(comma + 1), mime: file.type || 'application/octet-stream', name: file.name || 'photo' });
+    };
+    reader.onerror = () => reject(new Error('Photo read nahi hui. Dobara select karein.'));
+    reader.onabort = () => reject(new Error('Photo reading cancel ho gayi.'));
+    reader.readAsDataURL(file);
+  });
+}
 async function photoToUpload_(file) {
+  const original = file;
   file = await toJpegFile_(file);
-  if (file.type === 'image/gif') {
-    const b64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = () => rej(new Error('File read failed')); r.readAsDataURL(file); });
-    return { b64: b64, mime: 'image/gif', name: file.name };
-  }
+  // Preserve animated GIF; other browser-decodable formats are normalized to compact JPEG.
+  if (/image\/gif/i.test(file.type || '') || /\.gif$/i.test(file.name || '')) return await fileToData_(file);
   try {
-    return await compressImage(file);
+    return await compressImage(file, 1200, 0.8);
   } catch (e) {
-    /* Compress na ho paye to original file hi upload karo */
-    const b64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = () => rej(new Error('File read failed')); r.readAsDataURL(file); });
-    return { b64: b64, mime: file.type || 'image/jpeg', name: file.name || 'photo.jpg' };
+    // Some browsers cannot decode newer formats (e.g. AVIF/JXL). Send the original
+    // only when the picker identified it as an image; the server can then return a useful error.
+    if (/^image\//i.test(file.type || '') || /\.(jpe?g|png|webp|bmp|tiff?|avif|jfif|jxl)$/i.test(file.name || '')) {
+      const raw = await fileToData_(file);
+      raw.mime = file.type || raw.mime;
+      return raw;
+    }
+    throw new Error('Is photo format ko phone browser read nahi kar paaya. Photo ko JPG/PNG mein save karke dobara chunein.');
   }
 }
-
 function setPubStatus_(text, isErr) {
   const el = document.getElementById('pubStatus');
   if (!el) return;
@@ -1456,9 +1528,11 @@ async function saveComposer_(sec, it) {
     const finalPhotos = [];
     for (const p of PCOMP) {
       if (p.kind === 'old') { if (!p.removed) finalPhotos.push(p.url); continue; }
-      setPubStatus_('Photo upload ho rahi hai…');
+      setPubStatus_('Photo process/upload ho rahi hai: ' + (p.file.name || 'photo'));
       const c = await photoToUpload_(p.file);
+      setPubStatus_('Photo server par upload ho rahi hai…');
       const r = await api('apiUploadPhoto', c.b64, c.mime, c.name);
+      if (!r || !r.url) throw new Error('Photo server par upload nahi hui. Apps Script ka apiUploadPhoto/Drive permission check karein.');
       uploaded.push(r.url);
       finalPhotos.push(r.url);
     }
@@ -1752,7 +1826,7 @@ const ACTS = {
     await api('apiExpenseAddItem', id, val('iTitle'), val('iDesc'), val('iAmt'), val('iDate'));
     toast('Item added'); go('expOpen', { id });
   },
-  delItem: async (id, el) => {
+  delExpenseItem: async (id, el) => {
     if (!confirm('Remove this item?')) return;
     await api('apiExpenseDeleteItem', id, el.dataset.no);
     go('expOpen', { id });
@@ -1950,19 +2024,22 @@ async function boot() {
       logo: (r.org && r.org.logo) || '',
       headerBg: (r.org && r.org.headerBg) || ''
     });
-    bootProgress(35, 'Loading icons…', '');
-    const ic2 = await apiCall('apiGetIcons', [TOKEN]).catch(() => null);
+    bootProgress(45, 'Preparing your workspace…', '');
+    // These requests are independent; run together to avoid serial network waits.
+    const [ic2, ph] = await Promise.all([
+      apiCall('apiGetIcons', [TOKEN]).catch(() => null),
+      apiCall('apiAdminGetPhoto', [TOKEN]).catch(() => null)
+    ]);
     ICONS = (ic2 && ic2.icons) || {};
-    bootProgress(55, 'Loading your profile…', '');
-    const ph = await apiCall('apiAdminGetPhoto', [TOKEN]).catch(() => null);
     MY_PHOTO = (ph && ph.url) || '';
     $('#av').innerHTML = avatarHtml(ME.name, MY_PHOTO);
-    bootProgress(75, 'Loading dashboard…', '');
+    bootProgress(80, 'Opening dashboard…', '');
     startIdle();
     history.replaceState({ v: 'dash', arg: {} }, '', '#dash');
+    // Reveal the shell first; dashboard data loads behind its inline loader.
+    bootDone();
     await go('dash', {}, true);
     bootProgress(100, 'Ready', 'Welcome');
-    setTimeout(bootDone, 250);
   } catch (e) { bootDone(); showError(e.message); }
 }
 let LAST = Date.now();
