@@ -52,7 +52,7 @@ img.ic{width:100%;height:100%;object-fit:cover;display:block}
 .side-foot{padding:10px 14px 14px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-align:center}
 #scrim{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:120;opacity:0;pointer-events:none;transition:opacity .25s}
 #scrim.on{opacity:1;pointer-events:auto}
-.hd{position:relative;overflow:hidden;padding:12px 14px 22px;text-align:center;color:#fff;background:linear-gradient(135deg,#071c40 0%,#0f3d7f 48%,#0a2a5c 100%)}
+.hd{position:relative;overflow:hidden;padding:9px 12px 10px;margin:8px 10px 0;border-radius:22px;text-align:center;color:#fff;background:linear-gradient(135deg,#071c40 0%,#0f3d7f 48%,#0a2a5c 100%);max-width:1500px}
 .hd::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 90% at 50% -20%,rgba(96,170,255,.55),transparent 62%)}
 .hd>*{position:relative;z-index:2}
 .hd .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -60,8 +60,8 @@ img.ic{width:100%;height:100%;object-fit:cover;display:block}
 .menubtn svg.i{width:22px;height:22px}
 .avatar{width:42px;height:42px;border-radius:50%;flex:0 0 42px;display:grid;place-items:center;cursor:pointer;border:2px solid rgba(255,255,255,.85);background:linear-gradient(135deg,#94a3b8,#475569);color:#fff;overflow:hidden;font-weight:700;font-size:16px}
 .avatar img{width:100%;height:100%;object-fit:cover}
-.seal{width:76px;height:76px;margin:4px auto 0;border-radius:50%;background:rgba(255,255,255,.97);border:2px solid rgba(255,255,255,.7);display:grid;place-items:center;overflow:hidden;color:var(--navy)}
-.seal img{width:100%;height:100%;object-fit:cover}
+.org-title-row{display:flex;align-items:center;justify-content:center;gap:9px;max-width:100%;margin:3px auto 0}.seal{width:38px;height:38px;margin:0;border-radius:50%;background:rgba(255,255,255,.97);border:2px solid rgba(255,255,255,.78);display:grid;place-items:center;overflow:hidden;color:var(--navy);flex:0 0 38px;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.seal img{width:100%;height:100%;object-fit:cover}.orgname{margin-top:0;font-weight:900;letter-spacing:-.35px;text-shadow:0 2px 14px rgba(0,0,0,.15);overflow-wrap:anywhere}
 .orgname{margin-top:10px;font-size:clamp(25px,5vw,34px);font-weight:900;color:#fff;line-height:1.16}
 .role{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:13px;border:1px solid rgba(255,255,255,.42)}
 .role svg.i{width:16px;height:16px}
@@ -197,13 +197,13 @@ html,body{overscroll-behavior-y:contain}
 .post-title{transition:color .2s}
 
 /* header compact, photo saaf dikhe */
-.hd{padding:10px 14px 12px}
+.hd{padding:8px 12px 10px;margin:7px 9px 0;width:calc(100% - 18px)}
 .hd::after{display:none}
-.seal{width:50px;height:50px;margin:2px auto 0}
-.orgname{margin-top:6px;font-size:clamp(17px,4vw,22px);line-height:1.2}
+.seal{width:38px;height:38px;margin:0;flex:0 0 38px}
+.orgname{margin-top:0;font-size:clamp(17px,4vw,22px);line-height:1.15;font-weight:900}
 .role{margin-top:6px;padding:4px 12px;font-size:12px}
 .tag{margin-top:4px;font-size:12px}
-@media(min-width:900px){.hd{padding:12px 22px 14px}}
+@media(min-width:900px){.hd{padding:10px 22px 12px;margin:8px auto 0;width:calc(100% - 24px)}.orgname{font-size:clamp(20px,2.2vw,26px)}}
 /* scroll/touch fix */
 .pagewrap{overflow-x:clip}
 html,body{touch-action:pan-y}
@@ -296,8 +296,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#8bb4ff!import
         <button class="avatar" id="av"></button>
       </div>
     </div>
-    <div class="seal" id="seal"></div>
-    <div class="orgname" id="orgName">Community</div>
+    <div class="org-title-row"><div class="orgname" id="orgName">Community</div><div class="seal" id="seal"></div></div>
     <div class="role"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg><span id="roleName">Super Admin</span></div>
     <div class="tag">Ilm • Iman • Seva</div>
   </header>
@@ -379,28 +378,48 @@ const ICON_FIELDS = [['dashboard','Dashboard'],['users','Users'],['imam','Imams'
 const val = id => { const e = document.getElementById(id); return e ? e.value : ''; };
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
-async function compressImage(file, maxDim = 900, quality = 0.82) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      let w = img.naturalWidth, h = img.naturalHeight;
-      if (w > maxDim || h > maxDim) { const r = Math.min(maxDim / w, maxDim / h); w = Math.round(w * r); h = Math.round(h * r); }
-      const cvs = document.createElement('canvas'); cvs.width = w; cvs.height = h;
-      const ctx = cvs.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
-      cvs.toBlob(blob => {
-        if (!blob) return reject(new Error('Compression failed'));
-        const reader = new FileReader();
-        reader.onload = () => resolve({ b64: String(reader.result).split(',')[1], mime: blob.type || 'image/jpeg', name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg', size: blob.size });
-        reader.readAsDataURL(blob);
-      }, 'image/jpeg', quality);
-    };
-    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Invalid image file')); };
-    img.src = objectUrl;
-  });
+async function blobToB64_(blob) {
+  // ArrayBuffer is more reliable than FileReader.readAsDataURL on some Android pickers.
+  const buffer = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(i + chunk, bytes.length)));
+  }
+  return btoa(binary);
 }
-
+async function compressImage(file, maxDim = 1200, quality = 0.82) {
+  let bitmap = null, objectUrl = '';
+  try {
+    if (window.createImageBitmap) {
+      try { bitmap = await createImageBitmap(file); } catch (_) { bitmap = null; }
+    }
+    let source = bitmap;
+    if (!source) {
+      objectUrl = URL.createObjectURL(file);
+      source = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Browser is format ko decode nahi kar paaya.'));
+        img.src = objectUrl;
+      });
+    }
+    let w = source.width || source.naturalWidth, h = source.height || source.naturalHeight;
+    if (!w || !h) throw new Error('Photo dimensions read nahi hui.');
+    if (w > maxDim || h > maxDim) { const ratio = Math.min(maxDim / w, maxDim / h); w = Math.max(1, Math.round(w * ratio)); h = Math.max(1, Math.round(h * ratio)); }
+    const cvs = document.createElement('canvas'); cvs.width = w; cvs.height = h;
+    const ctx = cvs.getContext('2d', { alpha: false });
+    if (!ctx) throw new Error('Photo canvas tayyar nahi hua.');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(source, 0, 0, w, h);
+    const blob = await new Promise((resolve, reject) => cvs.toBlob(b => b ? resolve(b) : reject(new Error('Photo compress nahi hui.')), 'image/jpeg', quality));
+    if (!blob.size) throw new Error('Compressed photo khaali hai.');
+    return { b64: await blobToB64_(blob), mime: 'image/jpeg', name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg', size: blob.size };
+  } finally {
+    if (bitmap && bitmap.close) bitmap.close();
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+  }
+}
 function drawMoneyBar(collected, expenses, salary) {
   const total = Math.max(collected, 1); const expPct = Math.min(100, (expenses / total) * 100); const salPct = Math.min(100 - expPct, (salary / total) * 100); const balPct = Math.max(0, 100 - expPct - salPct); const net = collected - expenses - salary;
   return `<div class="money-graph"><div class="money-bar">${expPct > 0 ? `<div style="width:${expPct}%;background:linear-gradient(90deg,#e5484d,#ff7a7d)"></div>` : ''}${salPct > 0 ? `<div style="width:${salPct}%;background:linear-gradient(90deg,#7c3aed,#a86bff)"></div>` : ''}${balPct > 0 ? `<div style="width:${balPct}%;background:linear-gradient(90deg,#12a150,#34c77a)"></div>` : ''}</div><div class="money-legend"><span><span class="dot" style="background:#e5484d"></span>Expenses ${inr(expenses)}</span><span><span class="dot" style="background:#7c3aed"></span>Salary ${inr(salary)}</span><span><span class="dot" style="background:#12a150"></span>Balance ${inr(Math.max(0, net))}</span></div><div class="money-net" style="color:${net >= 0 ? 'var(--green)' : 'var(--red)'}">Net Balance: ${inr(net)}</div></div>`;
@@ -504,16 +523,30 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') hideDrawer()
 /* Bottom navigation (mobile): 4 main + "⋯" */
 const BNAV_ITEMS = [
   { k: 'home', l: 'Home', ic: 'dashboard', go: 'dash', arg: {} },
-  { k: 'comm', l: 'Community', ic: 'madrasa', go: 'sec', arg: { sec: 'madrasa' } },
+  { k: 'comm', l: 'Community', ic: 'madrasa', act: 'communityMenu' },
   { k: 'users', l: 'All User', ic: 'users', go: 'people', arg: {} },
   { k: 'prof', l: 'Profile', ic: 'profile', go: 'profile', arg: {} }
 ];
 function drawBnav() {
   const bn = document.getElementById('bnav'); if (!bn) return;
-  const curKey = (D.view === 'dash') ? 'home' : (D.view === 'sec' && D.arg && D.arg.sec === 'madrasa') ? 'comm' : (D.view === 'people') ? 'users' : (D.view === 'profile') ? 'prof' : '';
-  bn.innerHTML = BNAV_ITEMS.map(b => `<button class="${curKey === b.k ? 'on' : ''}" data-go="${b.go}" data-arg='${JSON.stringify(b.arg)}'>${ic(b.ic)}<span>${b.l}</span></button>`).join('')
+  const contentViews = ['sec','posts','notice'];
+  const curKey = (D.view === 'dash') ? 'home' : (contentViews.includes(D.view)) ? 'comm' : (D.view === 'people') ? 'users' : (D.view === 'profile') ? 'prof' : '';
+  bn.innerHTML = BNAV_ITEMS.map(b => `<button class="${curKey === b.k ? 'on' : ''}" ${b.act ? `data-act="${b.act}"` : `data-go="${b.go}" data-arg='${JSON.stringify(b.arg)}'`}>${ic(b.ic)}<span>${b.l}</span></button>`).join('')
     + `<button class="more-c ${curKey === '' ? 'on' : ''}" data-act="moreMenu" aria-label="Menu">${ic('settings')}</button>`;
 }
+function openCommunitySheet() {
+  const items = [
+    { l: 'Madrasa', ic: 'madrasa', v: 'sec', a: { sec: 'madrasa' } },
+    { l: 'Madrasa Posts', ic: 'madrasa', v: 'posts', a: {} },
+    { l: 'Masjid', ic: 'masjid', v: 'sec', a: { sec: 'masjid' } },
+    { l: 'Eidgah', ic: 'eidgah', v: 'sec', a: { sec: 'eidgah' } },
+    { l: 'Kabristan', ic: 'kabristan', v: 'sec', a: { sec: 'kabristan' } },
+    { l: 'Notice', ic: 'alert', v: 'notice', a: {} }
+  ];
+  const list = items.map(n => `<button class="more-item" data-go="${n.v}" data-arg='${JSON.stringify(n.a)}'><span class="mi">${iconHtml(n.ic)}</span><span>${n.l}</span></button>`).join('');
+  modal('Community posts', `<p class="psub">Apna section chunein</p><div class="more-grid">${list}</div>`, '');
+}
+
 function openMoreSheet() {
   const items = [];
   GROUPS.forEach(g => g.items.forEach(n => items.push(n)));
@@ -1470,36 +1503,54 @@ async function toJpegFile_(f) {
   if (!blob || !blob.size) throw new Error('HEIC photo convert nahi hui. Gallery se JPG/PNG photo chunein.');
   return new File([blob], (f.name || 'photo').replace(/\.(heic|heif)$/i, '') + '.jpg', { type: 'image/jpeg' });
 }
-function fileToData_(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result || '');
-      const comma = result.indexOf(',');
-      if (comma < 0 || !result.slice(comma + 1)) return reject(new Error('Photo read nahi hui. Dobara select karein.'));
-      resolve({ b64: result.slice(comma + 1), mime: file.type || 'application/octet-stream', name: file.name || 'photo' });
-    };
-    reader.onerror = () => reject(new Error('Photo read nahi hui. Dobara select karein.'));
-    reader.onabort = () => reject(new Error('Photo reading cancel ho gayi.'));
-    reader.readAsDataURL(file);
-  });
+function imageMime_(file) {
+  if (file && file.type && /^image\//i.test(file.type)) return file.type;
+  const ext = String(file && file.name || '').split('.').pop().toLowerCase();
+  return ({ jpg:'image/jpeg', jpeg:'image/jpeg', jfif:'image/jpeg', png:'image/png', gif:'image/gif', webp:'image/webp', bmp:'image/bmp', tif:'image/tiff', tiff:'image/tiff', heic:'image/heic', heif:'image/heif', avif:'image/avif', jxl:'image/jxl', ico:'image/x-icon', svg:'image/svg+xml' })[ext] || 'application/octet-stream';
+}
+async function fileToData_(file) {
+  try {
+    const b64 = await blobToB64_(file);
+    if (!b64) throw new Error('Empty photo');
+    return { b64, mime: imageMime_(file), name: file.name || 'photo' };
+  } catch (e) {
+    // Compatibility fallback for older browsers which do not expose Blob.arrayBuffer().
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || ''), comma = result.indexOf(',');
+        if (comma < 0 || !result.slice(comma + 1)) return reject(new Error('Photo bytes read nahi hue. File ko phone mein save karke dobara select karein.'));
+        resolve({ b64: result.slice(comma + 1), mime: imageMime_(file), name: file.name || 'photo' });
+      };
+      reader.onerror = () => reject(new Error('Phone ne is photo ko read karne se mana kiya. Photo ko device mein save karke dobara chunein.'));
+      reader.onabort = () => reject(new Error('Photo reading cancel ho gayi.'));
+      try { reader.readAsDataURL(file); } catch (err) { reject(new Error('Photo read nahi hui. Gallery se photo ko device mein save karke dobara select karein.')); }
+    });
+  }
 }
 async function photoToUpload_(file) {
-  const original = file;
-  file = await toJpegFile_(file);
-  // Preserve animated GIF; other browser-decodable formats are normalized to compact JPEG.
-  if (/image\/gif/i.test(file.type || '') || /\.gif$/i.test(file.name || '')) return await fileToData_(file);
-  try {
-    return await compressImage(file, 1200, 0.8);
-  } catch (e) {
-    // Some browsers cannot decode newer formats (e.g. AVIF/JXL). Send the original
-    // only when the picker identified it as an image; the server can then return a useful error.
-    if (/^image\//i.test(file.type || '') || /\.(jpe?g|png|webp|bmp|tiff?|avif|jfif|jxl)$/i.test(file.name || '')) {
+  if (!file) throw new Error('Pehle photo select karein.');
+  const isHeic = /heic|heif/i.test((file.type || '') + ' ' + (file.name || ''));
+  if (isHeic) {
+    try { file = await toJpegFile_(file); }
+    catch (e) {
+      // If converter is unavailable, still try sending original bytes to Drive.
+      if (!/^image\//i.test(imageMime_(file))) throw e;
+      const raw = await fileToData_(file); raw.mime = imageMime_(file); return raw;
+    }
+  }
+  if (/image\/gif/i.test(file.type || '') || /\.gif$/i.test(file.name || '')) {
+    const gif = await fileToData_(file); gif.mime = 'image/gif'; return gif;
+  }
+  try { return await compressImage(file, 1200, 0.82); }
+  catch (e) {
+    const mime = imageMime_(file);
+    if (/^image\//i.test(mime)) {
       const raw = await fileToData_(file);
-      raw.mime = file.type || raw.mime;
+      raw.mime = mime;
       return raw;
     }
-    throw new Error('Is photo format ko phone browser read nahi kar paaya. Photo ko JPG/PNG mein save karke dobara chunein.');
+    throw new Error('Yeh photo format browser mein open nahi hua. Photo ko JPG/PNG mein convert karke try karein.');
   }
 }
 function setPubStatus_(text, isErr) {
@@ -1511,7 +1562,10 @@ function setPubStatus_(text, isErr) {
 
 async function saveComposer_(sec, it) {
   const btn = document.getElementById('btnPostSave'); if (!btn || btn.disabled) return;
+  const originalLabel = btn.textContent;
   btn.disabled = true;
+  btn.textContent = 'Publishing…';
+  setPubStatus_('Publish tayyar ho raha hai…');
   const uploaded = [];
   try {
     const title = val('postTitle').trim();
@@ -1551,11 +1605,12 @@ async function saveComposer_(sec, it) {
     });
     setPubStatus_('');
     closeM(); toast((it ? 'Update ho gaya' : 'Published') + ' · ' + (saved && saved.sheet === 'POSTS' ? 'Madrasa posts' : 'Section/Notice') + (saved && saved.build ? ' [' + saved.build + ']' : ' [purana server]'));
-    if (sec === 'notice') go('notice', {}); else go('sec', { sec: sec });
+    if (sec === 'notice') go('notice', {}); else if (sec === 'mposts') go('posts', {}); else go('sec', { sec: sec });
   } catch (e) {
     for (const u of uploaded) { try { await api('apiDeleteFile', u); } catch (_) {} }
     if (e.message !== 'expired') { setPubStatus_('Error: ' + e.message, true); toast(e.message); }
     btn.disabled = false;
+    btn.textContent = originalLabel;
   }
 }
 
@@ -1700,6 +1755,7 @@ const ACTS = {
   newPost: () => openNewPostForm(),
   logout: () => leave(false),
   moreMenu: () => openMoreSheet(),
+  communityMenu: () => openCommunitySheet(),
   close: () => closeM(),
   printNow: () => window.print(),
   copy: (id, el) => copyText(el.dataset.v),
@@ -1916,7 +1972,7 @@ document.addEventListener('change', async e => {
     if (!/^image\//.test(f.type)) return toast('Please choose an image file.');
     try {
       $('#dpHint').textContent = 'Processing…';
-      const compressed = await compressImage(f);
+      const compressed = await photoToUpload_(f);
       DP_PENDING = compressed;
       showDpPending('data:' + compressed.mime + ';base64,' + compressed.b64);
       toast('Photo ready — press Save');
@@ -1928,7 +1984,7 @@ document.addEventListener('change', async e => {
     if (!/^image\//.test(f.type)) return toast('Please choose an image file.');
     try {
       toast('Uploading…');
-      const compressed = await compressImage(f);
+      const compressed = await photoToUpload_(f);
       const r = await api('apiUploadPhoto', compressed.b64, compressed.mime, compressed.name);
       const isPerson = e.target.id === 'fPhoto';
       const urlField = $(isPerson ? '#fPhotoUrl' : '#sPhotoUrl');
@@ -2001,7 +2057,7 @@ function applyOrg(o) {
   }
 
   const seal = $('#seal');
-  if (seal) seal.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 46);
+  if (seal) seal.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="" onerror="this.remove()">` : ic('mosque', 24);
   const sl = document.getElementById('sideLogo');
   if (sl) sl.innerHTML = o.logo ? `<img src="${esc(o.logo)}" alt="">` : ic('mosque');
 }
