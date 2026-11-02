@@ -379,23 +379,63 @@ const val = id => { const e = document.getElementById(id); return e ? e.value : 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
 async function blobToB64_(blob) {
-  let buffer = null;
-  try { if (blob && typeof blob.arrayBuffer === 'function') buffer = await blob.arrayBuffer(); } catch (_) {}
+  if (!blob) throw new Error('Photo file nahi mili.');
+  if (typeof blob.size === 'number' && blob.size <= 0) {
+    throw new Error('Phone se selected photo ka size 0 aa raha hai. Gallery ke bajay Files app se JPG/PNG select karein.');
+  }
+  let buffer = null, lastErr = '';
+  try { if (typeof blob.arrayBuffer === 'function') buffer = await blob.arrayBuffer(); }
+  catch (e) { lastErr = e && e.message ? e.message : String(e); }
   if (!buffer) {
-    try { buffer = await new Promise((resolve, reject) => {
-      const r = new FileReader(); r.onload = () => resolve(r.result);
-      r.onerror = () => reject(new Error('FileReader could not read selected photo'));
-      r.onabort = () => reject(new Error('Photo reading cancelled')); r.readAsArrayBuffer(blob);
-    }); } catch (_) {}
+    try {
+      buffer = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => reject(r.error || new Error('FileReader read failed'));
+        r.onabort = () => reject(new Error('Photo reading cancelled'));
+        r.readAsArrayBuffer(blob);
+      });
+    } catch (e) { lastErr = e && e.message ? e.message : String(e); }
+  }
+  // Some Android document providers expose a Blob-like file but fail readAsArrayBuffer.
+  // Try data URL as a separate read path before declaring the photo unreadable.
+  if (!buffer) {
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result || ''));
+        r.onerror = () => reject(r.error || new Error('Data URL read failed'));
+        r.onabort = () => reject(new Error('Photo reading cancelled'));
+        r.readAsDataURL(blob);
+      });
+      const comma = dataUrl.indexOf(',');
+      if (comma >= 0 && dataUrl.slice(0, comma).includes('base64')) {
+        const b64 = dataUrl.slice(comma + 1);
+        if (b64) return b64;
+      }
+    } catch (e) { lastErr = e && e.message ? e.message : String(e); }
   }
   if (!buffer && window.URL && URL.createObjectURL) {
     let url = '';
-    try { url = URL.createObjectURL(blob); const response = await fetch(url); if (!response.ok) throw new Error('Photo blob read failed'); buffer = await response.arrayBuffer(); }
-    catch (_) {} finally { if (url) URL.revokeObjectURL(url); }
+    try {
+      url = URL.createObjectURL(blob);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Photo blob read failed');
+      buffer = await response.arrayBuffer();
+    } catch (e) { lastErr = e && e.message ? e.message : String(e); }
+    finally { if (url) URL.revokeObjectURL(url); }
   }
-  if (!buffer || !buffer.byteLength) throw new Error('Photo data phone/browser se nahi mila. Gallery mein photo ko Download/Save to device karein, phir JPG/PNG copy select karein.');
-  const bytes = new Uint8Array(buffer); let binary = ''; const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(i + chunk, bytes.length)));
+  if (!buffer || !buffer.byteLength) {
+    throw new Error('Phone/browser selected photo ka data read nahi kar paaya' +
+      (lastErr ? ' (' + lastErr + ')' : '') +
+      '. Photo ko Files app mein Download/Save karke JPG ya PNG select karein.');
+  }
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(i + chunk, bytes.length)));
+  }
   return btoa(binary);
 }
 async function compressImage(file, maxDim = 1200, quality = 0.82) {
@@ -456,8 +496,36 @@ function toast(m) { const el = $('#toast'); el.textContent = m; el.style.display
 function digits(m) { const x = String(m || '').replace(/\D/g, ''); return x.length === 10 ? '91' + x : x; }
 function callLink(m) { const d = digits(m); return d ? `<a class="cl call" href="tel:+${d}">${ic('phone')}Call</a>` : ''; }
 function waLink(m) { const d = digits(m); return d ? `<a class="cl wa" href="https://wa.me/${d}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>` : ''; }
-function modal(title, body, foot, wide) { $('#ovT').textContent = title; $('#ovB').innerHTML = body; $('#ovF').innerHTML = foot || ''; $('#ovBox').classList.toggle('wide', !!wide); $('#ovBox').scrollTop = 0; $('#ov').classList.add('open'); document.body.classList.add('modal-open'); }
-function closeM() { $('#ov').classList.remove('open'); document.body.classList.remove('modal-open'); $('#ovB').innerHTML = ''; $('#ovF').innerHTML = ''; }
+let MODAL_SCROLL_Y_ = 0;
+function modal(title, body, foot, wide) {
+  $('#ovT').textContent = title;
+  $('#ovB').innerHTML = body;
+  $('#ovF').innerHTML = foot || '';
+  $('#ovBox').classList.toggle('wide', !!wide);
+  $('#ovBox').scrollTop = 0;
+  if (!document.body.classList.contains('modal-open')) {
+    MODAL_SCROLL_Y_ = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = (-MODAL_SCROLL_Y_) + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.classList.add('modal-open');
+  }
+  $('#ov').classList.add('open');
+}
+function closeM() {
+  $('#ov').classList.remove('open');
+  document.body.classList.remove('modal-open');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  window.scrollTo(0, MODAL_SCROLL_Y_);
+  $('#ovB').innerHTML = '';
+  $('#ovF').innerHTML = '';
+}
 document.getElementById('ov').addEventListener('touchmove', e => { if (!e.target.closest('#ovBox')) e.preventDefault(); }, { passive:false });
 document.getElementById('ov').addEventListener('click', e => { if (e.target.id === 'ov') closeM(); });
 function copyText(s) { try { navigator.clipboard.writeText(s); toast('Copied'); } catch (e) { toast('Copy manually'); } }
@@ -1568,12 +1636,12 @@ function setPubStatus_(text, isErr) {
 }
 
 async function saveComposer_(sec, it) {
-  const btn = document.getElementById('btnPostSave'); if (!btn || btn.disabled) return;
+  const btn = document.getElementById('btnPostSave');
+  if (!btn || btn.disabled) return;
   const originalLabel = btn.textContent;
   btn.disabled = true;
   btn.textContent = 'Publishing…';
-  setPubStatus_('Publish tayyar ho raha hai…');
-  const uploaded = [];
+  setPubStatus_('Post validate ho rahi hai…');
   try {
     const title = val('postTitle').trim();
     if (!title) throw new Error('Title likhna zaroori hai.');
@@ -1586,36 +1654,64 @@ async function saveComposer_(sec, it) {
       if (new Date(v).getTime() <= Date.now()) throw new Error('Time aage ka chunein.');
       expiresAt = new Date(v).toISOString();
     }
+
+    // Existing Drive URLs stay as-is. Newly selected media is read locally only.
+    // It is sent to contentSaveV4 and uploaded server-side only after Publish is pressed.
     const finalPhotos = [];
+    const photoUploads = [];
     for (const p of PCOMP) {
-      if (p.kind === 'old') { if (!p.removed) finalPhotos.push(p.url); continue; }
-      setPubStatus_('Photo process/upload ho rahi hai: ' + (p.file.name || 'photo'));
+      if (p.kind === 'old') {
+        if (!p.removed) finalPhotos.push(p.url);
+        continue;
+      }
+      setPubStatus_('Photo phone se process ho rahi hai: ' + (p.file.name || 'photo'));
       const c = await photoToUpload_(p.file);
-      setPubStatus_('Photo server par upload ho rahi hai…');
-      const r = await api('apiUploadPhoto', c.b64, c.mime, c.name);
-      if (!r || !r.url) throw new Error('Photo server par upload nahi hui. Apps Script ka apiUploadPhoto/Drive permission check karein.');
-      uploaded.push(r.url);
-      finalPhotos.push(r.url);
+      if (!c || !c.b64) throw new Error('Photo ka data nahi mila. Files app se JPG/PNG select karein.');
+      photoUploads.push({ b64: c.b64, mime: c.mime || 'image/jpeg', name: c.name || p.file.name || 'photo.jpg' });
     }
+
     const finalFiles = [];
+    const fileUploads = [];
     for (const f of FCOMP) {
-      if (f.kind === 'old') { if (!f.removed) finalFiles.push({ name: f.name, url: f.url }); continue; }
-      setPubStatus_('File upload ho rahi hai: ' + f.file.name);
+      if (f.kind === 'old') {
+        if (!f.removed) finalFiles.push({ name: f.name, url: f.url });
+        continue;
+      }
+      setPubStatus_('File tayyar ho rahi hai: ' + f.file.name);
       const b = await fileToB64_(f.file);
-      const r = await api('apiUploadFile', b.b64, b.mime, b.name);
-      uploaded.push(r.url);
-      finalFiles.push({ name: r.name || f.file.name, url: r.url });
+      if (!b || !b.b64) throw new Error('File read nahi hui: ' + f.file.name);
+      fileUploads.push({ b64: b.b64, mime: b.mime, name: b.name || f.file.name });
     }
+
+    setPubStatus_('Publish ho raha hai. Abhi tak nayi photo Drive par upload nahi hui…');
     const saved = await api('apiContentSave', {
-      id: it ? it.id : '', section: sec, title: title, titleColor: val('postColor'), body: val('postBody'),
-      photos: finalPhotos, files: finalFiles, videoUrl: val('postVideo'), mapEmbed: val('postMap'), expiresAt: expiresAt
+      id: it ? it.id : '',
+      section: sec,
+      title: title,
+      titleColor: val('postColor'),
+      body: val('postBody'),
+      photos: finalPhotos,
+      photoUploads: photoUploads,
+      files: finalFiles,
+      fileUploads: fileUploads,
+      videoUrl: val('postVideo'),
+      mapEmbed: val('postMap'),
+      expiresAt: expiresAt
     });
+
     setPubStatus_('');
-    closeM(); toast((it ? 'Update ho gaya' : 'Published') + ' · ' + (saved && saved.sheet === 'POSTS' ? 'Madrasa posts' : 'Section/Notice') + (saved && saved.build ? ' [' + saved.build + ']' : ' [purana server]'));
-    if (sec === 'notice') go('notice', {}); else if (sec === 'mposts') go('posts', {}); else go('sec', { sec: sec });
+    closeM();
+    toast((it ? 'Update ho gaya' : 'Published') + ' · ' +
+      (saved && saved.sheet === 'POSTS' ? 'Madrasa posts' : 'Section/Notice') +
+      (saved && saved.build ? ' [' + saved.build + ']' : ''));
+    if (sec === 'notice') go('notice', {});
+    else if (sec === 'mposts') go('posts', {});
+    else go('sec', { sec: sec });
   } catch (e) {
-    for (const u of uploaded) { try { await api('apiDeleteFile', u); } catch (_) {} }
-    if (e.message !== 'expired') { setPubStatus_('Error: ' + e.message, true); toast(e.message); }
+    if (e && e.message !== 'expired') {
+      setPubStatus_('Error: ' + e.message, true);
+      toast(e.message || 'Publish nahi hua.');
+    }
     btn.disabled = false;
     btn.textContent = originalLabel;
   }
