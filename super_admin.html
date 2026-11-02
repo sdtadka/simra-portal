@@ -205,6 +205,7 @@ html,body{overscroll-behavior-y:contain}
 .pagewrap{overflow-x:clip}
 html,body{touch-action:pan-y}
 img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.car::-webkit-scrollbar{display:none}
 </style>
 </head>
 <body>
@@ -838,111 +839,98 @@ VIEWS.expOpen = async (c, arg) => {
     </div>`;
 };
 
-/* ============ NOTICES ============ */
-VIEWS.notice = async (c) => {
-  const n = await api('apiNoticeList');
-  c.innerHTML = `
-    <div class="pagehead"><h2>Notices</h2></div>
-    <p class="psub">Notices appear on every dashboard.</p>
-    <div class="card"><div class="fgrid">
-      <div><label class="fl">Title *<input class="inp" id="nTitle"></label></div>
-      <div><label class="fl">Message<textarea id="nBody" rows="3"></textarea></label></div>
-      <button class="btn green" data-act="postNotice">Post notice</button>
-    </div></div>
-    ${n.list.map(x => `<div class="rc-notice">
-      <div style="display:flex;justify-content:space-between;gap:8px">
-        <b>${esc(x.title)}</b>
-        <button class="btn red sm" data-act="delNotice" data-id="${esc(x.id)}">Delete</button>
-      </div>
-      <div class="muted" style="font-size:12px">${esc(x.date)} · ${esc(x.by)}</div>
-      <div style="margin-top:4px;white-space:pre-wrap">${esc(x.body)}</div>
-    </div>`).join('') || '<div class="empty">No notices yet.</div>'}`;
-};
+/* ============ SHARED POST CARD (sab sections + notice, same look) ============ */
+const POST_CUR = {};
+function curPhoto_(id) { const l = POST_PHOTOS[id] || []; return l[POST_CUR[id] || 0]; }
 
-/* ============ POSTS ============ */
-function photosGrid(id, list) {
-  if (!list || !list.length) return '';
-  const cols = list.length === 1 ? '1fr' : 'repeat(auto-fill,minmax(160px,1fr))';
-  return `<div style="display:grid;grid-template-columns:${cols};gap:10px;margin-bottom:20px">${list.map((u, i) => `
-    <div>
-      <img src="${esc(u)}" alt="" data-act="viewPhoto" data-id="${esc(id)}" data-i="${i}" style="width:100%;max-height:420px;object-fit:cover;border-radius:12px;display:block;cursor:zoom-in">
-      <div class="acts" style="margin-top:6px">
-        <button class="btn sm" data-act="sharePhoto" data-v="${esc(u)}">Share</button>
-        <button class="btn light sm" data-act="dlPhoto" data-v="${esc(u)}">Download</button>
-      </div>
-    </div>`).join('')}</div>`;
+function carouselHtml_(id, photos) {
+  if (!photos || !photos.length) return '';
+  const slides = photos.map((u, i) => `<div style="flex:0 0 100%;scroll-snap-align:center;position:relative">
+      <img src="${esc(u)}" alt="" data-act="viewPhoto" data-id="${esc(id)}" data-i="${i}" draggable="false"
+        style="width:100%;max-height:460px;object-fit:cover;display:block;border-radius:16px;cursor:zoom-in;-webkit-touch-callout:none;user-select:none">
+    </div>`).join('');
+  const dots = photos.length > 1 ? `<div style="display:flex;justify-content:center;gap:6px;margin-top:10px">${photos.map((_, i) =>
+    `<span data-dot="${esc(id)}" data-i="${i}" style="width:7px;height:7px;border-radius:50%;background:${i === 0 ? '#1e6bff' : '#cbd5e1'};transition:background .2s"></span>`).join('')}</div>` : '';
+  return `<div class="car" data-car="${esc(id)}" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:16px">${slides}</div>${dots}
+    <div class="acts" style="margin:12px 0 14px">
+      <button class="btn sm" data-act="sharePhoto" data-id="${esc(id)}">Share</button>
+      <button class="btn light sm" data-act="dlPhoto" data-id="${esc(id)}">Download</button>
+      <span class="muted" style="font-size:12px;margin-left:auto">${photos.length} photo${photos.length > 1 ? 's' : ''}</span>
+    </div>`;
 }
-VIEWS.posts = async (c) => {
-  const d = await api('apiPostList', 'madrasa');
-  d.list.forEach(x => { POST_PHOTOS[x.id] = x.photos || (x.photo ? [x.photo] : []); POST_ITEMS[x.id] = { id: x.id, title: x.title, body: x.body, photos: POST_PHOTOS[x.id], titleColor: x.titleColor }; });
-  c.innerHTML = `
-    <div class="pagehead"><h2>Madrasa posts</h2></div>
-    <p class="psub">Posts from Imam's Madrasa. Visible to everyone.</p>
 
-    <div class="toolbar">
-      <button class="btn green" data-act="newPost">${ic('plus')} Add New Post</button>
-    </div>
-
-    ${d.list.map(x => `
-    <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
-      <h2 class="post-title" style="font-size:22px; color:${esc(x.titleColor || 'var(--navy)')}; margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(x.title)}</h2>
-      <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
-        <span style="font-weight:600; color:var(--blue)">By ${esc(x.authorName)}</span>
-        <span>•</span>
-        <span>${esc(x.date)}</span>
-        ${x.expiresAt ? `<span>· Auto delete: ${esc(new Date(x.expiresAt).toLocaleString('en-IN'))}</span>` : '<span>· Manual delete</span>'}
-      </div>
-      ${photosGrid(x.id, x.photos || (x.photo ? [x.photo] : []))}
-      <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(x.body)}</p>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid var(--line);">
-        ${callLink(x.authorMobile)}
-        ${waLink(x.authorMobile)}
-        ${(ME.role === 'super_admin' || ME.role === 'admin') ? `<button class="btn light sm" style="margin-left:auto;" data-act="editPost" data-id="${esc(x.id)}">Edit</button><button class="btn red sm" data-act="delPost" data-id="${esc(x.id)}">Delete</button>` : ''}
-      </div>
-    </div>`).join('') || '<div class="empty">No posts yet.</div>'}`;
-};
-
-/* ============ SECTIONS ============ */
-VIEWS.sec = async (c, arg) => {
-  const sec = arg.sec || 'madrasa';
-  const d = await api('apiSectionList', sec);
-  c.innerHTML = `
-    <div class="pagehead"><h2>${SECS[sec]}</h2></div>
-    <p class="psub">Updates, photos and news. Shown to everyone.</p>
-    <div class="toolbar"><button class="btn green" data-act="addSection" data-id="${sec}">${ic('plus')}Add update</button></div>
-    ${d.items.map(it => `
-    <div class="card" style="display:block; padding:20px; max-width:800px; margin:0 auto 20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 12px -4px rgba(0,0,0,.05);">
-      <h2 style="font-size:22px; color:var(--navy); margin-bottom:10px; font-weight:800; line-height:1.3;">${esc(it.title)}</h2>
-      <div style="font-size:13px; color:var(--muted); margin-bottom:18px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px;">
-        <span>${esc(it.date)}</span>
-      </div>
-      ${it.photo ? `<img src="${esc(it.photo)}" alt="" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:20px;">` : ''}
-      <p style="font-size:15px; line-height:1.8; color:var(--ink); margin-bottom:24px; white-space:pre-wrap;">${linkify(it.body)}</p>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; border-top:1px solid var(--line); padding-top:15px;">
-        <button class="btn light sm" data-act="editSection" data-id="${esc(it.id)}" data-sec="${sec}">Edit</button>
-        <button class="btn red sm" data-act="delSection" data-id="${esc(it.id)}" data-sec="${sec}">Delete</button>
-      </div>
-    </div>`).join('') || '<div class="empty">No updates yet.</div>'}`;
-};
-function openSectionForm(sec, it) {
-  modal(`${it ? 'Edit' : 'Add'} · ${SECS[sec]}`, `<div class="fgrid">
-      <div><label class="fl">Title *<input class="inp" id="sTitle" value="${esc(it ? it.title : '')}"></label></div>
-      <div><label class="fl">Details<textarea id="sBody">${esc(it ? it.body : '')}</textarea></label></div>
-      <div><label class="fl">Photo File<input class="inp" type="file" id="sPhoto" accept="image/*"></label></div>
-      <div><label class="fl">OR Photo URL<input class="inp" id="sPhotoUrlText" placeholder="https://..."></label>
-        <input type="hidden" id="sPhotoUrl" value="${esc(it ? it.photo : '')}">
-        <img id="sPrev" src="${it && it.photo ? esc(it.photo) : ''}" style="${it && it.photo ? 'width:64px;height:64px;border-radius:12px;object-fit:cover;margin-top:6px' : 'display:none;width:64px;height:64px;border-radius:12px;object-fit:cover;margin-top:6px'}" alt=""></div>
-    </div>`,
-    `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnSec">Save</button>`);
-  $('#btnSec').addEventListener('click', async () => {
-    const b = $('#btnSec'); if (b.disabled) return; b.disabled = true;
-    try {
-      let finalUrl = val('sPhotoUrlText') || val('sPhotoUrl');
-      await api('apiSectionSave', { id: it ? it.id : '', section: sec, title: val('sTitle'), body: val('sBody'), photo: finalUrl });
-      closeM(); toast('Saved'); go('sec', { sec });
-    } catch (e) { if (e.message !== 'expired') toast(e.message); b.disabled = false; }
+function initCarousels_(root) {
+  root.querySelectorAll('[data-car]').forEach(el => {
+    el.addEventListener('scroll', () => {
+      const id = el.dataset.car;
+      const i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
+      POST_CUR[id] = i;
+      root.querySelectorAll('[data-dot="' + id + '"]').forEach(d => { d.style.background = Number(d.dataset.i) === i ? '#1e6bff' : '#cbd5e1'; });
+    }, { passive: true });
   });
 }
+
+function ytSafe_(u) { return /^https:\/\/www\.youtube\.com\/embed\/[A-Za-z0-9_-]{6,20}$/.test(u || ''); }
+function mapSafe_(u) { return /^https:\/\/www\.google\.com\/maps\/embed\?/.test(u || ''); }
+
+function contentCardHtml_(it) {
+  POST_PHOTOS[it.id] = it.photos || [];
+  POST_ITEMS[it.id] = it;
+  const canManage = ME.role === 'super_admin' || ME.role === 'admin' || ME.role === 'imam';
+  const vid = ytSafe_(it.videoUrl) ? `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:16px;margin:14px 0">
+      <iframe src="${esc(it.videoUrl)}" style="position:absolute;inset:0;width:100%;height:100%;border:0" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>` : '';
+  const map = mapSafe_(it.mapEmbed) ? `<div style="height:260px;border-radius:16px;overflow:hidden;margin:14px 0">
+      <iframe src="${esc(it.mapEmbed)}" style="width:100%;height:100%;border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>` : '';
+  const exp = it.expiresAt ? 'Auto delete: ' + new Date(it.expiresAt).toLocaleString('en-IN') : 'Manual delete';
+  return `<article class="card" style="max-width:820px;margin:0 auto 18px;padding:20px;border-radius:20px;border:1px solid var(--line);box-shadow:0 12px 30px -20px rgba(15,23,42,.4)">
+    <h2 style="font-size:clamp(20px,4.8vw,27px);color:${esc(it.titleColor || 'var(--navy)')};font-weight:800;line-height:1.25;margin-bottom:8px">${esc(it.title)}</h2>
+    <div class="muted" style="font-size:12.5px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:14px">
+      <span style="font-weight:700;color:var(--blue)">${esc(it.by || 'Admin')}</span><span>•</span><span>${esc(it.date)}</span><span>•</span><span>${esc(exp)}</span>
+    </div>
+    ${carouselHtml_(it.id, it.photos || [])}
+    ${vid}${map}
+    ${(it.files || []).length ? `<div style="display:grid;gap:8px;margin:14px 0">${it.files.map(f => `
+      <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#f8fafc">
+        <span style="width:42px;height:42px;border-radius:10px;background:#fde8e8;color:#b42328;display:grid;place-items:center;font-weight:800;font-size:11px;flex:0 0 42px">${esc(fileExt_(f.name))}</span>
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">${esc(f.name)}</span>
+        <a class="btn light sm" href="${esc(f.url)}" target="_blank" rel="noopener">Open</a>
+        <button class="btn light sm" data-act="dlFile" data-url="${esc(f.url)}" data-name="${esc(f.name)}">Download</button>
+        <button class="btn sm" data-act="shareFile" data-url="${esc(f.url)}" data-name="${esc(f.name)}">Share</button>
+      </div>`).join('')}</div>` : ''}
+    ${it.body ? `<div style="font-size:15px;line-height:1.8;color:var(--ink);white-space:pre-wrap;word-break:break-word">${linkify(it.body)}</div>` : ''}
+    ${canManage ? `<div class="acts" style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line)">
+      <button class="btn light sm" data-act="editItem" data-id="${esc(it.id)}">Edit</button>
+      <button class="btn red sm" data-act="delItem" data-id="${esc(it.id)}">Delete</button>
+    </div>` : ''}
+  </article>`;
+}
+
+/* ===== NOTICES ===== */
+VIEWS.notice = async (c) => {
+  const d = await api('apiContentList', 'notice');
+  c.innerHTML = `
+    <div class="pagehead"><h2>Notices</h2></div>
+    <p class="psub">Notices sabhi dashboards par dikhte hain.</p>
+    ${(ME.role === 'super_admin' || ME.role === 'admin') ? `<div class="toolbar"><button class="btn green" data-act="postNotice">${ic('plus')}Add notice</button></div>` : ''}
+    ${d.items.map(contentCardHtml_).join('') || '<div class="empty">No notices yet.</div>'}`;
+  initCarousels_(c);
+};
+
+/* ===== SECTIONS (Madrasa, Masjid, Eidgah, Kabristan) ===== */
+VIEWS.sec = async (c, arg) => {
+  const sec = arg.sec || 'madrasa';
+  const d = await api('apiContentList', sec);
+  const canAdd = ME.role === 'super_admin' || ME.role === 'admin' || (ME.role === 'imam' && sec === 'madrasa');
+  c.innerHTML = `
+    <div class="pagehead"><h2>${SEC_LABEL_[sec] || sec}</h2></div>
+    <p class="psub">Sabhi users ko dikhega.</p>
+    ${canAdd ? `<div class="toolbar"><button class="btn green" data-act="addSection" data-id="${esc(sec)}">${ic('plus')}Add new</button></div>` : ''}
+    ${d.items.map(contentCardHtml_).join('') || '<div class="empty">Abhi koi post nahi.</div>'}`;
+  initCarousels_(c);
+};
+
+/* Madrasa posts menu: ab Madrasa section ke same view par */
+VIEWS.posts = (c) => VIEWS.sec(c, { sec: 'madrasa' });
 
 /* ============ ADMINS ============ */
 VIEWS.admins = async (c) => {
@@ -1173,11 +1161,14 @@ VIEWS.profile = async (c) => {
     <div class="acts"><button class="btn green" data-act="saveProfile">Save profile</button></div>`;
 };
 
-/* ============ POST COMPOSER (new + edit) ============ */
+/* ============ CONTENT COMPOSER (sab sections + notice, ek hi form) ============ */
 const POST_ITEMS = {};
 const POST_MAX_PHOTOS = 10;
 const POST_MAX_BYTES = 25 * 1024 * 1024;
-let PCOMP = [];   /* { kind:'old', url, removed } | { kind:'new', file, preview } */
+let PCOMP = [];
+let FCOMP = [];
+const FILE_MIME_ = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ppt: 'application/vnd.ms-powerpoint', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', txt: 'text/plain' };
+const SEC_LABEL_ = { madrasa: 'Madrasa', masjid: 'Masjid', eidgah: 'Eidgah', kabristan: 'Kabristan', notice: 'Notice' };
 
 function photoFileError_(f) {
   const n = (f.name || '').toLowerCase();
@@ -1193,8 +1184,9 @@ function renderPcomp_() {
   const items = PCOMP.map((it, i) => {
     if (it.kind === 'old' && it.removed) return '';
     const src = it.kind === 'old' ? it.url : it.preview;
-    const thumb = src ? `<img src="${esc(src)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px;display:block">` : `<span class="muted" style="font-size:11px;padding:6px;display:block">${esc(it.file.name)}</span>`;
-    return `<div style="position:relative;width:96px;height:96px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#f7f9fd">
+    const thumb = src ? `<img src="${esc(src)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`
+      : `<span class="muted" style="font-size:11px;padding:6px;display:block;word-break:break-all">${esc(it.file.name)}</span>`;
+    return `<div style="position:relative;width:96px;height:96px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#f7f9fd">
       ${thumb}
       <button type="button" data-act="pcompRemove" data-i="${i}" title="Remove" style="position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(15,23,42,.75);color:#fff;font-size:16px;line-height:1;cursor:pointer">×</button>
     </div>`;
@@ -1203,19 +1195,27 @@ function renderPcomp_() {
   const cnt = document.getElementById('pcompCount'); if (cnt) cnt.textContent = pcompActive_() + ' / ' + POST_MAX_PHOTOS;
 }
 
-function postComposerForm_(post) {
+function composerForm_(it) {
   return `<div class="fgrid">
-    <div><label class="fl">Post title *<input class="inp" id="postTitle" placeholder="Post ka title" value="${esc(post ? post.title : '')}"></label></div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <label class="fl" style="margin:0">Title color<input type="color" id="postColor" value="${esc(post && post.titleColor ? post.titleColor : '#0f172a')}" style="display:block;width:56px;height:40px;border:0;background:none;padding:0"></label>
-    </div>
-    <div><label class="fl">Description (post ka vivaran)<textarea class="inp" id="postBody" rows="6" placeholder="Post ka vivaran yahan likhein...">${esc(post ? post.body : '')}</textarea></label></div>
+    <div><label class="fl">Title *<input class="inp" id="postTitle" placeholder="Title" value="${esc(it ? it.title : '')}"></label></div>
+    <div><label class="fl" style="margin:0">Title color<input type="color" id="postColor" value="${esc(it && it.titleColor ? it.titleColor : '#0f172a')}" style="display:block;width:56px;height:40px;border:0;background:none;padding:0"></label></div>
+    <div><label class="fl">Description (vivaran)<textarea class="inp" id="postBody" rows="6" placeholder="Vivaran yahan likhein...">${esc(it ? it.body : '')}</textarea></label></div>
+    <div><label class="fl">YouTube video link (optional)<input class="inp" id="postVideo" placeholder="https://www.youtube.com/watch?v=..." value="${esc(it && it.videoUrl ? it.videoUrl : '')}"></label>
+      <p class="hint" style="margin-top:4px">Normal YouTube link paste karein. App embed bana dega.</p></div>
+    <div><label class="fl">Location map (optional)<textarea class="inp" id="postMap" rows="2" placeholder="Google Maps → Share → Embed a map ka code">${esc(it && it.mapEmbed ? it.mapEmbed : '')}</textarea></label></div>
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center"><span class="fl" style="margin:0">Photos</span><span class="muted" id="pcompCount" style="font-size:12px"></span></div>
       <div id="pcompBox" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"></div>
       <label class="btn light sm" style="margin-top:8px;display:inline-flex">+ Photo chunein
         <input type="file" id="postPhotoPick" accept="image/*" multiple style="display:none"></label>
       <p class="hint" style="margin-top:6px">JPG, PNG, GIF, WEBP, HEIC. Har photo 25 MB tak. Photo Drive par tabhi jayegi jab aap Publish/Save karenge.</p>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="fl" style="margin:0">Files (PDF, Word, Excel, PPT, TXT)</span><span class="muted" id="fcompCount" style="font-size:12px"></span></div>
+      <div id="fcompBox" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"></div>
+      <label class="btn light sm" style="margin-top:8px;display:inline-flex">+ File chunein
+        <input type="file" id="postFilePick" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" multiple style="display:none"></label>
+      <p class="hint" style="margin-top:6px">Har file 25 MB tak. Upload Publish par hoga.</p>
     </div>
     <div><label class="fl">Auto delete</label>
       <select class="inp" id="postExp">
@@ -1228,46 +1228,104 @@ function postComposerForm_(post) {
   </div>`;
 }
 
-function openPostComposer_(post) {
-  PCOMP = post ? (post.photos || []).map(u => ({ kind: 'old', url: u, removed: false })) : [];
-  modal(post ? 'Edit post' : 'Create New Post', postComposerForm_(post),
-    `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPostSave">${post ? 'Save changes' : 'Publish'}</button>`);
+function openComposer_(sec, it) {
+  const label = SEC_LABEL_[sec] || sec;
+  PCOMP = it ? (it.photos || []).map(u => ({ kind: 'old', url: u, removed: false })) : [];
+  FCOMP = it ? (it.files || []).map(f => ({ kind: 'old', name: f.name, url: f.url, removed: false })) : [];
+  modal((it ? 'Edit · ' : 'Add · ') + label, composerForm_(it),
+    `<button class="btn light" data-act="close">Cancel</button><button class="btn green" id="btnPostSave">${it ? 'Save changes' : 'Publish'}</button>`, true);
   renderPcomp_();
+  renderFcomp_();
+  document.getElementById('postFilePick').addEventListener('change', e => {
+    const picked = Array.from(e.target.files || []);
+    e.target.value = '';
+    picked.forEach(f => {
+      if (!/\.(pdf|docx?|xlsx?|pptx?|txt)$/i.test(f.name)) { toast(f.name + ': ye file type allowed nahi hai.'); return; }
+      if (f.size > POST_MAX_BYTES) { toast(f.name + ': 25 MB se badi hai.'); return; }
+      FCOMP.push({ kind: 'new', file: f });
+    });
+    renderFcomp_();
+  });
   document.getElementById('postPhotoPick').addEventListener('change', e => {
     const picked = Array.from(e.target.files || []);
     e.target.value = '';
-    let msgs = [];
+    let msg = '';
     picked.forEach(f => {
       const err = photoFileError_(f);
-      if (err) { msgs.push(err); return; }
-      if (pcompActive_() >= POST_MAX_PHOTOS) { msgs.push('Maximum ' + POST_MAX_PHOTOS + ' photos.'); return; }
+      if (err) { msg = msg || err; return; }
+      if (pcompActive_() >= POST_MAX_PHOTOS) { msg = msg || ('Maximum ' + POST_MAX_PHOTOS + ' photos.'); return; }
       const preview = /^image\/(jpeg|png|gif|webp)$/.test(f.type || '') ? URL.createObjectURL(f) : '';
-      PCOMP.push({ kind: 'new', file: f, preview });
+      PCOMP.push({ kind: 'new', file: f, preview: preview });
     });
-    if (msgs.length) toast(msgs[0]);
+    if (msg) toast(msg);
     renderPcomp_();
   });
-  document.getElementById('postExp').addEventListener('change', e => { document.getElementById('postExpAt').style.display = e.target.value === 'custom' ? 'block' : 'none'; });
-  document.getElementById('btnPostSave').addEventListener('click', () => savePostComposer_(post));
+  document.getElementById('postExp').addEventListener('change', e => {
+    document.getElementById('postExpAt').style.display = e.target.value === 'custom' ? 'block' : 'none';
+  });
+  document.getElementById('btnPostSave').addEventListener('click', () => saveComposer_(sec, it));
+}
+
+function fileExt_(name) { const p = String(name || '').split('.'); return p.length > 1 ? p.pop().toUpperCase().slice(0, 4) : 'FILE'; }
+function renderFcomp_() {
+  const box = document.getElementById('fcompBox'); if (!box) return;
+  const shown = FCOMP.map((f, i) => {
+    if (f.kind === 'old' && f.removed) return '';
+    const nm = f.kind === 'old' ? f.name : f.file.name;
+    return `<div style="display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;max-width:100%">
+      <span style="font-weight:800;color:#b42328;font-size:11px">${esc(fileExt_(nm))}</span>
+      <span style="font-size:13px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm)}</span>
+      <button type="button" data-act="fcompRemove" data-i="${i}" style="border:0;background:#fde8e8;color:#b42328;border-radius:50%;width:24px;height:24px;cursor:pointer">×</button></div>`;
+  }).join('');
+  box.innerHTML = shown || '<span class="muted" style="font-size:12px">Abhi koi file nahi chuni gayi.</span>';
+  const c = document.getElementById('fcompCount');
+  if (c) c.textContent = FCOMP.filter(f => f.kind === 'new' || !f.removed).length + ' file(s)';
+}
+function fileToB64_(file) {
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  const mime = FILE_MIME_[ext] || file.type || 'application/octet-stream';
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res({ b64: String(r.result).split(',')[1], mime: mime, name: file.name });
+    r.onerror = () => rej(new Error('File read failed'));
+    r.readAsDataURL(file);
+  });
+}
+function b64ToBlob_(b64, mime) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+async function fileAction_(url, name, share) {
+  try {
+    toast('File tayyar ho rahi hai…');
+    const r = await api('apiFileBlob', url);
+    const type = r.mime || 'application/octet-stream';
+    const file = new File([b64ToBlob_(r.b64, type)], name || r.name || 'file', { type: type });
+    if (share && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: file.name }); return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(file); a.download = file.name;
+    document.body.appendChild(a); a.click(); a.remove();
+  } catch (e) { if (e && e.name !== 'AbortError' && e.message !== 'expired') toast('Nahi ho paya: ' + e.message); }
 }
 
 async function photoToUpload_(file) {
   if (file.type === 'image/gif') {
     const b64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = () => rej(new Error('File read failed')); r.readAsDataURL(file); });
-    return { b64, mime: 'image/gif', name: file.name };
+    return { b64: b64, mime: 'image/gif', name: file.name };
   }
   try { return await compressImage(file); }
   catch (e) { throw new Error(file.name + ': ye photo browser mein nahi khulti. JPG ya PNG mein badal kar upload karein.'); }
 }
 
-async function savePostComposer_(post) {
+async function saveComposer_(sec, it) {
   const btn = document.getElementById('btnPostSave'); if (!btn || btn.disabled) return;
   btn.disabled = true;
   const uploaded = [];
   try {
     const title = val('postTitle').trim();
     if (!title) throw new Error('Title likhna zaroori hai.');
-    if (pcompActive_() === 0) throw new Error('Kam se kam ek photo chuniye.');
     let expiresAt = '';
     const mode = val('postExp');
     if (mode === '24h') expiresAt = new Date(Date.now() + 86400000).toISOString();
@@ -1278,19 +1336,29 @@ async function savePostComposer_(post) {
       expiresAt = new Date(v).toISOString();
     }
     const finalPhotos = [];
-    for (const it of PCOMP) {
-      if (it.kind === 'old') { if (!it.removed) finalPhotos.push(it.url); continue; }
+    for (const p of PCOMP) {
+      if (p.kind === 'old') { if (!p.removed) finalPhotos.push(p.url); continue; }
       toast('Photo upload ho rahi hai…');
-      const c = await photoToUpload_(it.file);
+      const c = await photoToUpload_(p.file);
       const r = await api('apiUploadPhoto', c.b64, c.mime, c.name);
       uploaded.push(r.url);
       finalPhotos.push(r.url);
     }
-    const opts = { titleColor: val('postColor'), expiresAt };
-    const body = val('postBody');
-    if (post) await api('apiPostUpdateV3', post.id, finalPhotos, title, body, opts);
-    else await api('apiPostCreateV3', 'madrasa', title, body, finalPhotos, opts);
-    closeM(); toast(post ? 'Post update ho gayi' : 'Post published'); go('posts', {});
+    const finalFiles = [];
+    for (const f of FCOMP) {
+      if (f.kind === 'old') { if (!f.removed) finalFiles.push({ name: f.name, url: f.url }); continue; }
+      toast('File upload ho rahi hai: ' + f.file.name);
+      const b = await fileToB64_(f.file);
+      const r = await api('apiUploadFile', b.b64, b.mime, b.name);
+      uploaded.push(r.url);
+      finalFiles.push({ name: r.name || f.file.name, url: r.url });
+    }
+    await api('apiContentSave', {
+      id: it ? it.id : '', section: sec, title: title, titleColor: val('postColor'), body: val('postBody'),
+      photos: finalPhotos, files: finalFiles, videoUrl: val('postVideo'), mapEmbed: val('postMap'), expiresAt: expiresAt
+    });
+    closeM(); toast(it ? 'Update ho gaya' : 'Published');
+    if (sec === 'notice') go('notice', {}); else go('sec', { sec: sec });
   } catch (e) {
     for (const u of uploaded) { try { await api('apiDeleteFile', u); } catch (_) {} }
     if (e.message !== 'expired') toast(e.message);
@@ -1298,8 +1366,9 @@ async function savePostComposer_(post) {
   }
 }
 
-function openNewPostForm() { openPostComposer_(null); }
-function openEditPostForm(post) { openPostComposer_(post); }
+function openNewPostForm() { openComposer_('madrasa', null); }
+function openEditPostForm(it) { if (it) openComposer_(it.section || 'madrasa', it); }
+function openSectionForm(sec, it) { openComposer_(sec, it); }
 
 /* Photo viewer: pinch zoom, double tap zoom, swipe, share, download */
 const POST_PHOTOS = {};
@@ -1511,11 +1580,19 @@ const ACTS = {
     go('penalty', {}).then(() => { setTimeout(() => { const inp = $('#pApp'); if (inp) inp.value = id; }, 300); });
   },
   viewPhoto: (id, el) => openPhotoViewer(POST_PHOTOS[id] || [], Number(el.dataset.i) || 0),
-  sharePhoto: (id, el) => sharePhoto(el.dataset.v),
-  dlPhoto: (id, el) => downloadPhoto(el.dataset.v),
+  sharePhoto: (id) => sharePhoto(curPhoto_(id)),
+  dlPhoto: (id) => downloadPhoto(curPhoto_(id)),
   refreshPerson: (id) => openPersonPage($('#main'), id).catch(e => { if (e.message !== 'expired') toast(e.message); }),
   editPost: (id) => openEditPostForm(POST_ITEMS[id]),
   pcompRemove: (id, el) => { const i = Number(el.dataset.i); const it = PCOMP[i]; if (!it) return; if (it.kind === 'old') it.removed = true; else PCOMP.splice(i, 1); renderPcomp_(); },
+  editItem: (id) => { const it = POST_ITEMS[id]; if (it) openComposer_(it.section, it); },
+  delItem: async (id) => {
+    if (!confirm('Ye post delete karein? Photos Drive se bhi hat jayengi.')) return;
+    await api('apiContentDelete', id); toast('Deleted'); go(D.view, D.arg);
+  },
+  fcompRemove: (id, el) => { const i = Number(el.dataset.i); const f = FCOMP[i]; if (!f) return; if (f.kind === 'old') f.removed = true; else FCOMP.splice(i, 1); renderFcomp_(); },
+  shareFile: (id, el) => fileAction_(el.dataset.url, el.dataset.name, true),
+  dlFile: (id, el) => fileAction_(el.dataset.url, el.dataset.name, false),
   addAdmin: () => openAdminForm(null),
   editAdmin: (id) => openAdminForm(ADMIN_LIST.find(a => a.adminId === id)),
   resetAdmin: async (id) => {
@@ -1531,14 +1608,8 @@ const ACTS = {
     toast('Saved'); go('admins', {});
   },
   addSection: (sec) => openSectionForm(sec, null),
-  editSection: async (id, el) => {
-    const d = await api('apiSectionList', el.dataset.sec);
-    openSectionForm(el.dataset.sec, d.items.find(x => x.id === id));
-  },
-  delSection: async (id, el) => {
-    if (!confirm('Remove this update?')) return;
-    await api('apiSectionDelete', id); toast('Removed'); go('sec', { sec: el.dataset.sec });
-  },
+  editSection: (id) => ACTS.editItem(id),
+  delSection: (id) => ACTS.delItem(id),
   addPenalty: async () => {
     await api('apiPenaltyAdd', val('pApp'), val('pYear'), val('pAmt'), val('pReason'));
     toast('Penalty applied'); go('penalty', {});
@@ -1563,18 +1634,9 @@ const ACTS = {
     await api('apiExpenseDeleteItem', id, el.dataset.no);
     go('expOpen', { id });
   },
-  postNotice: async () => {
-    await api('apiNoticePost', val('nTitle'), val('nBody'));
-    toast('Notice posted'); go('notice', {});
-  },
-  delNotice: async (id) => {
-    if (!confirm('Remove this notice?')) return;
-    await api('apiNoticeDelete', id); go('notice', {});
-  },
-  delPost: async (id) => {
-    if (!confirm('Remove this post?')) return;
-    await api('apiPostDelete', id); go('posts', {});
-  },
+  postNotice: () => openComposer_('notice', null),
+  delNotice: (id) => ACTS.delItem(id),
+  delPost: (id) => ACTS.delItem(id),
   tplCsv: async () => { const r = await api('apiExportCsv', 'template'); downloadCsv(r.name, r.csv); },
   dataCsv: async () => { const r = await api('apiExportCsv', 'data'); downloadCsv(r.name, r.csv); },
   runImport: () => runImport(),
