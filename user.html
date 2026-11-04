@@ -325,7 +325,7 @@ const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
 const LS_S = 'pl_session';
 let TOKEN = null, ME = null, MY = null, MY_PHOTO = '', D = { view: 'home', arg: {} };
 let DP_PENDING = null, BUSY = 0;
-const SECS = { madrasa: 'Madrasa', masjid: 'Masjid', eidgah: 'Eidgah', kabristan: 'Kabristan', notice: 'Notice' };
+const SEC_LABEL_ = { madrasa: 'Madrasa', mposts: 'Madrasa posts', masjid: 'Masjid', eidgah: 'Eidgah', kabristan: 'Kabristan', notice: 'Notice' };
 const LBL = { user: 'User', imam: 'Imam', member: 'Member', admin: 'Admin', super_admin: 'Super Admin' };
 
 async function compressImage(file, maxDim = 900, quality = 0.82) {
@@ -419,10 +419,12 @@ const GROUPS = [
     { k: 'khata', l: 'Khata book', ic: 'rates', v: 'khata' }
   ]},
   { title: 'Community', items: [
+    { k: 'comm', l: 'Community', ic: 'madrasa', v: 'comm' },
     { k: 'madrasa', l: 'Madrasa', ic: 'madrasa', v: 'sec', a: { sec: 'madrasa' } },
     { k: 'masjid', l: 'Masjid', ic: 'masjid', v: 'sec', a: { sec: 'masjid' } },
     { k: 'eidgah', l: 'Eidgah', ic: 'eidgah', v: 'sec', a: { sec: 'eidgah' } },
     { k: 'kabristan', l: 'Kabristan', ic: 'kabristan', v: 'sec', a: { sec: 'kabristan' } },
+    { k: 'posts', l: 'Madrasa posts', ic: 'madrasa', v: 'posts' },
     { k: 'notice', l: 'Notices', ic: 'alert', v: 'notice' }
   ]},
   { title: 'Directory', items: [
@@ -476,35 +478,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') hideDrawer()
 const BNAV_ITEMS = [
   { k: 'home', l: 'Home', ic: 'dashboard', go: 'home', arg: {} },
   { k: 'khata', l: 'Khata', ic: 'rates', go: 'khata', arg: {} },
-  { k: 'comm', l: 'Community', ic: 'madrasa', act: 'communityMenu' },
+  { k: 'comm', l: 'Community', ic: 'madrasa', go: 'comm', arg: {} },
   { k: 'prof', l: 'Profile', ic: 'profile', go: 'profile', arg: {} }
 ];
 function drawBnav() {
   const bn = document.getElementById('bnav'); if (!bn) return;
-  const contentViews = ['sec','posts','notice'];
+  const contentViews = ['sec','posts','notice','comm'];
   const curKey = (D.view === 'home') ? 'home' : (D.view === 'khata') ? 'khata' : (contentViews.includes(D.view)) ? 'comm' : (D.view === 'profile') ? 'prof' : '';
-  bn.innerHTML = BNAV_ITEMS.map(b => `<button class="${curKey === b.k ? 'on' : ''}" ${b.act ? `data-act="${b.act}"` : `data-go="${b.go}" data-arg='${JSON.stringify(b.arg)}'`}>${ic(b.ic)}<span>${b.l}</span></button>`).join('')
-    + `<button class="more-c ${curKey === '' ? 'on' : ''}" data-act="moreMenu" aria-label="Menu">${ic('settings')}<span>Menu</span></button>`;
-}
-function openCommunitySheet() {
-  const items = [
-    { l: 'Madrasa', ic: 'madrasa', v: 'sec', a: { sec: 'madrasa' } },
-    { l: 'Masjid', ic: 'masjid', v: 'sec', a: { sec: 'masjid' } },
-    { l: 'Eidgah', ic: 'eidgah', v: 'sec', a: { sec: 'eidgah' } },
-    { l: 'Kabristan', ic: 'kabristan', v: 'sec', a: { sec: 'kabristan' } },
-    { l: 'Notice', ic: 'alert', v: 'notice', a: {} }
-  ];
-  const list = items.map(n => `<button class="more-item" data-go="${n.v}" data-arg='${JSON.stringify(n.a)}'><span class="mi">${iconHtml(n.ic)}</span><span>${n.l}</span></button>`).join('');
-  modal('Community', `<p class="psub">Apna section chunein</p><div class="more-grid">${list}</div>`, '');
-}
-
-function openMoreSheet() {
-  const items = [];
-  GROUPS.forEach(g => g.items.forEach(n => {
-    if (['admins','members','imams'].includes(n.k)) items.push(n);
-  }));
-  const list = items.map(n => `<button class="more-item" data-go="${n.v}" data-arg='${JSON.stringify(n.a || {})}'><span class="mi">${iconHtml(n.ic)}</span><span>${n.l}</span></button>`).join('');
-  modal('Menu', `<div class="more-grid">${list}<button class="more-item logout" data-act="logout"><span class="mi">${ic('logout')}</span><span>Logout</span></button></div>`, '');
+  bn.innerHTML = BNAV_ITEMS.map(b => `<button class="${curKey === b.k ? 'on' : ''}" ${b.act ? `data-act="${b.act}"` : `data-go="${b.go}" data-arg='${JSON.stringify(b.arg)}'`}>${ic(b.ic)}<span>${b.l}</span></button>`).join('');
 }
 
 const VIEWS = {};
@@ -676,6 +657,41 @@ VIEWS.public = async (c, arg) => {
     ${rows.map(card).join('') || '<div class="empty">No records.</div>'}`;
 };
 
+/* ============ COMMUNITY PAGE (Cards with Red Dot) ============ */
+VIEWS.comm = async (c) => {
+  const ov = await api('apiUserOverview');
+  const sections = [
+    { id: 'madrasa', label: 'Madrasa', icon: 'madrasa', count: ov.sections.madrasa || 0 },
+    { id: 'mposts', label: 'Madrasa Posts', icon: 'madrasa', count: 0, go: 'posts' },
+    { id: 'masjid', label: 'Masjid', icon: 'masjid', count: ov.sections.masjid || 0 },
+    { id: 'eidgah', label: 'Eidgah', icon: 'eidgah', count: ov.sections.eidgah || 0 },
+    { id: 'kabristan', label: 'Kabristan', icon: 'kabristan', count: ov.sections.kabristan || 0 },
+    { id: 'notice', label: 'Notice', icon: 'alert', count: 0 }
+  ];
+
+  const hasNew = (sec) => {
+    const lastSeen = localStorage.getItem('seen_' + sec) || 0;
+    const latest = localStorage.getItem('latest_' + sec) || 0;
+    return Number(latest) > Number(lastSeen);
+  };
+
+  const card = (s) => `
+    <button class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 10px;gap:10px;position:relative;cursor:pointer" ${s.go ? `data-go="${s.go}"` : `data-go="sec" data-arg='{"sec":"${s.id}"}'`}>
+      ${hasNew(s.id) ? `<span style="position:absolute;top:10px;right:10px;width:10px;height:10px;background:var(--red);border-radius:50%;box-shadow:0 0 0 3px #fff"></span>` : ''}
+      <span style="width:52px;height:52px;border-radius:16px;background:var(--blue-t);color:var(--blue);display:grid;place-items:center">${iconHtml(s.icon)}</span>
+      <span style="font-weight:700;font-size:14px;color:var(--navy)">${s.label}</span>
+      <span class="chip c-role" style="font-size:11px">${s.count > 0 ? s.count + ' posts' : 'View All'}</span>
+    </button>`;
+
+  c.innerHTML = `
+    <div class="pagehead"><h2>Community</h2></div>
+    <p class="psub">Select a section to view posts</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${sections.map(card).join('')}
+    </div>
+  `;
+};
+
 /* ============ POSTS & SECTIONS ============ */
 VIEWS.notice = async (c) => {
   let items = [];
@@ -686,6 +702,12 @@ VIEWS.notice = async (c) => {
     const d = await api('apiSectionList', 'notice');
     items = d.items || [];
   }
+  if (items.length > 0) {
+    const latest = Math.max(...items.map(it => new Date(it.date || it.created_at || Date.now()).getTime()));
+    if (!isNaN(latest)) localStorage.setItem('latest_notice', latest);
+  }
+  localStorage.setItem('seen_notice', Date.now());
+
   c.innerHTML = `
     <div class="pagehead"><h2>Notices</h2></div>
     ${items.map(contentCardHtml_).join('') || '<div class="empty">No notices yet.</div>'}`;
@@ -713,6 +735,12 @@ VIEWS.sec = async (c, arg) => {
       items = [...items, ...posts];
     }
   }
+  if (items.length > 0) {
+    const latest = Math.max(...items.map(it => new Date(it.date || it.created_at || Date.now()).getTime()));
+    if (!isNaN(latest)) localStorage.setItem('latest_' + sec, latest);
+  }
+  localStorage.setItem('seen_' + sec, Date.now());
+
   c.innerHTML = `
     <div class="pagehead"><h2>${SEC_LABEL_[sec] || sec}</h2></div>
     ${items.map(contentCardHtml_).join('') || '<div class="empty">Abhi koi post nahi.</div>'}`;
@@ -901,8 +929,7 @@ function openProfileQuickView() {
 const ACTS = {
   logout: () => leave(false),
   close: () => closeM(),
-  moreMenu: () => openMoreSheet(),
-  communityMenu: () => openCommunitySheet(),
+  moreMenu: () => {},
   profileView: () => { closeM(); go('profile', {}); },
   receipt: (id) => openReceipt(id),
   dpMenu: () => openDpModal(),
